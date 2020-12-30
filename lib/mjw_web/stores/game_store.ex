@@ -11,7 +11,8 @@ defmodule MjwWeb.GameStore do
   Create a new Game and persist it
   """
   def create do
-    persist(Mjw.Game.new())
+    Mjw.Game.new()
+    |> persist
   end
 
   def persist(game) do
