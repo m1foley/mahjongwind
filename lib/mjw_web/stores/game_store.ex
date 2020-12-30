@@ -1,8 +1,10 @@
 defmodule MjwWeb.GameStore do
   use Agent
 
+  def initial, do: %{}
+
   def start_link(_opts) do
-    Agent.start_link(fn -> %{} end, name: __MODULE__)
+    Agent.start_link(&initial/0, name: __MODULE__)
   end
 
   def add(game) do
@@ -15,5 +17,13 @@ defmodule MjwWeb.GameStore do
 
   def get(game_id) do
     Agent.get(__MODULE__, &Map.get(&1, game_id))
+  end
+
+  def all() do
+    Agent.get(__MODULE__, &Map.values(&1))
+  end
+
+  def clear() do
+    Agent.update(__MODULE__, fn _ -> initial() end)
   end
 end

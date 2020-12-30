@@ -33,4 +33,18 @@ defmodule MjwWeb.GameStoreTest do
     assert result == :ok
     assert MjwWeb.GameStore.get(game.id) == nil
   end
+
+  test "clear deletes all games" do
+    result = MjwWeb.GameStore.clear()
+    assert result == :ok
+    assert MjwWeb.GameStore.all() == []
+  end
+
+  test "all retrieves all games" do
+    MjwWeb.GameStore.clear()
+    games = 0..3 |> Enum.map(fn _ -> Mjw.Game.new() end)
+    Enum.each(games, fn game -> MjwWeb.GameStore.add(game) end)
+    result = MjwWeb.GameStore.all()
+    assert Enum.sort_by(result, & &1.id) == Enum.sort_by(games, & &1.id)
+  end
 end
