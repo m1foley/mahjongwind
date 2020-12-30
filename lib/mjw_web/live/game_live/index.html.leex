@@ -1,0 +1,9 @@
+<h2>Games</h2>
+<div id="games">
+  <%= if Enum.empty?(@games) do %>
+    No games. Start a new game and invite a friend!
+  <% end %>
+  <%= for game <- @games do %>
+    <%= live_component @socket, MjwWeb.GameLive.LobbyGameComponent, game: game %>
+  <% end %>
+</div>
