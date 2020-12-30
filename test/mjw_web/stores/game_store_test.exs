@@ -2,15 +2,19 @@ defmodule MjwWeb.GameStoreTest do
   use ExUnit.Case, async: true
   doctest MjwWeb.GameStore
 
-  test "add adds a game" do
+  test "create creates a new game" do
+    game = MjwWeb.GameStore.create()
+    assert game.id
+  end
+
+  test "persist persists a game" do
     game = Mjw.Game.new()
-    result = MjwWeb.GameStore.add(game)
-    assert result == :ok
+    result = MjwWeb.GameStore.persist(game)
+    assert result == game
   end
 
   test "get retrieves a game" do
-    game = Mjw.Game.new()
-    MjwWeb.GameStore.add(game)
+    game = MjwWeb.GameStore.create()
     result = MjwWeb.GameStore.get(game.id)
     assert result == game
   end
@@ -23,14 +27,13 @@ defmodule MjwWeb.GameStoreTest do
   test "remove with an unpersisted id doesn't do anything" do
     unpersisted_game = Mjw.Game.new()
     result = MjwWeb.GameStore.remove(unpersisted_game)
-    assert result == :ok
+    assert result == unpersisted_game
   end
 
   test "remove deletes the stored game" do
-    game = Mjw.Game.new()
-    MjwWeb.GameStore.add(game)
+    game = MjwWeb.GameStore.create()
     result = MjwWeb.GameStore.remove(game)
-    assert result == :ok
+    assert result == game
     assert MjwWeb.GameStore.get(game.id) == nil
   end
 
@@ -42,8 +45,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "all retrieves all games" do
     MjwWeb.GameStore.clear()
-    games = 0..3 |> Enum.map(fn _ -> Mjw.Game.new() end)
-    Enum.each(games, fn game -> MjwWeb.GameStore.add(game) end)
+    games = 0..3 |> Enum.map(fn _ -> MjwWeb.GameStore.create() end)
     result = MjwWeb.GameStore.all()
     assert Enum.sort_by(result, & &1.id) == Enum.sort_by(games, & &1.id)
   end

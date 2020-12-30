@@ -4,9 +4,7 @@ defmodule MjwWeb.GameLiveTest do
   import Phoenix.LiveViewTest
 
   defp fixture(:game) do
-    game = Mjw.Game.new
-    MjwWeb.GameStore.add(game)
-    game
+    MjwWeb.GameStore.create()
   end
 
   defp create_game(_) do

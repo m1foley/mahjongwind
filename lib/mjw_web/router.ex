@@ -18,10 +18,8 @@ defmodule MjwWeb.Router do
     pipe_through :browser
 
     live "/", GameLive.Index, :index
-    # live "/games/new", GameLive.Index, :new
-    # live "/games/:id/edit", GameLive.Index, :edit
+    post "/games", GameController, :create
     # live "/games/:id", GameLive.Show, :show
-    # live "/games/:id/show/edit", GameLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.
