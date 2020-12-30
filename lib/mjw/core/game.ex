@@ -6,14 +6,15 @@ defmodule Mjw.Game do
     🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
   )
 
-  defstruct id: nil, deck: @all_tiles, discards: [], wind: "🀀"
+  defstruct id: nil, deck: [], discards: [], wind: "🀀"
 
   @doc """
     generate a new game with a random ID
   """
   def new do
     %__MODULE__{
-      id: UUID.uuid4()
+      id: UUID.uuid4(),
+      deck: Enum.shuffle(@all_tiles)
     }
   end
 end
