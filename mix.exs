@@ -20,7 +20,7 @@ defmodule Mjwind.MixProject do
   def application do
     [
       mod: {Mjwind.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :crypto]
     ]
   end
 
@@ -43,7 +43,9 @@ defmodule Mjwind.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      # needed because no ecto
+      {:elixir_uuid, "~> 1.2"}
     ]
   end
 

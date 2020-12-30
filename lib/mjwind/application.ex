@@ -12,7 +12,10 @@ defmodule Mjwind.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Mjwind.PubSub},
       # Start the Endpoint (http/https)
-      MjwindWeb.Endpoint
+      MjwindWeb.Endpoint,
+      # Persist game data
+      MjwindWeb.GameStore
+
       # Start a worker by calling: Mjwind.Worker.start_link(arg)
       # {Mjwind.Worker, arg}
     ]
