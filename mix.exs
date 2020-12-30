@@ -1,9 +1,9 @@
-defmodule Mjwind.MixProject do
+defmodule Mjw.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :mjwind,
+      app: :mjw,
       version: "0.1.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -19,7 +19,7 @@ defmodule Mjwind.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Mjwind.Application, []},
+      mod: {Mjw.Application, []},
       extra_applications: [:logger, :runtime_tools, :crypto]
     ]
   end

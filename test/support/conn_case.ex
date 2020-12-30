@@ -1,4 +1,4 @@
-defmodule MjwindWeb.ConnCase do
+defmodule MjwWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -11,7 +11,7 @@ defmodule MjwindWeb.ConnCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use MjwindWeb.ConnCase, async: true`, although
+  by setting `use MjwWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -22,12 +22,12 @@ defmodule MjwindWeb.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
-      import MjwindWeb.ConnCase
+      import MjwWeb.ConnCase
 
-      alias MjwindWeb.Router.Helpers, as: Routes
+      alias MjwWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
-      @endpoint MjwindWeb.Endpoint
+      @endpoint MjwWeb.Endpoint
     end
   end
 

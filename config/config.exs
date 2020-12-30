@@ -8,11 +8,11 @@
 use Mix.Config
 
 # Configures the endpoint
-config :mjwind, MjwindWeb.Endpoint,
+config :mjw, MjwWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "NGNyFN6CX0NHhfTvUdX55LusARQu+s+aao+g3XeKcbZkvat3Cf2tWwGGg+KciUjS",
-  render_errors: [view: MjwindWeb.ErrorView, accepts: ~w(html json), layout: false],
-  pubsub_server: Mjwind.PubSub,
+  render_errors: [view: MjwWeb.ErrorView, accepts: ~w(html json), layout: false],
+  pubsub_server: Mjw.PubSub,
   live_view: [signing_salt: "TMykxRdF"]
 
 # Configures Elixir's Logger

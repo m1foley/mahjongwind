@@ -6,7 +6,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
-config :mjwind, MjwindWeb.Endpoint,
+config :mjw, MjwWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -46,13 +46,13 @@ config :mjwind, MjwindWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :mjwind, MjwindWeb.Endpoint,
+config :mjw, MjwWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/mjwind_web/(live|views)/.*(ex)$",
-      ~r"lib/mjwind_web/templates/.*(eex)$"
+      ~r"lib/mjw_web/(live|views)/.*(ex)$",
+      ~r"lib/mjw_web/templates/.*(eex)$"
     ]
   ]
 
