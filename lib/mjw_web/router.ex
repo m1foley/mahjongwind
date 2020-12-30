@@ -19,7 +19,7 @@ defmodule MjwWeb.Router do
 
     live "/", GameLive.Index, :index
     post "/games", GameController, :create
-    # live "/games/:id", GameLive.Show, :show
+    live "/games/:id", GameLive.Show, :show
   end
 
   # Other scopes may use custom stacks.
