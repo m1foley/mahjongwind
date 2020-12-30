@@ -6,15 +6,19 @@ defmodule Mjw.Game do
     🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
   )
 
-  defstruct id: nil, deck: [], discards: [], wind: "🀀"
+  defstruct id: nil, deck: [], discards: [], wind: "🀀", seats: []
 
   @doc """
-    generate a new game with a random ID
+  Create a game with some initial values:
+  - random ID
+  - shuffled deck
+  - 4 empty seats
   """
   def new do
     %__MODULE__{
       id: UUID.uuid4(),
-      deck: Enum.shuffle(@all_tiles)
+      deck: Enum.shuffle(@all_tiles),
+      seats: 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
     }
   end
 end

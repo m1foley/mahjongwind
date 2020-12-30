@@ -2,3 +2,14 @@
 <div>Deck: <%= @game.deck %></div>
 <div>Discards: <%= @game.discards %></div>
 <div>Wind: <%= @game.wind %></div>
+<br />
+
+<%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+  <div>
+    <strong>Seat <%= i %>:</strong>
+    <div>Covered: <%= seat.covered %></div>
+    <div>Exposed: <%= seat.exposed %></div>
+    <div>Player ID: <%= seat.player_id %></div>
+    <div>Player name: <%= seat.player_name %></div>
+  </div>
+<% end %>
