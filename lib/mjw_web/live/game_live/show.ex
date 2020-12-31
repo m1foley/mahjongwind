@@ -8,13 +8,14 @@ defmodule MjwWeb.GameLive.Show do
       |> assign_defaults(session)
       |> subscribe_to_game_updates
       |> fetch_game(id)
+      |> assign_game_info
 
     {:ok, socket}
   end
 
-  defp subscribe_to_game_updates(session) do
+  defp subscribe_to_game_updates(socket) do
     # if connected?(socket), do: MjwWeb.GameStore.subscribe(game)
-    session
+    socket
   end
 
   defp fetch_game(socket, id) do
@@ -28,5 +29,20 @@ defmodule MjwWeb.GameLive.Show do
         socket
         |> assign(:game, game)
     end
+  end
+
+  defp assign_game_info(socket) do
+    assign_game_info(socket, socket.assigns[:game])
+  end
+
+  defp assign_game_info(socket, nil) do
+    # skip if game wasn't fetched
+    socket
+  end
+
+  defp assign_game_info(socket, game) do
+    socket
+    |> assign(:empty_seats_count, Mjw.Game.empty_seats_count(game))
+    |> assign(:current_user_seat, 0)
   end
 end

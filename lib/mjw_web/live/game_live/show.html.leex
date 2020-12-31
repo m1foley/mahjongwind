@@ -1,13 +1,16 @@
 <div>current_user_id: <%= @current_user_id %>
-<br />
 
+<div>empty seats count: <%= @empty_seats_count %>
+<div>current_user_seat: <%= @current_user_seat %>
+
+<br />
 <div>ID: <%= @game.id %></div>
 <div>Deck: <%= @game.deck %></div>
 <div>Discards: <%= @game.discards %></div>
 <div>Wind: <%= @game.wind %></div>
-<br />
 
 <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+  <br />
   <div>
     <strong>Seat <%= i %>:</strong>
     <div>Covered: <%= seat.covered %></div>

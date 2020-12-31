@@ -17,9 +17,15 @@ defmodule MjwWeb.Router do
   scope "/", MjwWeb do
     pipe_through [:browser, :authentication]
 
+    # game lobby
     live "/", GameLive.Index, :index
+    # create game
     post "/games", GameController, :create
+    # show game
     live "/games/:id", GameLive.Show, :show
+
+    # live "/games/:id/seats/new", GameLive.Show, :new_seat
+    # live "/games/:id/seats/create", GameLive.Show, :create_seat
   end
 
   # Enables LiveDashboard only for development

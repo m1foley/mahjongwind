@@ -5,20 +5,21 @@ defmodule Mjw.Game do
     🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
     🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
   )
+  @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
 
-  defstruct id: nil, deck: [], discards: [], wind: "🀀", seats: []
+  defstruct id: nil, deck: [], discards: [], wind: "🀀", seats: @four_empty_seats
 
   @doc """
-  Create a game with some initial values:
-  - random ID
-  - shuffled deck
-  - 4 empty seats
+  Initialize a game with a random ID and a shuffled deck
   """
   def new do
     %__MODULE__{
       id: UUID.uuid4(),
-      deck: Enum.shuffle(@all_tiles),
-      seats: 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
+      deck: Enum.shuffle(@all_tiles)
     }
+  end
+
+  def empty_seats_count(%__MODULE__{seats: seats}) do
+    seats |> Enum.count(&Mjw.Seat.empty?/1)
   end
 end
