@@ -1,8 +1,5 @@
 <div class="game row">
   <div class="column">
-    <%= @game.id %>
-  </div>
-  <div class="column">
-    Join Now
+    <%= link(@game.id, to: Routes.game_show_path(@socket, :show, @game.id)) %>
   </div>
 </div>
