@@ -9,6 +9,7 @@ defmodule MjwWeb.GameLive.Show do
       |> subscribe_to_game_updates
       |> fetch_game(id)
       |> assign_game_info
+      |> ensure_game_joinable
 
     {:ok, socket}
   end
@@ -24,6 +25,8 @@ defmodule MjwWeb.GameLive.Show do
         socket
         |> put_flash(:error, "That game ID does not exist.")
         |> push_redirect(to: Routes.game_index_path(socket, :index))
+        # assign null object so the rest of the code can run confidently
+        |> assign(:game, %Mjw.Game{})
 
       game ->
         socket
@@ -32,20 +35,23 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   defp assign_game_info(socket) do
-    assign_game_info(socket, socket.assigns[:game])
-  end
-
-  defp assign_game_info(socket, nil) do
-    # skip if game wasn't fetched
-    socket
-  end
-
-  defp assign_game_info(socket, game) do
+    game = socket.assigns.game
     empty_seats_count = Mjw.Game.empty_seats_count(game)
     current_user_sitting_at = Mjw.Game.sitting_at(game, socket.assigns.current_user_id)
 
     socket
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
+  end
+
+  defp ensure_game_joinable(socket) do
+    if socket.assigns.empty_seats_count == 0 &&
+         !socket.assigns.current_user_sitting_at do
+      socket
+      |> put_flash(:error, "Sorry, that game is full.")
+      |> push_redirect(to: Routes.game_index_path(socket, :index))
+    else
+      socket
+    end
   end
 end
