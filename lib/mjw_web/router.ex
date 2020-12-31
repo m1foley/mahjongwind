@@ -10,22 +10,17 @@ defmodule MjwWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
+  pipeline :authentication do
+    plug MjwWeb.Plugs.Authentication
   end
 
   scope "/", MjwWeb do
-    pipe_through :browser
+    pipe_through [:browser, :authentication]
 
     live "/", GameLive.Index, :index
     post "/games", GameController, :create
     live "/games/:id", GameLive.Show, :show
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", MjwWeb do
-  #   pipe_through :api
-  # end
 
   # Enables LiveDashboard only for development
   #

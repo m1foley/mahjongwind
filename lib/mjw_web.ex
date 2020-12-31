@@ -48,6 +48,7 @@ defmodule MjwWeb do
         layout: {MjwWeb.LayoutView, "live.html"}
 
       unquote(view_helpers())
+      import MjwWeb.LiveHelpers
     end
   end
 

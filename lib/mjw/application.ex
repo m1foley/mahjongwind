@@ -13,7 +13,7 @@ defmodule Mjw.Application do
       {Phoenix.PubSub, name: Mjw.PubSub},
       # Start the Endpoint (http/https)
       MjwWeb.Endpoint,
-      # Persist game data
+      # Service to handle game data persistence
       MjwWeb.GameStore
 
       # Start a worker by calling: Mjw.Worker.start_link(arg)
