@@ -41,8 +41,11 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   defp assign_game_info(socket, game) do
+    empty_seats_count = Mjw.Game.empty_seats_count(game)
+    current_user_sitting_at = Mjw.Game.sitting_at(game, socket.assigns.current_user_id)
+
     socket
-    |> assign(:empty_seats_count, Mjw.Game.empty_seats_count(game))
-    |> assign(:current_user_seat, 0)
+    |> assign(:empty_seats_count, empty_seats_count)
+    |> assign(:current_user_sitting_at, current_user_sitting_at)
   end
 end

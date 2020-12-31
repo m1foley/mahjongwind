@@ -1,7 +1,7 @@
 <div>current_user_id: <%= @current_user_id %>
 
 <div>empty seats count: <%= @empty_seats_count %>
-<div>current_user_seat: <%= @current_user_seat %>
+<div>current_user_sitting_at: <%= @current_user_sitting_at %>
 
 <br />
 <div>ID: <%= @game.id %></div>
@@ -15,7 +15,7 @@
     <strong>Seat <%= i %>:</strong>
     <div>Covered: <%= seat.covered %></div>
     <div>Exposed: <%= seat.exposed %></div>
-    <div>Player ID: <%= seat.player_id %></div>
+    <div>Player ID: <%= seat.user_id %></div>
     <div>Player name: <%= seat.player_name %></div>
   </div>
 <% end %>
