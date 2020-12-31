@@ -6,32 +6,60 @@ defmodule MjwWeb.GameLive.Show do
     socket =
       socket
       |> assign_defaults(session)
-      |> subscribe_to_game_updates
       |> fetch_game(id)
-      |> assign_game_info
-      |> ensure_game_joinable
+      |> ensure_game_exists()
 
-    {:ok, socket}
+    if socket.assigns.game do
+      socket =
+        socket
+        |> subscribe_to_game_updates()
+        |> assign_game_info()
+        |> ensure_game_joinable()
+
+      {:ok, socket}
+    else
+      {:ok, socket}
+    end
   end
 
-  defp subscribe_to_game_updates(socket) do
-    # if connected?(socket), do: MjwWeb.GameStore.subscribe(game)
+  @impl true
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  @impl true
+  def handle_info({:game_updated, game}, socket) do
+    {:noreply, assign(socket, :game, game)}
+  end
+
+  defp apply_action(socket, :show, %{"id" => _id}) do
     socket
+    # |> assign(:page_title, "Edit Post")
+    # |> assign(:post, Timeline.get_post!(id))
   end
 
   defp fetch_game(socket, id) do
-    case MjwWeb.GameStore.get(id) do
-      nil ->
-        socket
-        |> put_flash(:error, "That game ID does not exist.")
-        |> push_redirect(to: Routes.game_index_path(socket, :index))
-        # assign null object so the rest of the code can run confidently
-        |> assign(:game, %Mjw.Game{})
+    game = MjwWeb.GameStore.get(id)
+    socket |> assign(:game, game)
+  end
 
-      game ->
-        socket
-        |> assign(:game, game)
+  defp ensure_game_exists(socket) do
+    if !socket.assigns.game do
+      socket
+      |> put_flash(:error, "That game ID does not exist.")
+      |> push_redirect(to: Routes.game_index_path(socket, :index))
+    else
+      socket
     end
+  end
+
+  defp subscribe_to_game_updates(socket) do
+    if connected?(socket) do
+      socket.assigns.game
+      |> MjwWeb.GameStore.subscribe_to_game_updates()
+    end
+
+    socket
   end
 
   defp assign_game_info(socket) do
@@ -45,7 +73,7 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   defp ensure_game_joinable(socket) do
-    if socket.assigns.empty_seats_count == 0 &&
+    if socket.assigns.empty_seats_count <= 0 &&
          !socket.assigns.current_user_sitting_at do
       socket
       |> put_flash(:error, "Sorry, that game is full.")

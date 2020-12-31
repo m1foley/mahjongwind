@@ -1,0 +1,17 @@
+<div id="seat_offering_modal" class="phx-modal" phx-target="#seat_offering_modal" phx-page-loading>
+  <div class="phx-modal-content">
+    <h2>Please have a seat! 🪑</h2>
+
+    <%= f = form_for :seat_offering, "#",
+      id: "seat-offering-form",
+      phx_target: @myself,
+      phx_submit: "save" %>
+
+      <%= label f, :player_name, "Your name" %>
+      <%= text_input f, :player_name, required: true, minlength: 1, maxlength: 70 %>
+      <%= error_tag f, :player_name %>
+
+      <%= submit "Save", phx_disable_with: "Saving..." %>
+    </form>
+  </div>
+</div>

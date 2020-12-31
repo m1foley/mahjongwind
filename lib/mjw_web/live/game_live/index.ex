@@ -23,7 +23,7 @@ defmodule MjwWeb.GameLive.Index do
   end
 
   defp subscribe_to_lobby_updates(socket) do
-    if connected?(socket), do: MjwWeb.GameStore.subscribe()
+    if connected?(socket), do: MjwWeb.GameStore.subscribe_to_lobby_updates()
     socket
   end
 

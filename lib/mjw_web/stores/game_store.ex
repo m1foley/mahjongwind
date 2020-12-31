@@ -12,17 +12,27 @@ defmodule MjwWeb.GameStore do
   """
   def create do
     Mjw.Game.new()
-    |> persist
+    |> persist()
+    |> broadcast_lobby_update(:game_created)
+  end
+
+  @doc """
+  Persist an update to an existing game
+  """
+  def update(game) do
+    game
+    |> persist()
+    |> broadcast_game_update(:game_updated)
   end
 
   def persist(game) do
     Agent.update(__MODULE__, &Map.put(&1, game.id, game))
-    broadcast(game, :game_created)
+    game
   end
 
   def remove(game) do
     Agent.update(__MODULE__, &Map.delete(&1, game.id))
-    broadcast(game, :game_removed)
+    broadcast_lobby_update(game, :game_removed)
   end
 
   def get(game_id) do
@@ -40,16 +50,21 @@ defmodule MjwWeb.GameStore do
     Agent.update(__MODULE__, fn _ -> initial() end)
   end
 
-  @doc """
-  Subscribe to changes in the list of lobby games
-  """
-  def subscribe do
+  def subscribe_to_lobby_updates do
     Phoenix.PubSub.subscribe(Mjw.PubSub, "games")
   end
 
-  # Broadcast changes to the list of lobby games
-  defp broadcast(game, event) do
+  def subscribe_to_game_updates(game) do
+    Phoenix.PubSub.subscribe(Mjw.PubSub, "game:#{game.id}")
+  end
+
+  defp broadcast_lobby_update(game, event) do
     Phoenix.PubSub.broadcast(Mjw.PubSub, "games", {event, game})
+    game
+  end
+
+  defp broadcast_game_update(game, event) do
+    Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.id}", {event, game})
     game
   end
 end

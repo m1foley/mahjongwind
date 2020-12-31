@@ -20,7 +20,7 @@ defmodule Mjw.GameTest do
 
     test "returns 0 when all seats are full" do
       game = %Mjw.Game{
-        seats: 0..3 |> Enum.map(fn i -> %Mjw.Seat{user_id: i} end)
+        seats: 0..3 |> Enum.map(fn i -> %Mjw.Seat{player_id: i} end)
       }
 
       assert Mjw.Game.empty_seats_count(game) == 0
@@ -30,8 +30,8 @@ defmodule Mjw.GameTest do
       game = %Mjw.Game{
         seats:
           Enum.concat(
-            0..1 |> Enum.map(fn i -> %Mjw.Seat{user_id: i} end),
-            2..3 |> Enum.map(fn _ -> %Mjw.Seat{user_id: nil} end)
+            0..1 |> Enum.map(fn i -> %Mjw.Seat{player_id: i} end),
+            2..3 |> Enum.map(fn _ -> %Mjw.Seat{player_id: nil} end)
           )
       }
 
@@ -40,9 +40,9 @@ defmodule Mjw.GameTest do
   end
 
   describe "sitting_at" do
-    test "returns the seat number of the user_id, or nil if not sitting" do
+    test "returns the seat number of the player_id, or nil if not sitting" do
       game = %Mjw.Game{
-        seats: 0..3 |> Enum.map(fn i -> %Mjw.Seat{user_id: Integer.to_string(i)} end)
+        seats: 0..3 |> Enum.map(fn i -> %Mjw.Seat{player_id: Integer.to_string(i)} end)
       }
 
       assert Mjw.Game.sitting_at(game, "0") == 0
@@ -56,6 +56,22 @@ defmodule Mjw.GameTest do
       game = Mjw.Game.new()
 
       assert Mjw.Game.sitting_at(game, "any_id") == nil
+    end
+  end
+
+  describe "seat_player" do
+    test "adds a player to the first empty seat" do
+      game = %Mjw.Game{
+        seats:
+          Enum.concat(
+            ~w(0 1) |> Enum.map(fn i -> %Mjw.Seat{player_id: i, player_name: i} end),
+            ~w(2 3) |> Enum.map(fn _ -> %Mjw.Seat{player_id: nil} end)
+          )
+      }
+
+      game = game |> Mjw.Game.seat_player("new_id", "New Name")
+      assert Enum.map(game.seats, & &1.player_id) == ["0", "1", "new_id", nil]
+      assert Enum.map(game.seats, & &1.player_name) == ["0", "1", "New Name", nil]
     end
   end
 end

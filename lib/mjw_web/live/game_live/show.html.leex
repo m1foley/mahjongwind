@@ -1,13 +1,19 @@
-<div>current_user_id: <%= @current_user_id %>
+<%= unless @current_user_sitting_at do %>
+  <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game %>
+<% end %>
 
+<div>live_action: <%= @live_action %></div>
+<div>current_user_id: <%= @current_user_id %>
 <div>empty seats count: <%= @empty_seats_count %>
 <div>current_user_sitting_at: <%= @current_user_sitting_at %>
 
 <br />
-<div>ID: <%= @game.id %></div>
-<div>Deck: <%= @game.deck %></div>
-<div>Discards: <%= @game.discards %></div>
-<div>Wind: <%= @game.wind %></div>
+<div>Game ID: <%= @game.id %></div>
+<div>Deck:</div>
+<div style="font-size: 32px;"><%= @game.deck %></div>
+<div>Discards:</div>
+<div span style="font-size: 32px;"><%= @game.discards %></div>
+<div>Wind: <span style="font-size: 32px;"><%= @game.wind %></span></div>
 
 <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
   <br />
@@ -15,7 +21,7 @@
     <strong>Seat <%= i %>:</strong>
     <div>Covered: <%= seat.covered %></div>
     <div>Exposed: <%= seat.exposed %></div>
-    <div>Player ID: <%= seat.user_id %></div>
+    <div>Player ID: <%= seat.player_id %></div>
     <div>Player name: <%= seat.player_name %></div>
   </div>
 <% end %>
