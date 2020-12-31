@@ -33,7 +33,7 @@ defmodule Mjw.Game do
   @doc """
   Add a player to the first empty seat
   """
-  def seat_player(game, player_id, player_name) do
+  def seat_player(%__MODULE__{} = game, player_id, player_name) do
     Map.update!(game, :seats, fn seats ->
       empty_seat_idx = seats |> Enum.find_index(&Mjw.Seat.empty?/1)
 
@@ -43,4 +43,50 @@ defmodule Mjw.Game do
       end)
     end)
   end
+
+  @doc """
+  Calculate the state of a game
+  """
+  def state(%__MODULE__{} = game) do
+    {_game, state} =
+      {game, :tbd}
+      |> state_waiting_for_players
+      |> state_picking_winds
+      # |> state_rolling_for_first_dealer
+      # |> state_rolling_for_deal
+      # |> state_dealer_discarding
+      # |> state_player_turn
+      # |> state_draw
+      # |> state_win
+      # |> state_dq
+      |> state_invalid
+
+    state
+  end
+
+  defp state_waiting_for_players({game, :tbd}) do
+    if empty_seats_count(game) > 0 do
+      {game, :waiting_for_players}
+    else
+      {game, :tbd}
+    end
+  end
+
+  defp state_waiting_for_players({game, state}), do: {game, state}
+
+  defp state_picking_winds({game, :tbd}) do
+    if !Enum.all?(game.seats, & &1.picked_wind) do
+      {game, :picking_winds}
+    else
+      {game, :tbd}
+    end
+  end
+
+  defp state_picking_winds({game, state}), do: {game, state}
+
+  defp state_invalid({game, :tbd}) do
+    {game, :invalid}
+  end
+
+  defp state_invalid({game, state}), do: {game, state}
 end

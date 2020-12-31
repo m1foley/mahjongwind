@@ -1,5 +1,5 @@
 defmodule Mjw.Seat do
-  defstruct dealer: false, covered: [], exposed: [], player_id: nil, player_name: nil
+  defstruct covered: [], exposed: [], player_id: nil, player_name: nil, picked_wind: nil
 
   def empty?(%__MODULE__{player_id: nil}), do: true
   def empty?(%__MODULE__{player_id: _id}), do: false

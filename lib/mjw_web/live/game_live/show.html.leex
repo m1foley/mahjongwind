@@ -2,8 +2,20 @@
   <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game %>
 <% end %>
 
+<%= case @game_state do %>
+<% :waiting_for_players -> %>
+  <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to join...</div>
+<% :picking_winds -> %>
+  <div>Picking winds...</div>
+<% _ -> %>
+  <div>Invalid game state: <%= @game_state %></div>
+<% end %>
+
+<hr />
+<br />
 <div>live_action: <%= @live_action %></div>
 <div>current_user_id: <%= @current_user_id %>
+<div>Game state: <%= @game_state %></div>
 <div>empty seats count: <%= @empty_seats_count %>
 <div>current_user_sitting_at: <%= @current_user_sitting_at %>
 
@@ -19,10 +31,10 @@
   <br />
   <div>
     <strong>Seat <%= i %>:</strong>
-    <div>Dealer: <%= seat.dealer %></div>
     <div>Covered: <%= seat.covered %></div>
     <div>Exposed: <%= seat.exposed %></div>
     <div>Player ID: <%= seat.player_id %></div>
     <div>Player name: <%= seat.player_name %></div>
+    <div>Picked wind: <%= seat.picked_wind %></div>
   </div>
 <% end %>
