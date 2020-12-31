@@ -23,19 +23,13 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
   end
 
   @impl true
   def handle_info({:game_updated, game}, socket) do
     {:noreply, assign(socket, :game, game)}
-  end
-
-  defp apply_action(socket, :show, %{"id" => _id}) do
-    socket
-    # |> assign(:page_title, "Edit Post")
-    # |> assign(:post, Timeline.get_post!(id))
   end
 
   defp fetch_game(socket, id) do
