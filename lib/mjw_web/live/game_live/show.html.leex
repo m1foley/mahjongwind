@@ -4,7 +4,7 @@
 
 <%= case @game_state do %>
 <% :waiting_for_players -> %>
-  <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to join...</div>
+  <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit down...</div>
 <% :picking_winds -> %>
   <div>Picking winds...</div>
 <% _ -> %>
