@@ -101,4 +101,32 @@ defmodule Mjw.GameTest do
       assert Mjw.Game.state(game) == :picking_winds
     end
   end
+
+  describe "remaining_winds_to_pick" do
+    test "is all winds when no winds are picked" do
+      game = %Mjw.Game{}
+
+      assert game |> Mjw.Game.remaining_winds_to_pick() |> Enum.sort() == ~w(🀀 🀁 🀂 🀃)
+    end
+
+    test "is empty when all winds are picked" do
+      game = %Mjw.Game{
+        seats: ~w(🀀 🀁 🀂 🀃) |> Enum.map(fn w -> %Mjw.Seat{picked_wind: w} end)
+      }
+
+      assert game |> Mjw.Game.remaining_winds_to_pick() == []
+    end
+
+    test "is the remaining winds when winds are partially picked" do
+      game = %Mjw.Game{
+        seats:
+          Enum.concat(
+            ~w(🀀 🀃) |> Enum.map(fn w -> %Mjw.Seat{picked_wind: w} end),
+            ~w(2 3) |> Enum.map(fn _ -> %Mjw.Seat{} end)
+          )
+      }
+
+      assert game |> Mjw.Game.remaining_winds_to_pick() |> Enum.sort == ~w(🀁 🀂)
+    end
+  end
 end

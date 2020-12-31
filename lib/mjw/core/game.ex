@@ -6,6 +6,7 @@ defmodule Mjw.Game do
     🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
   )
   @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
+  @wind_tiles ~w(🀀 🀁 🀂 🀃)
 
   defstruct id: nil, deck: [], discards: [], wind: "🀀", seats: @four_empty_seats
 
@@ -45,6 +46,13 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  The wind tiles that have not yet been picked by players to start a game
+  """
+  def remaining_winds_to_pick(%__MODULE__{seats: seats}) do
+    @wind_tiles -- Enum.map(seats, & &1.picked_wind)
+  end
+
+  @doc """
   Calculate the state of a game
   """
   def state(%__MODULE__{} = game) do
@@ -75,7 +83,7 @@ defmodule Mjw.Game do
   defp state_waiting_for_players({game, state}), do: {game, state}
 
   defp state_picking_winds({game, :tbd}) do
-    if !Enum.all?(game.seats, & &1.picked_wind) do
+    if !Enum.empty?(remaining_winds_to_pick(game)) do
       {game, :picking_winds}
     else
       {game, :tbd}
