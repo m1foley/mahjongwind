@@ -18,7 +18,7 @@
 }
 
 .mahjongtilelarge {
-  font-size: 6em;
+  font-size: 7em;
 }
 
 .debug {
@@ -26,8 +26,20 @@
 }
 
 .windpick {
+  margin: 0em 0em 3em 0em;
+
+  .wind_and_player {
+    display: inline-block;
+  }
   .wind {
-    margin: 0em 0em 0em 0.2em;
+    display: block;
+    margin: 0em 0.2em 0em 0.2em;
     cursor: pointer;
+    text-align: center;
+  }
+  .player_name {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
   }
 }

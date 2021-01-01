@@ -6,9 +6,9 @@
 <% :waiting_for_players -> %>
   <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
 <% :picking_winds -> %>
-  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, remaining_winds_to_pick: @remaining_winds_to_pick, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx %>
+  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx, picked_winds_player_names: @picked_winds_player_names %>
 <% :rolling_for_first_dealer -> %>
-  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, remaining_winds_to_pick: @remaining_winds_to_pick, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx %>
+  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx, picked_winds_player_names: @picked_winds_player_names %>
   Rollin'
 <% state -> %>
   Unknown state: <%= state %>
@@ -22,7 +22,7 @@
   <div>Game state: <%= @game_state %></div>
   <div>empty seats count: <%= @empty_seats_count %>
   <div>current_user_sitting_at: <%= @current_user_sitting_at %>
-  <div>remaining_winds_to_pick: <%= @remaining_winds_to_pick %>
+  <div>picked_winds_player_names: <%= inspect(@picked_winds_player_names) %>
 
   <br />
   <div>Game ID: <%= @game.id %></div>

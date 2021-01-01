@@ -119,34 +119,6 @@ defmodule Mjw.GameTest do
     end
   end
 
-  describe "remaining_winds_to_pick" do
-    test "is all winds when no winds are picked" do
-      game = %Mjw.Game{}
-
-      assert game |> Mjw.Game.remaining_winds_to_pick() |> Enum.sort() == ~w(🀀 🀁 🀂 🀃)
-    end
-
-    test "is empty when all winds are picked" do
-      game = %Mjw.Game{
-        seats: ~w(🀀 🀁 🀂 🀃) |> Enum.map(fn w -> %Mjw.Seat{picked_wind: w} end)
-      }
-
-      assert game |> Mjw.Game.remaining_winds_to_pick() == []
-    end
-
-    test "is the remaining winds when winds are partially picked" do
-      game = %Mjw.Game{
-        seats:
-          Enum.concat(
-            ~w(🀀 🀃) |> Enum.map(fn w -> %Mjw.Seat{picked_wind: w} end),
-            ~w(2 3) |> Enum.map(fn _ -> %Mjw.Seat{} end)
-          )
-      }
-
-      assert game |> Mjw.Game.remaining_winds_to_pick() |> Enum.sort() == ~w(🀁 🀂)
-    end
-  end
-
   describe "pick_random_available_wind" do
     test "picks a random available wind for the given player" do
       game =
@@ -211,9 +183,31 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.pick_random_available_wind("id0", 0)
         |> Mjw.Game.pick_random_available_wind("id0", 3)
 
-      wind = game |> Mjw.Game.picked_wind("id0")
-      assert game |> Mjw.Game.remaining_winds_to_pick() == ~w(🀀 🀁 🀂 🀃) |> List.delete(wind)
+      assert game |> Mjw.Game.picked_wind("id0")
       assert game |> Mjw.Game.picked_wind_idx("id0") == 3
+    end
+  end
+
+  describe "picked_winds_player_names" do
+    test "maps to nils when no winds are picked" do
+      game = %Mjw.Game{}
+
+      expected = %{"🀀" => nil, "🀁" => nil, "🀂" => nil, "🀃" => nil}
+      assert game |> Mjw.Game.picked_winds_player_names() == expected
+    end
+
+    test "maps the winds to the players who picked them" do
+      game = %Mjw.Game{
+        seats:
+          ~w(🀀 🀁 🀂 🀃)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_name: "name#{Integer.to_string(i)}"}
+          end)
+      }
+
+      expected = %{"🀀" => "name0", "🀁" => "name1", "🀂" => "name2", "🀃" => "name3"}
+      assert game |> Mjw.Game.picked_winds_player_names() == expected
     end
   end
 end

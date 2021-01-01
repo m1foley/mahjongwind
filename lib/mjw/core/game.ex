@@ -50,9 +50,22 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  The wind tiles that have not yet been picked by players to start a game
+  Convenience method that maps all winds to the players who picked them
   """
-  def remaining_winds_to_pick(%__MODULE__{seats: seats}) do
+  def picked_winds_player_names(%__MODULE__{seats: seats}) do
+    @wind_tiles
+    |> Map.new(fn wind ->
+      player_name =
+        seats
+        |> Enum.find_value(fn seat ->
+          if seat.picked_wind == wind, do: seat.player_name
+        end)
+
+      {wind, player_name}
+    end)
+  end
+
+  defp remaining_winds_to_pick(%__MODULE__{seats: seats}) do
     @wind_tiles -- Enum.map(seats, & &1.picked_wind)
   end
 

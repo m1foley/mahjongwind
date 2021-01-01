@@ -1,29 +1,54 @@
 <div class="windpick">
-  <%= if !@picked_wind do %>
-    <div>Pick a wind to choose your seat:</div>
-  <% else %>
-    <%= unless Enum.empty?(@remaining_winds_to_pick) do %>
-      <div>Waiting for everyone to pick...</div>
+  <div>
+    <%= if !@picked_wind do %>
+      Pick a wind to choose your seat:
+    <% else %>
+      <%= if @picked_winds_player_names |> Map.values() |> Enum.all?() do %>
+        &nbsp;
+      <% else %>
+        Waiting for everyone to pick...
+      <% end %>
     <% end %>
-  <% end %>
+  </div>
 
   <div>
     <% all_winds = ~w(🀀 🀁 🀂 🀃) %>
     <%= for {wind, i} <- Enum.with_index(all_winds) do %>
       <%= if @picked_wind do %>
-        <%= if @picked_wind_idx == i do %>
-          <%= content_tag(:span, @picked_wind, class: "wind mahjongtilelarge") %>
-        <% else %>
-          <%# swap the picked tile with the one at picked_wind_idx, because we override it to show the picked wind %>
-          <% wind = if wind == @picked_wind, do: Enum.at(all_winds, @picked_wind_idx), else: wind %>
-          <%= if Enum.member?(@remaining_winds_to_pick, wind) do %>
-            <%= content_tag(:span, "🀫", class: "wind mahjongtilelarge") %>
-          <% else %>
-            <%= content_tag(:span, wind, class: "wind mahjongtilelarge") %>
-          <% end %>
-        <% end %>
+        <%
+          # we always display the picked tile in the picked_wind_idx, so swap
+          # with the tile that's really at that index
+          wind =
+            if @picked_wind_idx == i do
+              @picked_wind
+            else
+              if wind == @picked_wind do
+                Enum.at(all_winds, @picked_wind_idx)
+              else
+                wind
+              end
+            end
+        %>
+        <span class="wind_and_player">
+          <span class="wind mahjongtilelarge">
+            <%= if @picked_winds_player_names[wind] do %>
+              <%= content_tag(:span, wind) %>
+            <% else %>
+              <%= content_tag(:span, "🀫") %>
+            <% end %>
+          </span>
+          <span class="player_name">
+            <%= @picked_winds_player_names[wind] %>
+          </span>
+        </span>
       <% else %>
-        <%= content_tag(:span, "🀫", phx_target: @myself, phx_click: "windpick", phx_value_picked_wind_idx: i, class: "wind mahjongtilelarge") %>
+        <span class="wind_and_player">
+          <span class="wind mahjongtilelarge">
+            <%= content_tag(:span, "🀫", phx_target: @myself, phx_click: "windpick", phx_value_picked_wind_idx: i) %>
+          </span>
+          <span class="player_name">
+          </span>
+        </span>
       <% end %>
     <% end %>
   </div>
