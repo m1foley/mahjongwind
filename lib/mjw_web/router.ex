@@ -19,13 +19,10 @@ defmodule MjwWeb.Router do
 
     # game lobby
     live "/", GameLive.Index, :index
-    # create game
+    # start new game
     post "/games", GameController, :create
-    # show game
+    # game view
     live "/games/:id", GameLive.Show, :show
-
-    # live "/games/:id/seats/new", GameLive.Show, :new_seat
-    # live "/games/:id/seats/create", GameLive.Show, :create_seat
   end
 
   # Enables LiveDashboard only for development

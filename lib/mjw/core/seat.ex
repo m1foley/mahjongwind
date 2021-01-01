@@ -4,7 +4,7 @@ defmodule Mjw.Seat do
   def empty?(%__MODULE__{player_id: nil}), do: true
   def empty?(%__MODULE__{player_id: _id}), do: false
 
-  def seat_player(%__MODULE__{} = seat, player_id, player_name) do
-    Map.merge(seat, %{player_id: player_id, player_name: player_name})
+  def seat_player(seat, player_id, player_name) do
+    seat |> Map.merge(%{player_id: player_id, player_name: player_name})
   end
 end

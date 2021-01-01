@@ -23,9 +23,7 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   @impl true
-  def handle_params(_params, _url, socket) do
-    {:noreply, socket}
-  end
+  def handle_params(_params, _url, socket), do: {:noreply, socket}
 
   @impl true
   def handle_info({:game_updated, game}, socket) do

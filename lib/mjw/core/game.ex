@@ -35,13 +35,11 @@ defmodule Mjw.Game do
   Add a player to the first empty seat
   """
   def seat_player(%__MODULE__{} = game, player_id, player_name) do
-    Map.update!(game, :seats, fn seats ->
-      empty_seat_idx = seats |> Enum.find_index(&Mjw.Seat.empty?/1)
+    empty_seat_idx = game.seats |> Enum.find_index(&Mjw.Seat.empty?/1)
 
-      seats
-      |> List.update_at(empty_seat_idx, fn seat ->
-        seat |> Mjw.Seat.seat_player(player_id, player_name)
-      end)
+    update_seat(game, empty_seat_idx, fn seat ->
+      seat
+      |> Mjw.Seat.seat_player(player_id, player_name)
     end)
   end
 
@@ -53,9 +51,35 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Pick a random available wind tile and assign it to the player's seat
+  """
+  def pick_random_available_wind(game, seatno) do
+    remaining_winds = game |> remaining_winds_to_pick()
+    pick_random_wind(game, seatno, remaining_winds)
+  end
+
+  defp pick_random_wind(game, _seatno, []), do: game
+
+  defp pick_random_wind(game, seatno, winds) do
+    wind = winds |> Enum.random()
+
+    update_seat(game, seatno, fn seat ->
+      seat
+      |> Map.merge(%{picked_wind: wind})
+    end)
+  end
+
+  defp update_seat(game, seatno, update_function) do
+    Map.update!(game, :seats, fn seats ->
+      seats
+      |> List.update_at(seatno, update_function)
+    end)
+  end
+
+  @doc """
   Calculate the state of a game
   """
-  def state(%__MODULE__{} = game) do
+  def state(game) do
     {game, :tbd}
     |> state_waiting_for_players
     |> state_picking_winds

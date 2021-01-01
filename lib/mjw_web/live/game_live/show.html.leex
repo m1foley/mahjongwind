@@ -6,37 +6,36 @@
 <% :waiting_for_players -> %>
   <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit down...</div>
 <% :picking_winds -> %>
-  <div>Pick a wind to choose your seat:</div>
-  <%= for _wind <- @remaining_winds_to_pick do %>
-    <span style="font-size: 6em">🀫</span>
-  <% end %>
+  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_sitting_at: @current_user_sitting_at, game: @game, remaining_winds_to_pick: @remaining_winds_to_pick %>
 <% end %>
 
 <hr />
-<br />
-<div>live_action: <%= @live_action %></div>
-<div>current_user_id: <%= @current_user_id %>
-<div>Game state: <%= @game_state %></div>
-<div>empty seats count: <%= @empty_seats_count %>
-<div>current_user_sitting_at: <%= @current_user_sitting_at %>
-<div>remaining_winds_to_pick: <%= @remaining_winds_to_pick %>
-
-<br />
-<div>Game ID: <%= @game.id %></div>
-<div>Deck:</div>
-<div style="font-size: 32px;"><%= @game.deck %></div>
-<div>Discards:</div>
-<div span style="font-size: 32px;"><%= @game.discards %></div>
-<div>Wind: <span style="font-size: 32px;"><%= @game.wind %></span></div>
-
-<%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+<div class="debug">
   <br />
-  <div>
-    <strong>Seat <%= i %>:</strong>
-    <div>Covered: <%= seat.covered %></div>
-    <div>Exposed: <%= seat.exposed %></div>
-    <div>Player ID: <%= seat.player_id %></div>
-    <div>Player name: <%= seat.player_name %></div>
-    <div>Picked wind: <%= seat.picked_wind %></div>
-  </div>
-<% end %>
+  <div>live_action: <%= @live_action %></div>
+  <div>current_user_id: <%= @current_user_id %>
+  <div>Game state: <%= @game_state %></div>
+  <div>empty seats count: <%= @empty_seats_count %>
+  <div>current_user_sitting_at: <%= @current_user_sitting_at %>
+  <div>remaining_winds_to_pick: <%= @remaining_winds_to_pick %>
+
+  <br />
+  <div>Game ID: <%= @game.id %></div>
+  <div>Deck:</div>
+  <div class="mahjongtilesmall"><%= @game.deck %></div>
+  <div>Discards:</div>
+  <div span class="mahjongtilesmall"><%= @game.discards %></div>
+  <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
+
+  <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+    <br />
+    <div>
+      <strong>Seat <%= i %>:</strong>
+      <div>Covered: <%= seat.covered %></div>
+      <div>Exposed: <%= seat.exposed %></div>
+      <div>Player ID: <%= seat.player_id %></div>
+      <div>Player name: <%= seat.player_name %></div>
+      <div>Picked wind: <%= seat.picked_wind %></div>
+    </div>
+  <% end %>
+</div>

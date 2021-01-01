@@ -12,3 +12,22 @@
   padding: 20px;
   box-shadow: 0px 0px 2px 2px rgba(0,0,0,0.1);
 }
+
+.mahjongtilesmall {
+  font-size: 2em;
+}
+
+.mahjongtilelarge {
+  font-size: 6em;
+}
+
+.debug {
+  opacity: 0.6;
+}
+
+.windpick {
+  .wind {
+    margin: 0em 0em 0em 0.2em;
+    cursor: pointer;
+  }
+}

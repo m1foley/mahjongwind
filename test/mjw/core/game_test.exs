@@ -129,4 +129,51 @@ defmodule Mjw.GameTest do
       assert game |> Mjw.Game.remaining_winds_to_pick() |> Enum.sort() == ~w(🀁 🀂)
     end
   end
+
+  describe "pick_random_available_wind" do
+    test "picks a random available wind for the given seat number" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.pick_random_available_wind(1)
+
+      wind = Enum.at(game.seats, 1).picked_wind
+      assert Enum.member?(~w(🀀 🀁 🀂 🀃), wind)
+      assert game.seats |> List.delete_at(1) |> Enum.all?(&(&1.picked_wind == nil))
+    end
+
+    test "assigns all winds when run on each seat" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(1)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+
+      assert game.seats |> Enum.map(& &1.picked_wind) |> Enum.sort() == ~w(🀀 🀁 🀂 🀃)
+    end
+
+    test "does nothing if there are no available winds" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(1)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+
+      old_wind = Enum.at(game.seats, 0).picked_wind
+      game |> Mjw.Game.pick_random_available_wind(0)
+      new_wind = Enum.at(game.seats, 0).picked_wind
+      assert old_wind == new_wind
+    end
+
+    test "works if the player already has a wind for some reason" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(0)
+
+      wind = Enum.at(game.seats, 0).picked_wind
+      assert game |> Mjw.Game.remaining_winds_to_pick() == ~w(🀀 🀁 🀂 🀃) |> List.delete(wind)
+    end
+  end
 end

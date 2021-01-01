@@ -1,0 +1,9 @@
+<div class="windpick">
+  <div>Pick a wind to choose your seat:</div>
+
+  <div>
+    <%= for {_wind, i} <- Enum.with_index(@remaining_winds_to_pick) do %>
+      <%= content_tag(:span, "🀫", phx_target: @myself, phx_click: "windpick", phx_value_windno: i, class: "wind mahjongtilelarge") %>
+    <% end %>
+  </div>
+</div>
