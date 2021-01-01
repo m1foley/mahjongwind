@@ -126,7 +126,7 @@ defmodule Mjw.GameTest do
           )
       }
 
-      assert game |> Mjw.Game.remaining_winds_to_pick() |> Enum.sort == ~w(🀁 🀂)
+      assert game |> Mjw.Game.remaining_winds_to_pick() |> Enum.sort() == ~w(🀁 🀂)
     end
   end
 end

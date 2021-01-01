@@ -56,20 +56,17 @@ defmodule Mjw.Game do
   Calculate the state of a game
   """
   def state(%__MODULE__{} = game) do
-    {_game, state} =
-      {game, :tbd}
-      |> state_waiting_for_players
-      |> state_picking_winds
-      # |> state_rolling_for_first_dealer
-      # |> state_rolling_for_deal
-      # |> state_dealer_discarding
-      # |> state_player_turn
-      # |> state_draw
-      # |> state_win
-      # |> state_dq
-      |> state_invalid
-
-    state
+    {game, :tbd}
+    |> state_waiting_for_players
+    |> state_picking_winds
+    # |> state_rolling_for_first_dealer
+    # |> state_rolling_for_deal
+    # |> state_dealer_discarding
+    # |> state_player_turn
+    # |> state_draw
+    # |> state_win
+    # |> state_dq
+    |> state_or_invalid
   end
 
   defp state_waiting_for_players({game, :tbd}) do
@@ -92,9 +89,6 @@ defmodule Mjw.Game do
 
   defp state_picking_winds({game, state}), do: {game, state}
 
-  defp state_invalid({game, :tbd}) do
-    {game, :invalid}
-  end
-
-  defp state_invalid({game, state}), do: {game, state}
+  defp state_or_invalid({_game, :tbd}), do: :invalid
+  defp state_or_invalid({_game, state}), do: state
 end
