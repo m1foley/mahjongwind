@@ -1,9 +1,28 @@
 <div class="windpick">
-  <div>Pick a wind to choose your seat:</div>
+  <%= if @picked_wind do %>
+    <div>Waiting for everyone to pick...</div>
+  <% else %>
+    <div>Pick a wind to choose your seat:</div>
+  <% end %>
 
   <div>
-    <%= for {_wind, i} <- Enum.with_index(@remaining_winds_to_pick) do %>
-      <%= content_tag(:span, "🀫", phx_target: @myself, phx_click: "windpick", phx_value_windno: i, class: "wind mahjongtilelarge") %>
+    <% all_winds = ~w(🀀 🀁 🀂 🀃) %>
+    <%= for {wind, i} <- Enum.with_index(all_winds) do %>
+      <%= if @picked_wind do %>
+        <%= if @picked_wind_idx == i do %>
+          <%= content_tag(:span, @picked_wind, class: "wind mahjongtilelarge") %>
+        <% else %>
+          <%# swap the picked tile with the one at picked_wind_idx, because we override it to show the picked wind %>
+          <% wind = if wind == @picked_wind, do: Enum.at(all_winds, @picked_wind_idx), else: wind %>
+          <%= if Enum.member?(@remaining_winds_to_pick, wind) do %>
+            <%= content_tag(:span, "🀫", class: "wind mahjongtilelarge") %>
+          <% else %>
+            <%= content_tag(:span, wind, class: "wind mahjongtilelarge") %>
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= content_tag(:span, "🀫", phx_target: @myself, phx_click: "windpick", phx_value_picked_wind_idx: i, class: "wind mahjongtilelarge") %>
+      <% end %>
     <% end %>
   </div>
 </div>

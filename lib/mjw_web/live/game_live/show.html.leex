@@ -4,9 +4,11 @@
 
 <%= case @game_state do %>
 <% :waiting_for_players -> %>
-  <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit down...</div>
+  <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
 <% :picking_winds -> %>
-  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_sitting_at: @current_user_sitting_at, game: @game, remaining_winds_to_pick: @remaining_winds_to_pick %>
+  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, remaining_winds_to_pick: @remaining_winds_to_pick, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx %>
+<% _ -> %>
+  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, remaining_winds_to_pick: @remaining_winds_to_pick, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx %>
 <% end %>
 
 <hr />
@@ -36,6 +38,7 @@
       <div>Player ID: <%= seat.player_id %></div>
       <div>Player name: <%= seat.player_name %></div>
       <div>Picked wind: <%= seat.picked_wind %></div>
+      <div>Picked wind idx: <%= seat.picked_wind_idx %></div>
     </div>
   <% end %>
 </div>

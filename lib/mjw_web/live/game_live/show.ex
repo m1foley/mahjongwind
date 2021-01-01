@@ -61,16 +61,22 @@ defmodule MjwWeb.GameLive.Show do
 
   defp assign_game_info(socket) do
     game = socket.assigns.game
+    current_user_id = socket.assigns.current_user_id
+
     empty_seats_count = Mjw.Game.empty_seats_count(game)
-    current_user_sitting_at = Mjw.Game.sitting_at(game, socket.assigns.current_user_id)
+    current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
     remaining_winds_to_pick = Mjw.Game.remaining_winds_to_pick(game)
+    picked_wind = Mjw.Game.picked_wind(game, current_user_id)
+    picked_wind_idx = Mjw.Game.picked_wind_idx(game, current_user_id)
 
     socket
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
     |> assign(:game_state, game_state)
     |> assign(:remaining_winds_to_pick, remaining_winds_to_pick)
+    |> assign(:picked_wind, picked_wind)
+    |> assign(:picked_wind_idx, picked_wind_idx)
   end
 
   defp ensure_game_joinable(socket) do

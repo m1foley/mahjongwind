@@ -2,13 +2,8 @@ defmodule MjwWeb.GameLive.SeatOfferingComponent do
   use MjwWeb, :live_component
 
   @impl true
-  def update(%{game: game} = assigns, socket) do
-    socket =
-      socket
-      |> assign(assigns)
-      |> assign(:return_to, Routes.game_show_path(socket, :show, game.id))
-
-    {:ok, socket}
+  def update(assigns, socket) do
+    {:ok, assign(socket, assigns)}
   end
 
   @impl true
@@ -16,7 +11,6 @@ defmodule MjwWeb.GameLive.SeatOfferingComponent do
     socket =
       socket
       |> seat_current_user(player_name)
-      |> push_redirect(to: socket.assigns.return_to)
 
     {:noreply, socket}
   end

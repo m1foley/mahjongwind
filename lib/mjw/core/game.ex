@@ -28,7 +28,8 @@ defmodule Mjw.Game do
   Seat number of the given player_id, or nil if not found.
   """
   def sitting_at(%__MODULE__{seats: seats}, player_id) do
-    seats |> Enum.find_index(&(&1.player_id == player_id))
+    seats
+    |> Enum.find_index(&(&1.player_id == player_id))
   end
 
   @doc """
@@ -53,19 +54,20 @@ defmodule Mjw.Game do
   @doc """
   Pick a random available wind tile and assign it to the player's seat
   """
-  def pick_random_available_wind(game, seatno) do
+  def pick_random_available_wind(game, player_id, picked_wind_idx) do
     remaining_winds = game |> remaining_winds_to_pick()
-    pick_random_wind(game, seatno, remaining_winds)
+    pick_random_wind(game, player_id, picked_wind_idx, remaining_winds)
   end
 
-  defp pick_random_wind(game, _seatno, []), do: game
+  defp pick_random_wind(game, _player_id, _picked_wind_idx, []), do: game
 
-  defp pick_random_wind(game, seatno, winds) do
+  defp pick_random_wind(game, player_id, picked_wind_idx, winds) do
     wind = winds |> Enum.random()
+    seatno = game |> sitting_at(player_id)
 
     update_seat(game, seatno, fn seat ->
       seat
-      |> Map.merge(%{picked_wind: wind})
+      |> Mjw.Seat.pick_wind(wind, picked_wind_idx)
     end)
   end
 
@@ -73,6 +75,28 @@ defmodule Mjw.Game do
     Map.update!(game, :seats, fn seats ->
       seats
       |> List.update_at(seatno, update_function)
+    end)
+  end
+
+  @doc """
+  Return the wind tile picked by the player. nil if player not found or their
+  wind was not picked yet.
+  """
+  def picked_wind(game, player_id) do
+    game.seats
+    |> Enum.find_value(fn seat ->
+      if seat.player_id == player_id, do: seat.picked_wind
+    end)
+  end
+
+  @doc """
+  The picked wind index for the player, which represents the placement of the
+  tiles when they were picked. It's only used trivially for display purposes.
+  """
+  def picked_wind_idx(game, player_id) do
+    game.seats
+    |> Enum.find_value(fn seat ->
+      if seat.player_id == player_id, do: seat.picked_wind_idx
     end)
   end
 

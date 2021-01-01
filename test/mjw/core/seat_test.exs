@@ -38,4 +38,15 @@ defmodule Mjw.SeatTest do
       assert seat.exposed == ~w(🀈)
     end
   end
+
+  describe "pick_wind" do
+    test "picks a wind for a player" do
+      seat =
+        %Mjw.Seat{}
+        |> Mjw.Seat.pick_wind("🀁", 2)
+
+      assert seat.picked_wind == "🀁"
+      assert seat.picked_wind_idx == 2
+    end
+  end
 end
