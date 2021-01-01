@@ -78,7 +78,7 @@ defmodule Mjw.GameTest do
   end
 
   describe "state" do
-    test "waiting for players" do
+    test "waiting_for_players" do
       game = Mjw.Game.new()
       assert Mjw.Game.state(game) == :waiting_for_players
     end
@@ -92,7 +92,7 @@ defmodule Mjw.GameTest do
       assert Mjw.Game.state(game) == :waiting_for_players
     end
 
-    test "picking winds" do
+    test "picking_winds" do
       game =
         %Mjw.Game{}
         |> Mjw.Game.seat_player("id0", "name0")
@@ -101,6 +101,21 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id3", "name3")
 
       assert Mjw.Game.state(game) == :picking_winds
+    end
+
+    test "rolling_for_first_dealer" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind("id0", 0)
+        |> Mjw.Game.pick_random_available_wind("id1", 0)
+        |> Mjw.Game.pick_random_available_wind("id2", 0)
+        |> Mjw.Game.pick_random_available_wind("id3", 0)
+
+      assert Mjw.Game.state(game) == :rolling_for_first_dealer
     end
   end
 

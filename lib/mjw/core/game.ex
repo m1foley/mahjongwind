@@ -8,7 +8,12 @@ defmodule Mjw.Game do
   @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
   @wind_tiles ~w(🀀 🀁 🀂 🀃)
 
-  defstruct id: nil, deck: [], discards: [], wind: "🀀", seats: @four_empty_seats
+  defstruct id: nil,
+            deck: [],
+            discards: [],
+            wind: "🀀",
+            seats: @four_empty_seats,
+            first_dealer_roll: []
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -107,7 +112,7 @@ defmodule Mjw.Game do
     {game, :tbd}
     |> state_waiting_for_players
     |> state_picking_winds
-    # |> state_rolling_for_first_dealer
+    |> state_rolling_for_first_dealer
     # |> state_rolling_for_deal
     # |> state_dealer_discarding
     # |> state_player_turn
@@ -136,6 +141,16 @@ defmodule Mjw.Game do
   end
 
   defp state_picking_winds({game, state}), do: {game, state}
+
+  defp state_rolling_for_first_dealer({game, :tbd}) do
+    if Enum.empty?(game.first_dealer_roll) do
+      {game, :rolling_for_first_dealer}
+    else
+      {game, :tbd}
+    end
+  end
+
+  defp state_rolling_for_first_dealer({game, state}), do: {game, state}
 
   defp state_or_invalid({_game, :tbd}), do: :invalid
   defp state_or_invalid({_game, state}), do: state

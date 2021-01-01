@@ -3,6 +3,18 @@ defmodule MjwWeb.GameLive.Index do
 
   @impl true
   def mount(_params, session, socket) do
+    # seed with test game
+    test_game = Mjw.Game.new() |> Map.merge(%{id: "test1"})
+    if !MjwWeb.GameStore.get(test_game) do
+      test_game
+      |> Mjw.Game.seat_player("id0", "name0")
+      |> Mjw.Game.seat_player("id1", "name1")
+      |> Mjw.Game.seat_player("id2", "name2")
+      |> Mjw.Game.pick_random_available_wind("id0", 0)
+      |> Mjw.Game.pick_random_available_wind("id1", 0)
+      |> Mjw.Game.pick_random_available_wind("id2", 0)
+      |> MjwWeb.GameStore.update()
+    end
     socket =
       socket
       |> assign_defaults(session)

@@ -1,8 +1,10 @@
 <div class="windpick">
-  <%= if @picked_wind do %>
-    <div>Waiting for everyone to pick...</div>
-  <% else %>
+  <%= if !@picked_wind do %>
     <div>Pick a wind to choose your seat:</div>
+  <% else %>
+    <%= unless Enum.empty?(@remaining_winds_to_pick) do %>
+      <div>Waiting for everyone to pick...</div>
+    <% end %>
   <% end %>
 
   <div>
