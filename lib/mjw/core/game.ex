@@ -131,6 +131,7 @@ defmodule Mjw.Game do
     |> state_waiting_for_players
     |> state_picking_winds
     |> state_rolling_for_first_dealer
+    |> state_rolling_for_deal
     # |> state_dealer_discarding
     # |> state_player_turn
     # |> state_draw
@@ -168,6 +169,16 @@ defmodule Mjw.Game do
   end
 
   defp state_rolling_for_first_dealer({game, state}), do: {game, state}
+
+  defp state_rolling_for_deal({game, :tbd}) do
+    if Enum.empty?(game.discards) do
+      {game, :rolling_for_deal}
+    else
+      {game, :tbd}
+    end
+  end
+
+  defp state_rolling_for_deal({game, state}), do: {game, state}
 
   defp state_or_invalid({_game, :tbd}), do: :invalid
   defp state_or_invalid({_game, state}), do: state

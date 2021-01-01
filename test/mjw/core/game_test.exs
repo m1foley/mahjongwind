@@ -213,8 +213,9 @@ defmodule Mjw.GameTest do
 
   describe "roll_for_first_dealer" do
     test "sets first_dealer_roll to 3 random dice" do
-      game = %Mjw.Game{}
-             |> Mjw.Game.roll_for_first_dealer()
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.roll_for_first_dealer()
 
       refute Enum.empty?(game.first_dealer_roll)
     end

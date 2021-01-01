@@ -1,16 +1,25 @@
 <div class="first-dealer-roll">
-  <%= if @current_user_is_roller do %>
-    Roll to determine first dealer:
+  <%= if Enum.empty?(@first_dealer_roll) do %>
+    <%= if @current_user_is_roller do %>
+      Roll to determine first dealer:
+    <% else %>
+      Waiting for <%= @roller_name %> to roll dice...
+    <% end %>
   <% else %>
-    Waiting for <%= @roller_name %> to roll dice...
+    Time to roll for deal!
   <% end %>
 
   <div>
-    <span class="roll dice">
-      <%= if @current_user_is_roller do %>
+    <span class="roll">
+      <%= if @current_user_is_roller && @game_state == :rolling_for_first_dealer do %>
         <%= content_tag(:span, "🤜", phx_target: @myself, phx_click: "roll", class: "rollable-dice") %>
       <% else %>
         <%= content_tag(:span, "🤜", class: "unrollable-dice") %>
+      <% end %>
+    </span>
+    <span class="dice">
+      <%= for die <- @first_dealer_roll do %>
+        <span class="die"><%= die.unicode %></span>
       <% end %>
     </span>
   </div>
