@@ -9,9 +9,11 @@
   <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx, picked_winds_player_names: @picked_winds_player_names %>
 <% :rolling_for_first_dealer -> %>
   <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx, picked_winds_player_names: @picked_winds_player_names %>
-  Rollin'
+  <%= live_component @socket, MjwWeb.GameLive.FirstDealerRollComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_wind: @picked_wind, picked_winds_player_names: @picked_winds_player_names %>
 <% state -> %>
   Unknown state: <%= state %>
+  <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_wind: @picked_wind, picked_wind_idx: @picked_wind_idx, picked_winds_player_names: @picked_winds_player_names %>
+  <%= live_component @socket, MjwWeb.GameLive.FirstDealerRollComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_wind: @picked_wind, picked_winds_player_names: @picked_winds_player_names %>
 <% end %>
 
 <hr />

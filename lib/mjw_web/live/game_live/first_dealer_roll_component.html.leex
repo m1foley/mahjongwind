@@ -1,0 +1,17 @@
+<div class="first-dealer-roll">
+  <%= if @current_user_is_roller do %>
+    Roll to determine first dealer:
+  <% else %>
+    Waiting for <%= @roller_name %> to roll dice...
+  <% end %>
+
+  <div>
+    <span class="roll dice">
+      <%= if @current_user_is_roller do %>
+        <%= content_tag(:span, "🤜", phx_target: @myself, phx_click: "roll", class: "rollable-dice") %>
+      <% else %>
+        <%= content_tag(:span, "🤜", class: "unrollable-dice") %>
+      <% end %>
+    </span>
+  </div>
+</div>

@@ -21,6 +21,18 @@
   font-size: 7em;
 }
 
+.dice {
+  font-size: 7em;
+}
+
+.rollable-dice {
+  cursor: pointer;
+}
+
+.unrollable-dice {
+  cursor: default;
+}
+
 .debug {
   opacity: 0.6;
 }

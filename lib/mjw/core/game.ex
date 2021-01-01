@@ -118,6 +118,11 @@ defmodule Mjw.Game do
     end)
   end
 
+  def roll_for_first_dealer(game) do
+    dice = Mjw.Die.roll_three()
+    game |> Map.merge(%{first_dealer_roll: dice})
+  end
+
   @doc """
   Calculate the state of a game
   """
@@ -126,7 +131,6 @@ defmodule Mjw.Game do
     |> state_waiting_for_players
     |> state_picking_winds
     |> state_rolling_for_first_dealer
-    # |> state_rolling_for_deal
     # |> state_dealer_discarding
     # |> state_player_turn
     # |> state_draw
