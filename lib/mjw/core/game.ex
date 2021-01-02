@@ -124,6 +124,59 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Reseat the players according to first_dealer_roll and the picked winds.
+  The first dealer (possessor of the special stick) will be in seat index 0.
+  """
+  def reseat_players(game) do
+    first_dealer_picked_wind =
+      game
+      |> first_dealer_roll_total()
+      |> dealer_roll_cardinal_destination()
+
+    new_seats =
+      Enum.map(0..3, fn i ->
+        picked_wind =
+          first_dealer_picked_wind
+          |> cycle_wind(i)
+
+        game
+        |> find_picked_wind_seat(picked_wind)
+      end)
+
+    game |> Map.merge(%{seats: new_seats})
+  end
+
+  # If the dealer (i.e., the player in the east) rolls dice, the cardinal
+  # direction of the seat the roll represents
+  defp dealer_roll_cardinal_destination(roll_total) do
+    @wind_tiles
+    |> Enum.at(rem(roll_total - 1, 4))
+  end
+
+  # the seat that has the given picked_wind
+  defp find_picked_wind_seat(%__MODULE__{seats: seats}, wind) do
+    seats
+    |> Enum.find(&(&1.picked_wind == wind))
+  end
+
+  defp first_dealer_roll_total(%__MODULE__{first_dealer_roll: first_dealer_roll}) do
+    first_dealer_roll |> Mjw.Die.sum()
+  end
+
+  # Cycle through the wind order (E, S, W, N) a given number of times starting
+  # at the given wind
+  defp cycle_wind(wind, 0), do: wind
+
+  defp cycle_wind(wind, count) do
+    start_idx =
+      @wind_tiles
+      |> Enum.find_index(&(&1 == wind))
+
+    @wind_tiles
+    |> Enum.at(rem(start_idx + count, 4))
+  end
+
+  @doc """
   Calculate the state of a game
   """
   def state(game) do

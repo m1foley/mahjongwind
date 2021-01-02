@@ -202,7 +202,7 @@ defmodule Mjw.GameTest do
           ~w(🀀 🀁 🀂 🀃)
           |> Enum.with_index()
           |> Enum.map(fn {w, i} ->
-            %Mjw.Seat{picked_wind: w, player_name: "name#{Integer.to_string(i)}"}
+            %Mjw.Seat{picked_wind: w, player_name: "name#{i}"}
           end)
       }
 
@@ -218,6 +218,28 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.roll_for_first_dealer()
 
       refute Enum.empty?(game.first_dealer_roll)
+    end
+  end
+
+  describe "reseat_players" do
+    test "reseats the players according to the roll and the picked winds" do
+      game =
+        %Mjw.Game{
+          seats:
+            ~w(🀂 🀀 🀁 🀃)
+            |> Enum.with_index()
+            |> Enum.map(fn {w, i} ->
+              %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+            end),
+          first_dealer_roll: [
+            %Mjw.Die{value: 1, unicode: "⚀"},
+            %Mjw.Die{value: 1, unicode: "⚀"},
+            %Mjw.Die{value: 6, unicode: "⚅"}
+          ]
+        }
+        |> Mjw.Game.reseat_players()
+
+      assert game.seats |> Enum.map(& &1.player_id) == ~w(id3 id1 id2 id0)
     end
   end
 end

@@ -24,9 +24,7 @@ defmodule MjwWeb.GameLive.FirstDealerRollComponent do
   defp persist_roll(socket) do
     socket.assigns.game
     |> Mjw.Game.roll_for_first_dealer()
-    # TODO: Reseat the players according to the roll and the picked winds.
-    # The new dealer will be in seat 0. After that the main game loop will have
-    # begun, and game state is waiting for them to roll for deal.
+    |> Mjw.Game.reseat_players()
     |> MjwWeb.GameStore.update()
 
     socket
