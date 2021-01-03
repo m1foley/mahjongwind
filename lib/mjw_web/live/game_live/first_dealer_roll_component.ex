@@ -31,9 +31,14 @@ defmodule MjwWeb.GameLive.FirstDealerRollComponent do
   end
 
   defp assign_game_info(socket) do
-    current_user_is_roller = socket.assigns.picked_wind == "🀀"
-    roller_name = socket.assigns.picked_winds_player_names["🀀"]
-    first_dealer_roll = socket.assigns.game.first_dealer_roll
+    game = socket.assigns.game
+    current_user_id = socket.assigns.current_user_id
+    picked_winds_player_names = socket.assigns.picked_winds_player_names
+
+    picked_wind = Mjw.Game.picked_wind(game, current_user_id)
+    current_user_is_roller = picked_wind == "🀀"
+    roller_name = picked_winds_player_names["🀀"]
+    first_dealer_roll = game.first_dealer_roll
 
     socket
     |> assign(:current_user_is_roller, current_user_is_roller)

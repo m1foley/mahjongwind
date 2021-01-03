@@ -3,7 +3,12 @@ defmodule MjwWeb.GameLive.WindPickComponent do
 
   @impl true
   def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign_game_info()
+
+    {:ok, socket}
   end
 
   @impl true
@@ -15,6 +20,17 @@ defmodule MjwWeb.GameLive.WindPickComponent do
       |> persist_wind_choice(picked_wind_idx)
 
     {:noreply, socket}
+  end
+
+  defp assign_game_info(socket) do
+    game = socket.assigns.game
+    current_user_id = socket.assigns.current_user_id
+    picked_wind = Mjw.Game.picked_wind(game, current_user_id)
+    picked_wind_idx = Mjw.Game.picked_wind_idx(game, current_user_id)
+
+    socket
+    |> assign(:picked_wind_idx, picked_wind_idx)
+    |> assign(:picked_wind, picked_wind)
   end
 
   defp persist_wind_choice(socket, picked_wind_idx) do
