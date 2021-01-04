@@ -117,6 +117,22 @@ defmodule Mjw.GameTest do
 
       assert Mjw.Game.state(game) == :rolling_for_first_dealer
     end
+
+    test "rolling_for_deal" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind("id0", 0)
+        |> Mjw.Game.pick_random_available_wind("id1", 0)
+        |> Mjw.Game.pick_random_available_wind("id2", 0)
+        |> Mjw.Game.pick_random_available_wind("id3", 0)
+        |> Mjw.Game.roll_dice()
+
+      assert Mjw.Game.state(game) == :rolling_for_deal
+    end
   end
 
   describe "pick_random_available_wind" do
@@ -211,13 +227,13 @@ defmodule Mjw.GameTest do
     end
   end
 
-  describe "roll_for_first_dealer" do
-    test "sets first_dealer_roll to 3 random dice" do
+  describe "roll_dice" do
+    test "sets dice to 3 random dice" do
       game =
         %Mjw.Game{}
-        |> Mjw.Game.roll_for_first_dealer()
+        |> Mjw.Game.roll_dice()
 
-      refute Enum.empty?(game.first_dealer_roll)
+      assert length(game.dice) == 3
     end
   end
 
@@ -231,7 +247,7 @@ defmodule Mjw.GameTest do
             |> Enum.map(fn {w, i} ->
               %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
             end),
-          first_dealer_roll: [
+          dice: [
             %Mjw.Die{value: 1, unicode: "⚀"},
             %Mjw.Die{value: 1, unicode: "⚀"},
             %Mjw.Die{value: 6, unicode: "⚅"}
@@ -240,6 +256,21 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.reseat_players()
 
       assert game.seats |> Enum.map(& &1.player_id) == ~w(id3 id1 id2 id0)
+    end
+  end
+
+  describe "find_picked_wind_seat" do
+    test "returns the seat that has the given picked_wind" do
+      game = %Mjw.Game{
+        seats:
+          ~w(🀂 🀀 🀁 🀃)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      assert Mjw.Game.find_picked_wind_seat(game, "🀁").player_id == "id2"
     end
   end
 end

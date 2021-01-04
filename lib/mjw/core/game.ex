@@ -13,7 +13,7 @@ defmodule Mjw.Game do
             discards: [],
             wind: "🀀",
             seats: @four_empty_seats,
-            first_dealer_roll: []
+            dice: []
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -118,19 +118,19 @@ defmodule Mjw.Game do
     end)
   end
 
-  def roll_for_first_dealer(game) do
+  def roll_dice(game) do
     dice = Mjw.Die.roll_three()
-    game |> Map.merge(%{first_dealer_roll: dice})
+    game |> Map.merge(%{dice: dice})
   end
 
   @doc """
-  Reseat the players according to first_dealer_roll and the picked winds.
+  Reseat the players according to the first dealer roll and the picked winds.
   The first dealer (possessor of the special stick) will be in seat index 0.
   """
   def reseat_players(game) do
     first_dealer_picked_wind =
       game
-      |> first_dealer_roll_total()
+      |> dice_total()
       |> dealer_roll_cardinal_destination()
 
     new_seats =
@@ -153,14 +153,16 @@ defmodule Mjw.Game do
     |> Enum.at(rem(roll_total - 1, 4))
   end
 
-  # the seat that has the given picked_wind
-  defp find_picked_wind_seat(%__MODULE__{seats: seats}, wind) do
+  @doc """
+  The seat that has the given picked_wind
+  """
+  def find_picked_wind_seat(%__MODULE__{seats: seats}, wind) do
     seats
     |> Enum.find(&(&1.picked_wind == wind))
   end
 
-  defp first_dealer_roll_total(%__MODULE__{first_dealer_roll: first_dealer_roll}) do
-    first_dealer_roll |> Mjw.Die.sum()
+  defp dice_total(%__MODULE__{dice: dice}) do
+    dice |> Mjw.Die.sum()
   end
 
   # Cycle through the wind order (E, S, W, N) a given number of times starting
@@ -176,6 +178,17 @@ defmodule Mjw.Game do
     |> Enum.at(rem(start_idx + count, 4))
   end
 
+  # TODO
+  def deal(game) do
+    new_seats =
+      game.seats
+      |> Enum.map(fn seat ->
+        seat |> Map.merge(%{covered: [0]})
+      end)
+
+    game |> Map.merge(%{seats: new_seats})
+  end
+
   @doc """
   Calculate the state of a game
   """
@@ -185,7 +198,7 @@ defmodule Mjw.Game do
     |> state_picking_winds
     |> state_rolling_for_first_dealer
     |> state_rolling_for_deal
-    # |> state_dealer_discarding
+    |> state_dealer_discarding
     # |> state_player_turn
     # |> state_draw
     # |> state_win
@@ -214,7 +227,7 @@ defmodule Mjw.Game do
   defp state_picking_winds({game, state}), do: {game, state}
 
   defp state_rolling_for_first_dealer({game, :tbd}) do
-    if Enum.empty?(game.first_dealer_roll) do
+    if Enum.empty?(game.dice) do
       {game, :rolling_for_first_dealer}
     else
       {game, :tbd}
@@ -224,7 +237,7 @@ defmodule Mjw.Game do
   defp state_rolling_for_first_dealer({game, state}), do: {game, state}
 
   defp state_rolling_for_deal({game, :tbd}) do
-    if Enum.empty?(game.discards) do
+    if Enum.any?(game.seats, fn seat -> Enum.empty?(seat.covered) end) do
       {game, :rolling_for_deal}
     else
       {game, :tbd}
@@ -232,6 +245,16 @@ defmodule Mjw.Game do
   end
 
   defp state_rolling_for_deal({game, state}), do: {game, state}
+
+  defp state_dealer_discarding({game, :tbd}) do
+    if Enum.empty?(game.discards) do
+      {game, :dealer_discarding}
+    else
+      {game, :tbd}
+    end
+  end
+
+  defp state_dealer_discarding({game, state}), do: {game, state}
 
   defp state_or_invalid({_game, :tbd}), do: :invalid
   defp state_or_invalid({_game, state}), do: state
