@@ -1,6 +1,5 @@
 defmodule MjwWeb.GameLive.Index do
   use MjwWeb, :live_view
-  require Logger
 
   @impl true
   def mount(_params, session, socket) do
@@ -8,8 +7,6 @@ defmodule MjwWeb.GameLive.Index do
     test_game = Mjw.Game.new() |> Map.merge(%{id: "test1"})
 
     if !MjwWeb.GameStore.get("test1") do
-      Logger.debug("creating test game!")
-
       test_game
       |> Mjw.Game.seat_player("id0", "name0")
       |> Mjw.Game.seat_player("id1", "name1")

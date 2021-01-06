@@ -43,6 +43,14 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Seat of the given player_id, or nil if not found.
+  """
+  def seat(%__MODULE__{seats: seats}, player_id) do
+    seats
+    |> Enum.find(&(&1.player_id == player_id))
+  end
+
+  @doc """
   Add a player to the first empty seat
   """
   def seat_player(%__MODULE__{} = game, player_id, player_name) do

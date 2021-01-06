@@ -1,6 +1,5 @@
 defmodule MjwWeb.GameLive.DiceComponent do
   use MjwWeb, :live_component
-  require Logger
 
   @impl true
   def update(assigns, socket) do

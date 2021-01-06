@@ -1,0 +1,30 @@
+<div class="hand-component">
+  <div>
+    <%= if @current_user_turn do %>
+      Discard:
+    <% else %>
+      Waiting for <%= @turn_seat.player_name %> to discard...
+    <% end %>
+  </div>
+  <div class="hand">
+    <%= for tile <- @current_user_seat.covered do %>
+      <%= content_tag(:span, tile, class: "mahjongtilelarge #{if tile == "🀄", do: "zhong"}") %>
+    <% end %>
+  </div>
+  <div>
+    Discards:
+  </div>
+  <div class="discards">
+    <%= for tile <- @game.discards do %>
+      <%= content_tag(:span, tile, class: "mahjongtilemedium") %>
+    <% end %>
+  </div>
+  <div>
+    Deck remaining:
+  </div>
+  <div class="deck">
+    <%= for _tile <- @game.deck do %>
+      <%= content_tag(:span, "🀫", class: "mahjongtilesmall") %>
+    <% end %>
+  </div>
+</div>

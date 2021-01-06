@@ -17,8 +17,19 @@
   font-size: 2em;
 }
 
+.mahjongtilemedium {
+  font-size: 4em;
+}
+
 .mahjongtilelarge {
   font-size: 7em;
+  // Center tile displays differently on Mac
+  &.zhong {
+    font-size: 6.7em;
+    position: relative;
+    top: 0.145em;
+    filter: brightness(1.2) grayscale(0.9);
+  }
 }
 
 .rollhand {
