@@ -66,12 +66,14 @@ defmodule MjwWeb.GameLive.Show do
     empty_seats_count = Mjw.Game.empty_seats_count(game)
     current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
+    turn_seat = Mjw.Game.turn_seat(game)
     picked_winds_player_names = Mjw.Game.picked_winds_player_names(game)
 
     socket
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
     |> assign(:game_state, game_state)
+    |> assign(:turn_seat, turn_seat)
     |> assign(:picked_winds_player_names, picked_winds_player_names)
   end
 

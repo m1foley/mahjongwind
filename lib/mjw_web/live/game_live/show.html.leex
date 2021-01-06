@@ -11,16 +11,15 @@
 
 <% :rolling_for_first_dealer -> %>
   <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-  <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state %>
+  <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
 
 <% :rolling_for_deal -> %>
   <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-  <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state %>
+  <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
 
-<% :dealer_discarding -> %>
+<% :discarding -> %>
   <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-  <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state %>
-
+  <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
 
 <% state -> %>
   Unknown state: <%= state %>
@@ -40,9 +39,11 @@
   <div>Game ID: <%= @game.id %></div>
   <div>Deck:</div>
   <div class="mahjongtilesmall"><%= @game.deck %></div>
-  <div>Discards:</div>
-  <div span class="mahjongtilesmall"><%= @game.discards %></div>
+  <div>Discards:<span span class="mahjongtilesmall"><%= @game.discards %></span></div>
   <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
+  <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice |> Enum.map(& "#{&1.unicode}") %></span></div>
+  <div>turn_state: <%= @game.turn_state %></div>
+  <div>turn_seat_idx: <%= @game.turn_seat_idx %></div>
 
   <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
     <br />

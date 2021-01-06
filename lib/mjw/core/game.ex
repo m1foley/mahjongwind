@@ -12,8 +12,13 @@ defmodule Mjw.Game do
             deck: [],
             discards: [],
             wind: "🀀",
+            # Seats sorted in standard wind order. Index 0 = first dealer,
+            # possessor of the special stick.
             seats: @four_empty_seats,
-            dice: []
+            dice: [],
+            # :rolling/:drawing/:discarding
+            turn_state: :rolling,
+            turn_seat_idx: 0
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -119,7 +124,12 @@ defmodule Mjw.Game do
   end
 
   def roll_dice(game) do
-    dice = Mjw.Die.roll_three()
+    # TODO temporarily hardcoded
+    # dice = Mjw.Die.roll_three()
+    dice =
+      1..3
+      |> Enum.map(fn _ -> %Mjw.Die{value: 3, unicode: "⚂"} end)
+
     game |> Map.merge(%{dice: dice})
   end
 
@@ -186,7 +196,18 @@ defmodule Mjw.Game do
         seat |> Map.merge(%{covered: [0]})
       end)
 
-    game |> Map.merge(%{seats: new_seats})
+    game
+    |> Map.merge(%{
+      seats: new_seats,
+      turn_state: :discarding
+    })
+  end
+
+  @doc """
+  The seat whose turn it is
+  """
+  def turn_seat(%__MODULE__{seats: seats, turn_seat_idx: turn_seat_idx}) do
+    seats |> Enum.at(turn_seat_idx)
   end
 
   @doc """
@@ -198,12 +219,12 @@ defmodule Mjw.Game do
     |> state_picking_winds
     |> state_rolling_for_first_dealer
     |> state_rolling_for_deal
-    |> state_dealer_discarding
-    # |> state_player_turn
+    |> state_drawing
+    |> state_discarding
     # |> state_draw
     # |> state_win
     # |> state_dq
-    |> state_or_invalid
+    |> state_invalid
   end
 
   defp state_waiting_for_players({game, :tbd}) do
@@ -237,7 +258,7 @@ defmodule Mjw.Game do
   defp state_rolling_for_first_dealer({game, state}), do: {game, state}
 
   defp state_rolling_for_deal({game, :tbd}) do
-    if Enum.any?(game.seats, fn seat -> Enum.empty?(seat.covered) end) do
+    if game.turn_state == :rolling do
       {game, :rolling_for_deal}
     else
       {game, :tbd}
@@ -246,16 +267,26 @@ defmodule Mjw.Game do
 
   defp state_rolling_for_deal({game, state}), do: {game, state}
 
-  defp state_dealer_discarding({game, :tbd}) do
-    if Enum.empty?(game.discards) do
-      {game, :dealer_discarding}
+  defp state_drawing({game, :tbd}) do
+    if game.turn_state == :drawing do
+      {game, :drawing}
     else
       {game, :tbd}
     end
   end
 
-  defp state_dealer_discarding({game, state}), do: {game, state}
+  defp state_drawing({game, state}), do: {game, state}
 
-  defp state_or_invalid({_game, :tbd}), do: :invalid
-  defp state_or_invalid({_game, state}), do: state
+  defp state_discarding({game, :tbd}) do
+    if game.turn_state == :discarding do
+      {game, :discarding}
+    else
+      {game, :tbd}
+    end
+  end
+
+  defp state_discarding({game, state}), do: {game, state}
+
+  defp state_invalid({_game, :tbd}), do: :invalid
+  defp state_invalid({_game, state}), do: state
 end

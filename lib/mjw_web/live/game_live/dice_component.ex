@@ -50,9 +50,7 @@ defmodule MjwWeb.GameLive.DiceComponent do
       if game_state == :rolling_for_first_dealer do
         game |> Mjw.Game.find_picked_wind_seat("🀀")
       else
-        # TODO: This only works the first roll.
-        # Needs to be based on state or something.
-        game.seats |> Enum.at(0)
+        socket.assigns.turn_seat
       end
 
     current_user_is_roller = roller_seat.player_id == current_user_id

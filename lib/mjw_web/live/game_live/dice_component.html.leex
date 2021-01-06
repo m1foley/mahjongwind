@@ -12,8 +12,12 @@
     <% else %>
       Waiting for <%= @roller_name %> to roll dice...
     <% end %>
-  <% _dealer_discarding -> %>
-    Waiting for dealer to discard...
+  <% _discarding -> %>
+    <%= if @current_user_is_roller do %>
+      Waiting for you to discard...
+    <% else %>
+      Waiting for <%= @roller_name %> to discard...
+    <% end %>
   <% end %>
 
   <div class="diceroll">
