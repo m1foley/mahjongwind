@@ -130,7 +130,7 @@ defmodule Mjw.Game do
       1..3
       |> Enum.map(fn _ -> %Mjw.Die{value: 3, unicode: "⚂"} end)
 
-    game |> Map.merge(%{dice: dice})
+    %{game | dice: dice}
   end
 
   @doc """
@@ -153,7 +153,7 @@ defmodule Mjw.Game do
         |> find_picked_wind_seat(picked_wind)
       end)
 
-    game |> Map.merge(%{seats: new_seats})
+    %{game | seats: new_seats}
   end
 
   # If the dealer (i.e., the player in the east) rolls dice, the cardinal
@@ -188,19 +188,37 @@ defmodule Mjw.Game do
     |> Enum.at(rem(start_idx + count, 4))
   end
 
-  # TODO
+  @doc """
+  Deal the deck. The dealer will have 14 tiles and others will have 13.
+  Change turn_state to discarding.
+  """
   def deal(game) do
     new_seats =
       game.seats
-      |> Enum.map(fn seat ->
-        seat |> Map.merge(%{covered: [0]})
+      |> Enum.with_index()
+      |> Enum.map(fn {seat, seatno} ->
+        tiles_start = 13 * seatno
+        tiles = game.deck |> Enum.slice(tiles_start, 13)
+
+        tiles =
+          if seatno == game.turn_seat_idx do
+            extra_dealer_tile = game.deck |> Enum.at(52)
+            [extra_dealer_tile | tiles]
+          else
+            tiles
+          end
+
+        %{seat | covered: tiles}
       end)
 
-    game
-    |> Map.merge(%{
-      seats: new_seats,
-      turn_state: :discarding
-    })
+    new_deck = game.deck |> Enum.slice(53..-1)
+
+    %{
+      game
+      | seats: new_seats,
+        deck: new_deck,
+        turn_state: :discarding
+    }
   end
 
   @doc """

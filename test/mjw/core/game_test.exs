@@ -273,4 +273,20 @@ defmodule Mjw.GameTest do
       assert Mjw.Game.find_picked_wind_seat(game, "🀁").player_id == "id2"
     end
   end
+
+  describe "deal" do
+    test "deals the deck and changes turn_state to discarding" do
+      game =
+        %{
+          Mjw.Game.new()
+          | turn_seat_idx: 1,
+            seats: 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
+        }
+        |> Mjw.Game.deal()
+
+      assert game.seats |> Enum.map(&length(&1.covered)) == [13, 14, 13, 13]
+      assert length(game.deck) == 83
+      assert game.turn_state == :discarding
+    end
+  end
 end
