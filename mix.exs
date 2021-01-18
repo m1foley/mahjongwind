@@ -20,7 +20,7 @@ defmodule Mjw.MixProject do
   def application do
     [
       mod: {Mjw.Application, []},
-      extra_applications: [:logger, :runtime_tools, :crypto]
+      extra_applications: [:logger, :crypto, :runtime_tools]
     ]
   end
 
