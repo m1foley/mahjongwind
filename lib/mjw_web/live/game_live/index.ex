@@ -20,6 +20,7 @@ defmodule MjwWeb.GameLive.Index do
       |> assign_defaults(session)
       |> subscribe_to_lobby_updates
       |> fetch_games
+      |> subscribe_to_all_seating_updates
 
     {:ok, socket}
   end
@@ -34,12 +35,31 @@ defmodule MjwWeb.GameLive.Index do
     {:noreply, fetch_games(socket)}
   end
 
+  @impl true
+  def handle_info({:seating_updated, _game}, socket) do
+    # brute force for now
+    {:noreply, fetch_games(socket)}
+  end
+
   defp subscribe_to_lobby_updates(socket) do
     if connected?(socket), do: MjwWeb.GameStore.subscribe_to_lobby_updates()
     socket
   end
 
+  defp subscribe_to_all_seating_updates(socket) do
+    if connected?(socket) do
+      socket.assigns.games
+      |> Enum.each(&MjwWeb.GameStore.subscribe_to_seating_updates/1)
+    end
+
+    socket
+  end
+
   defp fetch_games(socket) do
-    assign(socket, :games, MjwWeb.GameStore.all())
+    seated_games =
+      MjwWeb.GameStore.all()
+      |> Enum.reject(&Mjw.Game.empty?/1)
+
+    assign(socket, :games, seated_games)
   end
 end

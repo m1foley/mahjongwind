@@ -1,5 +1,3 @@
-<div class="game row">
-  <div class="column">
-    <%= link(@game.id, to: Routes.game_show_path(@socket, :show, @game.id)) %>
-  </div>
+<div class="lobbygame">
+  <%= link(@seated_player_names, to: Routes.game_show_path(@socket, :show, @game.id)) %>
 </div>

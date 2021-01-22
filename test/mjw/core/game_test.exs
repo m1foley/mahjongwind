@@ -12,6 +12,21 @@ defmodule Mjw.GameTest do
     end
   end
 
+  describe "empty?" do
+    test "returns true when all seats are empty" do
+      game = %Mjw.Game{}
+      assert Mjw.Game.empty?(game)
+    end
+
+    test "returns false when a seat is filled" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+
+      refute Mjw.Game.empty?(game)
+    end
+  end
+
   describe "empty_seats_count" do
     test "returns 4 when all seats are empty" do
       game = %Mjw.Game{}
@@ -201,6 +216,23 @@ defmodule Mjw.GameTest do
 
       assert game |> Mjw.Game.picked_wind("id0")
       assert game |> Mjw.Game.picked_wind_idx("id0") == 3
+    end
+  end
+
+  describe "seated_player_names" do
+    test "returns empty array when no players are seated" do
+      game = %Mjw.Game{}
+
+      assert Mjw.Game.seated_player_names(game) == []
+    end
+
+    test "returns the names of all seated players" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+
+      assert Mjw.Game.seated_player_names(game) == ["name0", "name1"]
     end
   end
 

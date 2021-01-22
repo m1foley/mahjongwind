@@ -5,6 +5,7 @@ defmodule MjwWeb.GameLiveTest do
 
   defp fixture(:game) do
     MjwWeb.GameStore.create()
+    |> Mjw.Game.seat_player("id0", "name0")
   end
 
   defp create_game(_) do
@@ -14,11 +15,11 @@ defmodule MjwWeb.GameLiveTest do
   describe "Index" do
     setup [:create_game]
 
-    test "lists all games", %{conn: conn, game: game} do
+    test "lists all games", %{conn: conn, game: _game} do
       {:ok, _index_live, html} = live(conn, Routes.game_index_path(conn, :index))
 
       assert html =~ "Games"
-      assert html =~ game.id
+      assert html =~ "name0"
     end
   end
 end

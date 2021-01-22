@@ -25,6 +25,15 @@ defmodule MjwWeb.GameStore do
     |> broadcast_game_update(:game_updated)
   end
 
+  @doc """
+  Persist a seating update to an existing game
+  """
+  def update_seating(game) do
+    game
+    |> update
+    |> broadcast_seating_update(:seating_updated)
+  end
+
   def persist(game) do
     Agent.update(__MODULE__, &Map.put(&1, game.id, game))
     game
@@ -58,6 +67,10 @@ defmodule MjwWeb.GameStore do
     Phoenix.PubSub.subscribe(Mjw.PubSub, "game:#{game.id}")
   end
 
+  def subscribe_to_seating_updates(game) do
+    Phoenix.PubSub.subscribe(Mjw.PubSub, "seats:#{game.id}")
+  end
+
   defp broadcast_lobby_update(game, event) do
     Phoenix.PubSub.broadcast(Mjw.PubSub, "games", {event, game})
     game
@@ -65,6 +78,11 @@ defmodule MjwWeb.GameStore do
 
   defp broadcast_game_update(game, event) do
     Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.id}", {event, game})
+    game
+  end
+
+  defp broadcast_seating_update(game, event) do
+    Phoenix.PubSub.broadcast(Mjw.PubSub, "seats:#{game.id}", {event, game})
     game
   end
 end

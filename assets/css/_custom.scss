@@ -1,16 +1,36 @@
-.games {
-  align-items: center;
-  padding-bottom: 20px;
-  .column {
-    padding: 0px;
-    margin: 0px;
-  }
+.alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  margin: 1em;
+  padding: 2em;
 }
 
-.game {
-  margin: 20px 0px 10px 0px;
-  padding: 20px;
-  box-shadow: 0px 0px 2px 2px rgba(0,0,0,0.1);
+.lobby {
+  background-image: url("/images/mjtiles.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 2em;
+  margin: 0;
+  .new-game {
+    @apply bg-gray-100 text-gray-700 text-lg font-sans font-bold border-4 border-green-400 rounded-full py-3 px-6 my-3 shadow-md
+  }
+  @apply text-center text-gray-300 font-sans text-lg
+}
+
+.lobbygames {
+  align-items: center;
+  padding: 1em;
+}
+
+.lobbygame {
+  @apply bg-gray-100 text-gray-700 text-lg font-sans font-bold border-4 border-gray-400 rounded-full py-3 px-6 my-4 shadow-md
 }
 
 .mahjongtilesmall {

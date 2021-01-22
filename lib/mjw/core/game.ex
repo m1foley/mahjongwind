@@ -30,6 +30,10 @@ defmodule Mjw.Game do
     }
   end
 
+  def empty?(%__MODULE__{seats: seats}) do
+    seats |> Enum.all?(&Mjw.Seat.empty?/1)
+  end
+
   def empty_seats_count(%__MODULE__{seats: seats}) do
     seats |> Enum.count(&Mjw.Seat.empty?/1)
   end
@@ -60,6 +64,15 @@ defmodule Mjw.Game do
       seat
       |> Mjw.Seat.seat_player(player_id, player_name)
     end)
+  end
+
+  @doc """
+  Names of all seated players
+  """
+  def seated_player_names(%__MODULE__{seats: seats}) do
+    seats
+    |> Enum.reject(&Mjw.Seat.empty?/1)
+    |> Enum.map(& &1.player_name)
   end
 
   @doc """
