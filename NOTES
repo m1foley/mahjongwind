@@ -1,23 +1,35 @@
+console:
+iex -S mix
+
+prying:
+require IEx
+IEx.pry
+iex -S mix phoenix.server
+
 Tile images:
 https://en.wikipedia.org/wiki/Mahjong_tiles
 
 Tailwind:
 https://pragmaticstudio.com/tutorials/adding-tailwind-css-to-phoenix
 
+rotating the sides if needed:
+writing-mode: vertical-rl;
+transform: rotate(90deg);
+
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-X    tiles tiles tiles tiles tiles tiles      X
-X    exposed exposed exposed exposed          X
-X                                             X
-X te  dddddddddddddddddddddddddddddddddd  et  X
+X    tiles-2 tiles-2 tiles-2 tiles-2 15%      X
+X    exposed-2 exposed-2 exposed-2   15%      X
+X       40%                                   X
+X te  dddddddddd table-center dddddddddd  et  X
 X ix  dddddddddddddddddddddddddddddddddd  xi  X
 X lp  dddddddddd discards dddddddddddddd  pl  X
 X eo  dddddddddddddddddddddddddddddddddd  oe  X
 X ss  dddddddddddddddddddddddddddddddddd  ss  X
-X  e  dddddddddddddddddddddddddddddddddd  e   X
+X 3e  dddddddddddddddddddddddddddddddddd  e1  X
 X  d                                      d   X
-X                                             X
-X    exposed exposed exposed exposed          X
-X    tiles tiles tiles tiles tiles tiles      X
+X  3                                      1   X
+X    exposed-0 exposed-0 exposed-0            X
+X    tiles-0 tiles-0 tiles-0 tiles-0          X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 PresidentCardGames:

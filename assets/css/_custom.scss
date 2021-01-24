@@ -41,7 +41,7 @@
     filter: blur(0.25em);
     @apply bg-gradient-to-r from-green-600 via-green-500 to-green-600
   }
-  @apply bg-gradient-to-r from-green-700 via-green-600 to-green-700
+  @apply bg-gradient-to-r from-green-700 via-green-600 to-green-700 text-center
 }
 
 .seat-offering-modal-content {
@@ -50,6 +50,95 @@
 
 .sit-button {
   @apply bg-green-700 text-gray-100 text-lg font-sans font-bold border border-transparent rounded-lg py-3 px-16 my-3 shadow-md
+}
+
+.tiles, .table-center {
+  position: absolute;
+  opacity: 0.7; //TEMP
+}
+
+.covered-0 {
+  top: 85%;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  &.debug { background: #663333; }
+  @extend .mahjongtilelarge;
+}
+
+.exposed-0 {
+  top: 70%;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  &.debug { background: #993333; }
+  @extend .mahjongtilelarge;
+}
+
+.covered-1 {
+  top: 30%;
+  left: 85%;
+  width: 15%;
+  height: 40%;
+  &.debug { background: #336633; }
+  writing-mode: vertical-rl;
+  @extend .mahjongtilemedium;
+}
+
+.exposed-1 {
+  top: 30%;
+  left: 70%;
+  width: 15%;
+  height: 40%;
+  writing-mode: vertical-rl;
+  &.debug { background: #339933; }
+  @extend .mahjongtilemedium;
+}
+
+.covered-2 {
+  top: 0;
+  left: 30%;
+  width: 40%;
+  height: 15%;
+  &.debug { background: #333366; }
+  @extend .mahjongtilemedium;
+}
+
+.exposed-2 {
+  top: 15%;
+  left: 30%;
+  width: 40%;
+  height: 15%;
+  &.debug { background: #333399; }
+  @extend .mahjongtilemedium;
+}
+
+.covered-3 {
+  top: 30%;
+  left: 0;
+  width: 15%;
+  height: 40%;
+  &.debug { background: #663366; }
+  writing-mode: vertical-rl;
+  @extend .mahjongtilemedium;
+}
+
+.exposed-3 {
+  top: 30%;
+  left: 15%;
+  width: 15%;
+  height: 40%;
+  &.debug { background: #993399; }
+  writing-mode: vertical-rl;
+  @extend .mahjongtilemedium;
+}
+
+.table-center {
+  top: 30%;
+  left: 30%;
+  width: 40%;
+  height: 40%;
+  &.debug { background: #99cc99; }
 }
 
 .mahjongtilesmall {

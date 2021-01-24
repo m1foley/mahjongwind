@@ -2,59 +2,71 @@
   <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game %>
 <% end %>
 
-<div class="game <%=  unless @current_user_sitting_at do "blurred" end %>">
-  <%= case @game_state do %>
-  <% :waiting_for_players -> %>
-    <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
-
-  <% :picking_winds -> %>
-    <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-
-  <% :rolling_for_first_dealer -> %>
-    <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-    <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
-
-  <% :rolling_for_deal -> %>
-    <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-    <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
-
-  <% :discarding -> %>
-    <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-    <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
-    <%= live_component @socket, MjwWeb.GameLive.HandComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
-
-  <% state -> %>
-    Unknown state: <%= state %>
+<div class="game <%= unless @current_user_sitting_at, do: "blurred" %>">
+  <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+    <div class="tiles covered-<%= i %> debug">
+      <%= seat.covered %>
+    </div>
+    <div class="tiles exposed-<%= i %> debug">
+      <%= seat.covered %>
+    </div>
   <% end %>
+  <div class="table-center debug">
+    table-center
 
-  <div class="debug hidden">
-    <div>live_action: <%= @live_action %></div>
-    <div>current_user_id: <%= @current_user_id %>
-    <div>Game state: <%= @game_state %></div>
-    <div>empty seats count: <%= @empty_seats_count %>
-    <div>current_user_sitting_at: <%= @current_user_sitting_at %>
-    <div>picked_winds_player_names: <%= inspect(@picked_winds_player_names) %>
+    <%= case @game_state do %>
+    <% :waiting_for_players -> %>
+      <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
 
-    <br />
-    <div>Game ID: <%= @game.id %></div>
-    <div>Deck:</div>
-    <div class="mahjongtilesmall"><%= @game.deck %></div>
-    <div>Discards:<span span class="mahjongtilesmall"><%= @game.discards %></span></div>
-    <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
-    <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice |> Enum.map(& "#{&1.unicode}") %></span></div>
-    <div>turn_state: <%= @game.turn_state %></div>
-    <div>turn_seat_idx: <%= @game.turn_seat_idx %></div>
+    <% :picking_winds -> %>
+      <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
 
-    <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
-      <br />
-      <div>
-        <strong>Seat <%= i %>:</strong>
-        <div>Covered: <%= seat.covered %></div>
-        <div>Exposed: <%= seat.exposed %></div>
-        <div>Player ID: <%= seat.player_id %></div>
-        <div>Player name: <%= seat.player_name %></div>
-        <div>Picked wind: <%= seat.picked_wind %></div>
-      </div>
+    <% :rolling_for_first_dealer -> %>
+      <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
+      <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
+
+    <% :rolling_for_deal -> %>
+      <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
+      <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
+
+    <% :discarding -> %>
+      <%# <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %1> %>
+      <%# <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %1> %>
+      <%# <%= live_component @socket, MjwWeb.GameLive.HandComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %1> %>
+
+    <% state -> %>
+      Unknown state: <%= state %>
     <% end %>
+
+    <div class="debug hidden">
+      <div>live_action: <%= @live_action %></div>
+      <div>current_user_id: <%= @current_user_id %></div>
+      <div>Game state: <%= @game_state %></div>
+      <div>empty seats count: <%= @empty_seats_count %></div>
+      <div>current_user_sitting_at: <%= @current_user_sitting_at %></div>
+      <div>picked_winds_player_names: <%= inspect(@picked_winds_player_names) %></div>
+
+      <br />
+      <div>Game ID: <%= @game.id %></div>
+      <div>Deck:</div>
+      <div class="mahjongtilesmall"><%= @game.deck %></div>
+      <div>Discards:<span span class="mahjongtilesmall"><%= @game.discards %></span></div>
+      <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
+      <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice |> Enum.map(& "#{&1.unicode}") %></span></div>
+      <div>turn_state: <%= @game.turn_state %></div>
+      <div>turn_seat_idx: <%= @game.turn_seat_idx %></div>
+
+      <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+        <br />
+        <div>
+          <strong>Seat <%= i %>:</strong>
+          <div>Covered: <%= seat.covered %></div>
+          <div>Exposed: <%= seat.exposed %></div>
+          <div>Player ID: <%= seat.player_id %></div>
+          <div>Player name: <%= seat.player_name %></div>
+          <div>Picked wind: <%= seat.picked_wind %></div>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
