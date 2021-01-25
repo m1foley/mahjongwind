@@ -1,5 +1,5 @@
 defmodule Mjw.Seat do
-  defstruct covered: [],
+  defstruct concealed: [],
             exposed: [],
             player_id: nil,
             player_name: nil,

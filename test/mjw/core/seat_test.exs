@@ -19,7 +19,7 @@ defmodule Mjw.SeatTest do
       seat = Mjw.Seat.seat_player(seat, "new_id", "New Name")
       assert seat.player_id == "new_id"
       assert seat.player_name == "New Name"
-      assert seat.covered == []
+      assert seat.concealed == []
       assert seat.exposed == []
     end
 
@@ -27,15 +27,15 @@ defmodule Mjw.SeatTest do
       seat = %Mjw.Seat{
         player_id: "old_id",
         player_name: "Old Name",
-        covered: ~w(🀇),
-        exposed: ~w(🀈)
+        concealed: ["n1"],
+        exposed: ["n2"]
       }
 
       seat = Mjw.Seat.seat_player(seat, "new_id", "New Name")
       assert seat.player_id == "new_id"
       assert seat.player_name == "New Name"
-      assert seat.covered == ~w(🀇)
-      assert seat.exposed == ~w(🀈)
+      assert seat.concealed == ["n1"]
+      assert seat.exposed == ["n2"]
     end
   end
 
@@ -43,9 +43,9 @@ defmodule Mjw.SeatTest do
     test "picks a wind for a player" do
       seat =
         %Mjw.Seat{}
-        |> Mjw.Seat.pick_wind("🀁", 2)
+        |> Mjw.Seat.pick_wind("ws", 2)
 
-      assert seat.picked_wind == "🀁"
+      assert seat.picked_wind == "ws"
       assert seat.picked_wind_idx == 2
     end
   end

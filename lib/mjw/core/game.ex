@@ -229,7 +229,7 @@ defmodule Mjw.Game do
             tiles
           end
 
-        %{seat | covered: tiles}
+        %{seat | concealed: tiles}
       end)
 
     new_deck = game.deck |> Enum.slice(53..-1)

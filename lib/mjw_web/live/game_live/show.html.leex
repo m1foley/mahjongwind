@@ -4,13 +4,13 @@
 
 <div class="game <%= unless @current_user_sitting_at, do: "blurred" %>">
   <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
-    <div class="tiles covered-<%= i %>">
-      <%= for tile <- seat.covered do %>
+    <div class="tiles concealed-<%= i %>">
+      <%= for tile <- seat.concealed do %>
         <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
       <% end %>
     </div>
     <div class="tiles exposed-<%= i %>">
-      <%= for tile <- seat.covered do %>
+      <%= for tile <- seat.concealed do %>
         <img src="/images/tiles/<%= tile %>.png" alt="<%= tile %>" class="tile" />
       <% end %>
     </div>
@@ -64,7 +64,7 @@
         <br />
         <div>
           <strong>Seat <%= i %>:</strong>
-          <div>Covered: <%= seat.covered %></div>
+          <div>Concealed: <%= seat.concealed %></div>
           <div>Exposed: <%= seat.exposed %></div>
           <div>Player ID: <%= seat.player_id %></div>
           <div>Player name: <%= seat.player_name %></div>

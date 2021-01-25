@@ -316,7 +316,7 @@ defmodule Mjw.GameTest do
         }
         |> Mjw.Game.deal()
 
-      assert game.seats |> Enum.map(&length(&1.covered)) == [13, 14, 13, 13]
+      assert game.seats |> Enum.map(&length(&1.concealed)) == [13, 14, 13, 13]
       assert length(game.deck) == 83
       assert game.turn_state == :discarding
     end
