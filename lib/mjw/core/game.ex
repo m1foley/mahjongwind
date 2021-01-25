@@ -1,17 +1,18 @@
 defmodule Mjw.Game do
   @all_tiles ~w(
-    🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
-    🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
-    🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
-    🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉 🀊 🀋 🀌 🀍 🀎 🀏 🀐 🀑 🀒 🀓 🀔 🀕 🀖 🀗 🀘 🀙 🀚 🀛 🀜 🀝 🀞 🀟 🀠 🀡
-  )
+    b1 b2 b3 b4 b5 b6 b7 b8 b9
+    c1 c2 c3 c4 c5 c6 c7 c8 c9
+    n1 n2 n3 n4 n5 n6 n7 n8 n9
+    we ws ww wn
+    df dp dz
+  ) |> List.duplicate(4) |> List.flatten()
   @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
-  @wind_tiles ~w(🀀 🀁 🀂 🀃)
+  @wind_tiles ~w(we ws ww wn)
 
   defstruct id: nil,
             deck: [],
             discards: [],
-            wind: "🀀",
+            wind: "we",
             # Seats sorted in standard wind order. Index 0 = first dealer,
             # possessor of the special stick.
             seats: @four_empty_seats,
@@ -170,8 +171,7 @@ defmodule Mjw.Game do
           first_dealer_picked_wind
           |> cycle_wind(i)
 
-        game
-        |> find_picked_wind_seat(picked_wind)
+        game |> find_picked_wind_seat(picked_wind)
       end)
 
     %{game | seats: new_seats}

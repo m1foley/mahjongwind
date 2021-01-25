@@ -6,6 +6,9 @@ require IEx
 IEx.pry
 iex -S mix phoenix.server
 
+prying in tests:
+iex -S mix test test/mjw/core/game_test.exs:290
+
 Tile images:
 https://en.wikipedia.org/wiki/Mahjong_tiles
 

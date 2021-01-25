@@ -6,7 +6,7 @@ defmodule Mjw.GameTest do
       game = Mjw.Game.new()
       assert game.id =~ ~r/\A[a-f0-9\-]{36}\z/
       assert length(game.deck) == 136
-      assert game.wind == "🀀"
+      assert game.wind == "we"
       assert game.discards == []
       assert length(game.seats) == 4
     end
@@ -161,7 +161,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.pick_random_available_wind("id1", 3)
 
       wind = game |> Mjw.Game.picked_wind("id1")
-      assert Enum.member?(~w(🀀 🀁 🀂 🀃), wind)
+      assert Enum.member?(~w(we ws ww wn), wind)
       assert game |> Mjw.Game.picked_wind("id0") == nil
       assert game |> Mjw.Game.picked_wind_idx("id1") == 3
       assert game |> Mjw.Game.picked_wind_idx("id0") == nil
@@ -179,7 +179,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.pick_random_available_wind("id2", 0)
         |> Mjw.Game.pick_random_available_wind("id3", 0)
 
-      assert game.seats |> Enum.map(& &1.picked_wind) |> Enum.sort() == ~w(🀀 🀁 🀂 🀃)
+      assert game.seats |> Enum.map(& &1.picked_wind) |> Enum.sort() == ~w(we wn ws ww)
       assert game.seats |> Enum.map(& &1.picked_wind_idx) == [0, 0, 0, 0]
     end
 
@@ -240,21 +240,21 @@ defmodule Mjw.GameTest do
     test "maps to nils when no winds are picked" do
       game = %Mjw.Game{}
 
-      expected = %{"🀀" => nil, "🀁" => nil, "🀂" => nil, "🀃" => nil}
+      expected = %{"we" => nil, "ws" => nil, "ww" => nil, "wn" => nil}
       assert game |> Mjw.Game.picked_winds_player_names() == expected
     end
 
     test "maps the winds to the players who picked them" do
       game = %Mjw.Game{
         seats:
-          ~w(🀀 🀁 🀂 🀃)
+          ~w(we ws ww wn)
           |> Enum.with_index()
           |> Enum.map(fn {w, i} ->
             %Mjw.Seat{picked_wind: w, player_name: "name#{i}"}
           end)
       }
 
-      expected = %{"🀀" => "name0", "🀁" => "name1", "🀂" => "name2", "🀃" => "name3"}
+      expected = %{"we" => "name0", "ws" => "name1", "ww" => "name2", "wn" => "name3"}
       assert game |> Mjw.Game.picked_winds_player_names() == expected
     end
   end
@@ -274,7 +274,7 @@ defmodule Mjw.GameTest do
       game =
         %Mjw.Game{
           seats:
-            ~w(🀂 🀀 🀁 🀃)
+            ~w(ww we ws wn)
             |> Enum.with_index()
             |> Enum.map(fn {w, i} ->
               %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
@@ -295,14 +295,14 @@ defmodule Mjw.GameTest do
     test "returns the seat that has the given picked_wind" do
       game = %Mjw.Game{
         seats:
-          ~w(🀂 🀀 🀁 🀃)
+          ~w(ww we ws wn)
           |> Enum.with_index()
           |> Enum.map(fn {w, i} ->
             %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
           end)
       }
 
-      assert Mjw.Game.find_picked_wind_seat(game, "🀁").player_id == "id2"
+      assert Mjw.Game.find_picked_wind_seat(game, "ws").player_id == "id2"
     end
   end
 

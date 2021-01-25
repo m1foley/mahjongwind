@@ -12,7 +12,7 @@
   </div>
 
   <div>
-    <% all_winds = ~w(🀀 🀁 🀂 🀃) %>
+    <% all_winds = ~w(we ws ww wn) %>
     <%= for {wind, i} <- Enum.with_index(all_winds) do %>
       <%= if @picked_wind do %>
         <%

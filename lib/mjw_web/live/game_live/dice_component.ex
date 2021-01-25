@@ -47,7 +47,7 @@ defmodule MjwWeb.GameLive.DiceComponent do
 
     roller_seat =
       if game_state == :rolling_for_first_dealer do
-        game |> Mjw.Game.find_picked_wind_seat("🀀")
+        game |> Mjw.Game.find_picked_wind_seat("we")
       else
         socket.assigns.turn_seat
       end
