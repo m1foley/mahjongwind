@@ -26,12 +26,12 @@ defmodule MjwWeb.GameStore do
   end
 
   @doc """
-  Persist a seating update to an existing game
+  Persist an update to an existing game that changes the game lobby
   """
-  def update_seating(game) do
+  def update(game, :change_appears_in_lobby) do
     game
     |> update()
-    |> broadcast_lobby_update(:player_seated)
+    |> broadcast_lobby_update(:game_updated)
   end
 
   def persist(game) do
@@ -59,17 +59,31 @@ defmodule MjwWeb.GameStore do
     Agent.update(__MODULE__, fn _ -> initial() end)
   end
 
+  @doc """
+  Subscribe to lobby updates: a game is created, removed, or updates its seating
+  """
   def subscribe_to_lobby_updates do
     Phoenix.PubSub.subscribe(Mjw.PubSub, "games")
   end
 
-  def subscribe_to_game_updates(game) do
-    Phoenix.PubSub.subscribe(Mjw.PubSub, "game:#{game.id}")
+  def unsubscribe_from_lobby_updates do
+    Phoenix.PubSub.unsubscribe(Mjw.PubSub, "games")
   end
 
   defp broadcast_lobby_update(game, event) do
     Phoenix.PubSub.broadcast(Mjw.PubSub, "games", {event, game})
     game
+  end
+
+  @doc """
+  Subscribe to all updates for a particular game
+  """
+  def subscribe_to_game_updates(game) do
+    Phoenix.PubSub.subscribe(Mjw.PubSub, "game:#{game.id}")
+  end
+
+  def unsubscribe_from_game_updates(game) do
+    Phoenix.PubSub.unsubscribe(Mjw.PubSub, "game:#{game.id}")
   end
 
   defp broadcast_game_update(game, event) do

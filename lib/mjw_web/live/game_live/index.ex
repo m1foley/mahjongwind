@@ -35,8 +35,8 @@ defmodule MjwWeb.GameLive.Index do
   end
 
   @impl true
-  def handle_info({:player_seated, _game}, socket) do
-    # brute force for now
+  def handle_info({:game_updated, _game}, socket) do
+    # It would be more elegant to just update the game row. Brute force for now.
     {:noreply, fetch_games(socket)}
   end
 

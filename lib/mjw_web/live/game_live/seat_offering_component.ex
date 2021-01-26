@@ -20,7 +20,7 @@ defmodule MjwWeb.GameLive.SeatOfferingComponent do
 
     socket.assigns.game
     |> Mjw.Game.seat_player(player_id, player_name)
-    |> MjwWeb.GameStore.update_seating()
+    |> MjwWeb.GameStore.update(:change_appears_in_lobby)
 
     socket
   end

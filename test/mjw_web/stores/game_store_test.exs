@@ -49,4 +49,60 @@ defmodule MjwWeb.GameStoreTest do
     result = MjwWeb.GameStore.all()
     assert Enum.sort_by(result, & &1.id) == Enum.sort_by(games, & &1.id)
   end
+
+  test "update/1 updates a game" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    result = MjwWeb.GameStore.update(updated_game)
+    assert result == updated_game
+    assert MjwWeb.GameStore.get(game.id) == updated_game
+  end
+
+  test "update/1 broadcasts change to game" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+
+    MjwWeb.GameStore.subscribe_to_game_updates(game)
+    MjwWeb.GameStore.update(updated_game)
+    assert_received({:game_updated, ^updated_game})
+    :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
+  end
+
+  test "update/1 does not broadcast change to lobby" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+
+    MjwWeb.GameStore.subscribe_to_lobby_updates()
+    MjwWeb.GameStore.update(updated_game)
+    refute_received({:game_updated, _game})
+    :ok = MjwWeb.GameStore.unsubscribe_from_lobby_updates()
+  end
+
+  test "update/2 updates a game" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    result = MjwWeb.GameStore.update(updated_game, :change_appears_in_lobby)
+    assert result == updated_game
+    assert MjwWeb.GameStore.get(game.id) == updated_game
+  end
+
+  test "update/2 broadcasts change to game" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+
+    MjwWeb.GameStore.subscribe_to_game_updates(game)
+    MjwWeb.GameStore.update(updated_game, :change_appears_in_lobby)
+    assert_received({:game_updated, ^updated_game})
+    :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
+  end
+
+  test "update/2 broadcasts change to lobby" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+
+    MjwWeb.GameStore.subscribe_to_lobby_updates()
+    MjwWeb.GameStore.update(updated_game, :change_appears_in_lobby)
+    assert_received({:game_updated, ^updated_game})
+    :ok = MjwWeb.GameStore.unsubscribe_from_lobby_updates()
+  end
 end
