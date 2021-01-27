@@ -52,91 +52,51 @@
   @apply bg-green-700 text-gray-100 text-lg font-sans font-bold border border-transparent rounded-lg py-3 px-16 my-3 shadow-md
 }
 
-.tiles, .table-center {
-  position: absolute;
-  border: 1px dotted black; //TEMP
-  .tile {
-    max-height: 5em;
-  }
+.tile {
+  max-height: 5em;
 }
 
-.concealed-0, .exposed-0 {
-  left: 0;
+// new row in flexbox
+.line-break {
   width: 100%;
-  height: 15%;
+}
+
+.tiles {
+  @apply absolute flex flex-row flex-wrap-reverse text-center justify-center
+}
+
+.tiles-0 {
+  bottom: 0;
+  left: 0;
   .tile {
     max-height: 7em;
   }
-  @apply flex flex-row
 }
 
-.concealed-0 {
-  top: 85%;
-}
-
-.exposed-0 {
-  top: 70%;
-}
-
-.concealed-1, .exposed-1 {
-  top: 30%;
-  width: 15%;
-  height: 40%;
-  .tile {
-    transform: rotate(90deg);
-  }
-  // @apply flex flex-col
-}
-
-.concealed-1 {
-  left: 85%;
-}
-
-.exposed-1 {
-  left: 70%;
-}
-
-.concealed-2, .exposed-2 {
-  left: 30%;
-  width: 40%;
-  height: 15%;
-  .tile {
-    transform: rotate(180deg);
-  }
-  @apply flex flex-row-reverse
-}
-
-.concealed-2 {
+.tiles-1 {
   top: 0;
+  right: 0;
+  width: 100vh;
+  transform: rotate(-90deg) translate(0, -100%);
+  transform-origin: top right;
+  justify-content: center;
 }
 
-.exposed-2 {
-  top: 15%;
-}
-
-.concealed-3, .exposed-3 {
-  top: 30%;
-  width: 15%;
-  height: 40%;
-  .tile {
-    transform: rotate(270deg);
-  }
-  // @apply flex flex-col-reverse
-}
-
-.concealed-3 {
+.tiles-2 {
+  top: 0;
   left: 0;
+  width: 100%;
+  transform: rotate(180deg);
+  justify-content: center;
 }
 
-.exposed-3 {
-  left: 15%;
-}
-
-.table-center {
-  top: 30%;
-  left: 30%;
-  width: 40%;
-  height: 40%;
+.tiles-3 {
+  top: 0;
+  left: 0;
+  width: 100vh;
+  transform: rotate(90deg) translate(0, -100%);
+  transform-origin: top left;
+  justify-content: center;
 }
 
 .rollhand {
@@ -164,16 +124,16 @@
 // identical animations are needed for each game state because otherwise it
 // won't reanimate on update
 @keyframes dieanimation-1 {
-  0% { transform: translate3d(-3em, -1em, 0) rotate(0deg); }
-  45% { transform: translate3d(-1em, 0, 0) rotate(450deg); }
-  90% { transform: translate3d(-0.1em, 0, 0) rotate(720deg); }
-  100% { transform: translate3d(0, 0, 0) rotate(720deg); }
+  0% { transform: translate(-3em, -1em) rotate(0deg); }
+  45% { transform: translate(-1em, 0) rotate(450deg); }
+  90% { transform: translate(-0.1em, 0) rotate(720deg); }
+  100% { transform: translate(0, 0) rotate(720deg); }
 }
 @keyframes dieanimation-2 {
-  0% { transform: translate3d(-3em, -1em, 0) rotate(0deg); }
-  45% { transform: translate3d(-1em, 0, 0) rotate(450deg); }
-  90% { transform: translate3d(-0.1em, 0, 0) rotate(720deg); }
-  100% { transform: translate3d(0, 0, 0) rotate(720deg); }
+  0% { transform: translate(-3em, -1em) rotate(0deg); }
+  45% { transform: translate(-1em, 0) rotate(450deg); }
+  90% { transform: translate(-0.1em, 0) rotate(720deg); }
+  100% { transform: translate(0, 0) rotate(720deg); }
 }
 
 .rollable-dice {
