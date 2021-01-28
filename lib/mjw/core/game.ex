@@ -17,7 +17,7 @@ defmodule Mjw.Game do
             # possessor of the special stick.
             seats: @four_empty_seats,
             dice: [],
-            # :rolling/:drawing/:discarding
+            # rolling/drawing/discarding
             turn_state: :rolling,
             turn_seat_idx: 0
 
