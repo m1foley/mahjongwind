@@ -145,16 +145,11 @@
 }
 
 .windpick {
-  margin: 0em 0em 3em 0em;
-
+  .tile {
+    max-height: 7em;
+  }
   .wind_and_player {
     display: inline-block;
-  }
-  .wind {
-    display: block;
-    margin: 0em 0.2em 0em 0.2em;
-    cursor: pointer;
-    text-align: center;
   }
   .player_name {
     display: inline-block;

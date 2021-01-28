@@ -16,8 +16,6 @@
     </div>
   <% end %>
   <div class="table-center">
-    table-center
-
     <%= case @game_state do %>
     <% :waiting_for_players -> %>
       <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
