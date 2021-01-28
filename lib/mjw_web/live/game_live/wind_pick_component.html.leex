@@ -32,9 +32,9 @@
         <span class="wind_and_player">
           <span class="wind mahjongtilelarge">
             <%= if @picked_winds_player_names[wind] do %>
-              <%= content_tag(:span, wind) %>
+              <img src="/images/tiles/<%= wind %>.png" alt="picked wind" class="tile" />
             <% else %>
-              <%= content_tag(:span, "🀫") %>
+              <img src="/images/tiles/concealed.png" alt="concealed wind" class="tile" />
             <% end %>
           </span>
           <span class="player_name">
@@ -44,7 +44,8 @@
       <% else %>
         <span class="wind_and_player">
           <span class="wind mahjongtilelarge">
-            <%= content_tag(:span, "🀫", phx_target: @myself, phx_click: "windpick", phx_value_picked_wind_idx: i) %>
+<%# <img src="/images/tiles/concealed.png" alt="concealed wind" class="tile" phx_target=<%= @myself %1> phx_click="windpick" phx_value_picked_wind_idx=<%= i %1> %>
+            <%= img_tag("/images/tiles/concealed.png", class: "tile", phx_target: @myself, phx_click: "windpick", phx_value_picked_wind_idx: i) %>
           </span>
           <span class="player_name">
           </span>
