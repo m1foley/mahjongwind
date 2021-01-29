@@ -13,6 +13,6 @@
   </div>
 
   <%= form_for :game, Routes.game_path(@socket, :create), fn _ -> %>
-    <%= submit("Start game", class: "new-game") %>
+    <%= submit("Start #{unless Enum.empty?(@games), do: "a new"} game", class: "new-game") %>
   <% end %>
 </div>

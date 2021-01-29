@@ -8,18 +8,18 @@
 }
 
 .lobby {
-  background-image: url("/images/mjtiles.png");
-  background-size: cover;
-  background-repeat: no-repeat;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  background-image: url("/images/splashbg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   .new-game {
-    @apply bg-gray-100 text-gray-700 text-lg font-sans font-bold border-4 border-green-400 rounded-full py-3 px-6 my-3 shadow-md
+    @apply bg-gray-100 text-gray-700 text-lg font-sans font-bold border-4 border-green-400 rounded-full py-3 px-6 my-3 shadow-md;
   }
-  @apply text-center text-gray-200 font-sans text-lg p-8 m-0
+  @apply text-center text-gray-200 font-sans text-lg p-8 m-0;
 }
 
 .lobbygames {
@@ -28,7 +28,7 @@
 }
 
 .lobbygame {
-  @apply bg-gray-100 text-gray-700 text-lg font-sans font-bold border-4 border-gray-400 rounded-full py-3 px-6 my-4 shadow-md
+  @apply bg-gray-100 text-gray-700 text-lg font-sans font-bold border-4 border-gray-400 rounded-full py-3 px-6 my-4 shadow-md;
 }
 
 .game {
@@ -39,21 +39,25 @@
   height: 100%;
   &.blurred {
     filter: blur(0.25em);
-    @apply bg-gradient-to-r from-green-600 via-green-500 to-green-600
+    @apply bg-gradient-to-r from-green-600 via-green-500 to-green-600;
   }
-  @apply bg-gradient-to-r from-green-700 via-green-600 to-green-700 text-center
+  @apply bg-gradient-to-r from-green-700 via-green-600 to-green-700 text-center;
 }
 
 .seat-offering-modal-content {
-  @apply rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-6 my-16 mx-auto shadow-md w-6/12 content-center text-center
+  @apply rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-6 my-16 mx-auto shadow-md w-6/12 content-center text-center;
 }
 
 .sit-button {
-  @apply bg-green-700 text-gray-100 text-lg font-sans font-bold border border-transparent rounded-lg py-3 px-16 my-3 shadow-md
+  @apply bg-green-700 text-gray-100 text-lg font-sans font-bold border border-transparent rounded-lg py-3 px-16 my-3 shadow-md;
 }
 
 .tile {
   max-height: 5em;
+}
+
+.largetile {
+  max-height: 7em;
 }
 
 // new row in flexbox
@@ -61,42 +65,62 @@
   width: 100%;
 }
 
-.tiles {
-  @apply absolute flex flex-row flex-wrap-reverse text-center justify-center
+.seat {
+  position: absolute;
 }
 
-.tiles-0 {
+.tiles {
+  @apply flex flex-row flex-wrap-reverse text-center justify-center;
+}
+
+.seat-0 {
   bottom: 0;
   left: 0;
-  .tile {
-    max-height: 7em;
+  .tile.concealed, .tile.exposed {
+    @apply largetile;
   }
 }
 
-.tiles-1 {
+.seat-1 {
   top: 0;
   right: 0;
   width: 100vh;
-  transform: rotate(-90deg) translate(0, -100%);
-  transform-origin: top right;
-  justify-content: center;
+  .tiles {
+    transform: rotate(-90deg) translate(0, -100%);
+    transform-origin: top right;
+  }
 }
 
-.tiles-2 {
+.seat-2 {
   top: 0;
   left: 0;
   width: 100%;
-  transform: rotate(180deg);
-  justify-content: center;
+  .tiles {
+    transform: rotate(180deg);
+  }
 }
 
-.tiles-3 {
+.seat-3 {
   top: 0;
   left: 0;
   width: 100vh;
-  transform: rotate(90deg) translate(0, -100%);
-  transform-origin: top left;
-  justify-content: center;
+  .tiles {
+    transform: rotate(90deg) translate(0, -100%);
+    transform-origin: top left;
+  }
+}
+
+.wall-2 {
+  position: relative;
+  top: 4.7em;
+  left: -0.1em;
+}
+
+.stick {
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 65%);
+  max-height: 28em;
 }
 
 .rollhand {
@@ -146,14 +170,20 @@
 
 .windpick {
   .tile {
-    max-height: 7em;
+    @apply largetile;
   }
   .wind_and_player {
     display: inline-block;
+    padding: 1em 0em 1em 1em;
   }
   .player_name {
     display: inline-block;
     text-align: center;
     width: 100%;
+    padding-top: 0.5em;
   }
+  .unknown-wind {
+    cursor: pointer;
+  }
+  @apply text-gray-800 text-xl font-sans font-bold;
 }
