@@ -8,7 +8,7 @@
   </div>
   <div class="hand">
     <%= for tile <- @current_user_seat.concealed do %>
-      <%= content_tag(:span, tile, class: "mahjongtilelarge #{if tile == "🀄", do: "zhong"}") %>
+      <%= content_tag(:span, tile) %>
     <% end %>
   </div>
   <div>
