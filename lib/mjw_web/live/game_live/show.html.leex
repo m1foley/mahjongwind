@@ -5,7 +5,7 @@
 <div class="game <%= if @current_user_sitting_at, do: @game_state, else: "blurred" %>">
   <% show_wall = [:waiting_for_players, :picking_winds, :rolling_for_first_dealer, :rolling_for_deal ] |> Enum.member?(@game_state) %>
   <%= if show_wall do %>
-    <img src="/images/stick.png" alt="stick" class="stick" />
+    <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
   <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
     <div class="seat seat-<%= i %>">
