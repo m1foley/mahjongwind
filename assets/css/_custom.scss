@@ -116,11 +116,12 @@
   left: -0.1em;
 }
 
-.stick {
+.stickpomelo {
   position: fixed;
   left: 50%;
-  transform: translate(-50%, 65%);
-  max-height: 28em;
+  bottom: 8em;
+  transform: translate(-50%, 0);
+  max-height: 50em;
 }
 
 .rollhand {
