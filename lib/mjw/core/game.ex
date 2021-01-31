@@ -146,13 +146,11 @@ defmodule Mjw.Game do
   end
 
   def roll_dice(game) do
-    # dice = Mjw.Die.roll_three()
+    # 1..3
+    # |> Enum.map(fn _ -> 1..6 |> Enum.random() end)
+
     # TODO temporarily hardcoded
-    dice = [
-      %Mjw.Die{value: 3},
-      %Mjw.Die{value: 6},
-      %Mjw.Die{value: 4}
-    ]
+    dice = [3, 6, 4]
 
     %{game | dice: dice}
   end
@@ -195,7 +193,7 @@ defmodule Mjw.Game do
   end
 
   defp dice_total(%__MODULE__{dice: dice}) do
-    dice |> Mjw.Die.sum()
+    dice |> Enum.sum()
   end
 
   # Cycle through the wind order (E, S, W, N) a given number of times starting
