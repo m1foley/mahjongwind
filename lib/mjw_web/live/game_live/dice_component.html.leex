@@ -33,7 +33,7 @@
     <span class="dice">
       <%= for die <- @dice do %>
         <%# game_state class added to distinguish animations for the 2 types of rolls %>
-        <img src="/images/dice/d<%= die.value %>.png" alt="die" class="die <%= @game_state %>" />
+        <img src="/images/dice/d<%= die %>.png" alt="die" class="die <%= @game_state %>" />
       <% end %>
     </span>
   </div>

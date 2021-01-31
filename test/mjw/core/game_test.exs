@@ -266,6 +266,9 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.roll_dice()
 
       assert length(game.dice) == 3
+      dice_total = game.dice |> Enum.sum()
+      assert dice_total >= 1 * 3
+      assert dice_total <= 6 * 3
     end
   end
 
@@ -279,11 +282,7 @@ defmodule Mjw.GameTest do
             |> Enum.map(fn {w, i} ->
               %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
             end),
-          dice: [
-            %Mjw.Die{value: 1},
-            %Mjw.Die{value: 1},
-            %Mjw.Die{value: 6}
-          ]
+          dice: [1, 1, 6]
         }
         |> Mjw.Game.reseat_players()
 
