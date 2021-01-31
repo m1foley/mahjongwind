@@ -1,23 +1,26 @@
 defmodule Mjw.Game do
-  @all_tiles ~w(
-    b1 b2 b3 b4 b5 b6 b7 b8 b9
-    c1 c2 c3 c4 c5 c6 c7 c8 c9
-    n1 n2 n3 n4 n5 n6 n7 n8 n9
-    we ws ww wn
-    df dp dz
-  ) |> List.duplicate(4) |> List.flatten()
-  @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
+  @bamboo_tiles ~w(b1 b2 b3 b4 b5 b6 b7 b8 b9)
+  @circle_tiles ~w(c1 c2 c3 c4 c5 c6 c7 c8 c9)
+  @number_tiles ~w(n1 n2 n3 n4 n5 n6 n7 n8 n9)
+  # fa, plate, zhong
+  @dragon_tiles ~w(df dp dz)
+  # winds sorted in standard wind order
   @wind_tiles ~w(we ws ww wn)
+  @all_tiles (@bamboo_tiles ++ @circle_tiles ++ @number_tiles ++ @dragon_tiles ++ @wind_tiles)
+             |> List.duplicate(4)
+             |> List.flatten()
+
+  @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
 
   defstruct id: nil,
             deck: [],
             discards: [],
-            wind: "we",
-            # Seats sorted in standard wind order. Index 0 = first dealer,
-            # possessor of the special stick.
+            wind: @wind_tiles |> Enum.at(0),
+            # Seats sorted in standard wind order going counter-clockwise.
+            # Index 0 = first dealer, possessor of the special stick.
             seats: @four_empty_seats,
             dice: [],
-            # rolling/drawing/discarding
+            # rolling/drawing/discarding. Different from state/1.
             turn_state: :rolling,
             turn_seat_idx: 0
 
@@ -177,8 +180,10 @@ defmodule Mjw.Game do
     %{game | seats: new_seats}
   end
 
-  # If the dealer (i.e., the player in the east) rolls dice, the cardinal
-  # direction of the seat the roll represents
+  # The cardinal direction the seat represents upon rolling for first dealer.
+  # The player rolling for first dealer (who picked East) is temporarily in the
+  # first dealer seat (index 0) and this roll determines who will be in the
+  # "real" first dealer seat once the players are reseated.
   defp dealer_roll_cardinal_destination(roll_total) do
     @wind_tiles
     |> Enum.at(rem(roll_total - 1, 4))
