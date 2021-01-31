@@ -25,12 +25,37 @@ defmodule MjwWeb.GameLive.WindPickComponent do
   defp assign_game_info(socket) do
     game = socket.assigns.game
     current_user_id = socket.assigns.current_user_id
+    picked_winds_player_names = socket.assigns.picked_winds_player_names
     picked_wind = Mjw.Game.picked_wind(game, current_user_id)
     picked_wind_idx = Mjw.Game.picked_wind_idx(game, current_user_id)
+    all_winds = ~w(we ws ww wn)
+
+    picked_winds =
+      Enum.with_index(all_winds)
+      |> Enum.map(fn {wind, i} ->
+        if picked_wind do
+          # we always display the picked tile in the picked_wind_idx, so swap
+          # with the tile that's really at that index
+          wind =
+            if picked_wind_idx == i do
+              picked_wind
+            else
+              if wind == picked_wind do
+                Enum.at(all_winds, picked_wind_idx)
+              else
+                wind
+              end
+            end
+
+          %{wind: wind, picked_by_name: picked_winds_player_names[wind]}
+        else
+          %{picked_wind_idx: i}
+        end
+      end)
 
     socket
-    |> assign(:picked_wind_idx, picked_wind_idx)
     |> assign(:picked_wind, picked_wind)
+    |> assign(:picked_winds, picked_winds)
   end
 
   defp persist_wind_choice(socket, picked_wind_idx) do

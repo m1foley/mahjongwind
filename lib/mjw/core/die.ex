@@ -1,7 +1,5 @@
 defmodule Mjw.Die do
-  defstruct [:value, :unicode]
-
-  @unicodes %{1 => "⚀", 2 => "⚁", 3 => "⚂", 4 => "⚃", 5 => "⚄", 6 => "⚅"}
+  defstruct [:value]
 
   def roll_three() do
     1..3
@@ -16,10 +14,10 @@ defmodule Mjw.Die do
   end
 
   defp random() do
-    {value, unicode} =
-      @unicodes
-      |> Enum.random()
+    %__MODULE__{value: random_value()}
+  end
 
-    %__MODULE__{value: value, unicode: unicode}
+  defp random_value() do
+    1..6 |> Enum.random()
   end
 end

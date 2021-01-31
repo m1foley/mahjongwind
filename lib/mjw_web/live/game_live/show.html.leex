@@ -3,19 +3,18 @@
 <% end %>
 
 <div class="game <%= if @current_user_sitting_at, do: @game_state, else: "blurred" %>">
-  <% show_wall = [:waiting_for_players, :picking_winds, :rolling_for_first_dealer, :rolling_for_deal ] |> Enum.member?(@game_state) %>
-  <%= if show_wall do %>
+  <%= if @show_wall do %>
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
   <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
     <div class="seat seat-<%= i %>">
       <div class="tiles">
-        <%= if show_wall do %>
-          <%= for _ <- 0..16 do %>
+        <%= if @show_wall do %>
+          <%= for _ <- 0..14 do %>
             <img src="/images/tiles/concealed.png" alt="concealed" class="tile wall-1" />
           <% end %>
           <div class="line-break"></div>
-          <%= for _ <- 0..16 do %>
+          <%= for _ <- 0..14 do %>
             <img src="/images/tiles/concealed.png" alt="concealed" class="tile wall-2" />
           <% end %>
         <% else %>
@@ -35,7 +34,7 @@
         <div class="table-center">
           <%= case @game_state do %>
           <% :waiting_for_players -> %>
-            <div>Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
+            <div class="state-description">Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
 
           <% :picking_winds -> %>
             <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
@@ -51,8 +50,6 @@
           <% :discarding -> %>
             <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
             <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
-            <%= live_component @socket, MjwWeb.GameLive.HandComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
-
           <% state -> %>
             Unknown state: <%= state %>
           <% end %>
@@ -71,7 +68,7 @@
             <div class="mahjongtilesmall"><%= @game.deck %></div>
             <div>Discards:<span span class="mahjongtilesmall"><%= @game.discards %></span></div>
             <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
-            <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice |> Enum.map(& "#{&1.unicode}") %></span></div>
+            <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice |> Enum.map(& "#{&1.value}") %></span></div>
             <div>turn_state: <%= @game.turn_state %></div>
             <div>turn_seat_idx: <%= @game.turn_seat_idx %></div>
 
@@ -86,6 +83,14 @@
                 <div>Picked wind: <%= seat.picked_wind %></div>
               </div>
             <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= if @show_player_names && i != 0 do %>
+        <div class="player-name-container player-name-container-<%= i %>">
+          <div class="player-name">
+            <%= seat.player_name %>
           </div>
         </div>
       <% end %>
