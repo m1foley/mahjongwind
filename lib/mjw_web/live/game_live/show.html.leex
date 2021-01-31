@@ -2,7 +2,7 @@
   <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game %>
 <% end %>
 
-<div class="game <%= if @current_user_sitting_at, do: @game_state, else: "blurred" %>">
+<div class="game <%= unless @current_user_sitting_at, do: "blurred" %>">
   <%= if @show_wall do %>
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
