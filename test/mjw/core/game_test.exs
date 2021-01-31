@@ -280,9 +280,9 @@ defmodule Mjw.GameTest do
               %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
             end),
           dice: [
-            %Mjw.Die{value: 1, unicode: "⚀"},
-            %Mjw.Die{value: 1, unicode: "⚀"},
-            %Mjw.Die{value: 6, unicode: "⚅"}
+            %Mjw.Die{value: 1},
+            %Mjw.Die{value: 1},
+            %Mjw.Die{value: 6}
           ]
         }
         |> Mjw.Game.reseat_players()

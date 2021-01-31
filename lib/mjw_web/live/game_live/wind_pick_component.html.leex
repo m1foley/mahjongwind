@@ -1,9 +1,9 @@
 <div class="windpick">
-  <div>
+  <div class="state-description">
     <%= if !@picked_wind do %>
       Pick a wind to choose your seat:
     <% else %>
-      <%= if @picked_winds_player_names |> Map.values() |> Enum.all?() do %>
+      <%= if @picked_winds |> Enum.all?(& &1[:picked_by_name]) do %>
         &nbsp;
       <% else %>
         Waiting for everyone to pick...
@@ -11,49 +11,24 @@
     <% end %>
   </div>
 
-  <div>
-    <% all_winds = ~w(we ws ww wn) %>
-    <%= for {wind, i} <- Enum.with_index(all_winds) do %>
-      <%= if @picked_wind do %>
-        <%
-          # we always display the picked tile in the picked_wind_idx, so swap
-          # with the tile that's really at that index
-          wind =
-            if @picked_wind_idx == i do
-              @picked_wind
-            else
-              if wind == @picked_wind do
-                Enum.at(all_winds, @picked_wind_idx)
-              else
-                wind
-              end
-            end
-        %>
-        <span class="wind_and_player">
-          <span class="wind">
-            <%= if @picked_winds_player_names[wind] do %>
-              <img src="/images/tiles/<%= wind %>.png" alt="picked wind" class="tile" />
-              <span class="player_name">
-                <%= @picked_winds_player_names[wind] %>
-              </span>
+  <div class="windtiles">
+    <%= for wind_data <- @picked_winds do %>
+      <div class="windandname">
+        <div class="windcontainer">
+          <%= if wind_data[:picked_wind_idx] do %>
+            <%= img_tag("/images/tiles/concealed.png", class: "tile pickable-wind", phx_target: @myself, phx_click: "windpick", phx_value_picked_wind_idx: wind_data[:picked_wind_idx]) %>
+          <% else %>
+            <%= if wind_data[:picked_by_name] do %>
+              <img src="/images/tiles/<%= wind_data[:wind] %>.png" alt="picked wind" class="tile" />
             <% else %>
               <img src="/images/tiles/concealed.png" alt="concealed wind" class="tile" />
-              <span class="player_name">
-                &nbsp;
-              </span>
             <% end %>
-          </span>
-        </span>
-      <% else %>
-        <span class="wind_and_player">
-          <span class="wind">
-            <%= img_tag("/images/tiles/concealed.png", class: "tile unknown-wind", phx_target: @myself, phx_click: "windpick", phx_value_picked_wind_idx: i) %>
-          </span>
-          <span class="player_name">
-            &nbsp;
-          </span>
-        </span>
-      <% end %>
+          <% end %>
+        </div>
+        <div class="picked-by-name">
+          <%= wind_data[:picked_by_name] %>
+        </div>
+      </div>
     <% end %>
   </div>
 </div>

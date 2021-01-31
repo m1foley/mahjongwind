@@ -146,11 +146,13 @@ defmodule Mjw.Game do
   end
 
   def roll_dice(game) do
-    # TODO temporarily hardcoded
     # dice = Mjw.Die.roll_three()
-    dice =
-      1..3
-      |> Enum.map(fn _ -> %Mjw.Die{value: 3, unicode: "⚂"} end)
+    # TODO temporarily hardcoded
+    dice = [
+      %Mjw.Die{value: 3},
+      %Mjw.Die{value: 6},
+      %Mjw.Die{value: 4}
+    ]
 
     %{game | dice: dice}
   end

@@ -8,8 +8,8 @@ defmodule MjwWeb.GameLive.Index do
 
     if !MjwWeb.GameStore.get("test1") do
       test_game
-      |> Mjw.Game.seat_player("id0", "name0")
-      |> Mjw.Game.seat_player("id1", "name1")
+      |> Mjw.Game.seat_player("id0", "Snoop Dogg")
+      |> Mjw.Game.seat_player("id1", "Dr. Dre")
       |> Mjw.Game.pick_random_available_wind("id0", 0)
       |> Mjw.Game.pick_random_available_wind("id1", 0)
       |> MjwWeb.GameStore.update()

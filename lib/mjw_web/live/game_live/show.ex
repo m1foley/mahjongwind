@@ -69,12 +69,22 @@ defmodule MjwWeb.GameLive.Show do
     turn_seat = Mjw.Game.turn_seat(game)
     picked_winds_player_names = Mjw.Game.picked_winds_player_names(game)
 
+    show_wall =
+      [:waiting_for_players, :picking_winds, :rolling_for_first_dealer, :rolling_for_deal]
+      |> Enum.member?(game_state)
+
+    show_player_names =
+      !([:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
+        |> Enum.member?(game_state))
+
     socket
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
     |> assign(:game_state, game_state)
     |> assign(:turn_seat, turn_seat)
     |> assign(:picked_winds_player_names, picked_winds_player_names)
+    |> assign(:show_wall, show_wall)
+    |> assign(:show_player_names, show_player_names)
   end
 
   defp ensure_game_joinable(socket) do

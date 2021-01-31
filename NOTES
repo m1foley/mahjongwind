@@ -1,13 +1,11 @@
 console:
 iex -S mix
 
-prying:
-require IEx
-IEx.pry
+pry server:
 iex -S mix phoenix.server
 
-prying in tests:
-iex -S mix test test/mjw/core/game_test.exs:290
+pry tests:
+iex -S mix test %
 
 Tile images:
 https://en.wikipedia.org/wiki/Mahjong_tiles

@@ -1,24 +1,26 @@
 <div class="roll-component">
-  <%= case @game_state do %>
-  <% :rolling_for_first_dealer -> %>
-    <%= if @current_user_is_roller do %>
-      Roll to determine first dealer:
-    <% else %>
-      Waiting for <%= @roller_name %> to roll for first dealer...
+  <div class="state-description">
+    <%= case @game_state do %>
+    <% :rolling_for_first_dealer -> %>
+      <%= if @current_user_is_roller do %>
+        Roll to determine first dealer:
+      <% else %>
+        Waiting for <%= @roller_name %> to roll for first dealer...
+      <% end %>
+    <% :rolling_for_deal -> %>
+      <%= if @current_user_is_roller do %>
+        Roll for the next deal:
+      <% else %>
+        Waiting for <%= @roller_name %> to roll dice...
+      <% end %>
+    <% _discarding -> %>
+      <%= if @current_user_is_roller do %>
+        Waiting for you to discard...
+      <% else %>
+        Waiting for <%= @roller_name %> to discard...
+      <% end %>
     <% end %>
-  <% :rolling_for_deal -> %>
-    <%= if @current_user_is_roller do %>
-      Roll for the next deal:
-    <% else %>
-      Waiting for <%= @roller_name %> to roll dice...
-    <% end %>
-  <% _discarding -> %>
-    <%= if @current_user_is_roller do %>
-      Waiting for you to discard...
-    <% else %>
-      Waiting for <%= @roller_name %> to discard...
-    <% end %>
-  <% end %>
+  </div>
 
   <div class="diceroll">
     <span class="rollhand">
@@ -30,8 +32,8 @@
     </span>
     <span class="dice">
       <%= for die <- @dice do %>
-        <%# game_state added to distinguish animations for the 2 types of rolls %>
-        <span class="die <%= @game_state %>"><%= die.unicode %></span>
+        <%# game_state class added to distinguish animations for the 2 types of rolls %>
+        <img src="/images/dice/d<%= die.value %>.png" alt="die" class="die <%= @game_state %>" />
       <% end %>
     </span>
   </div>

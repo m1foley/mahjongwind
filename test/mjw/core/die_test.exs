@@ -7,7 +7,6 @@ defmodule Mjw.DieTest do
 
       assert length(dice) == 3
       assert Enum.all?(dice, & &1.value)
-      assert Enum.all?(dice, & &1.unicode)
       sum = Mjw.Die.sum(dice)
       assert sum >= 1 * 3
       assert sum <= 6 * 3
@@ -17,9 +16,9 @@ defmodule Mjw.DieTest do
   describe "sum" do
     test "adds the values of the dice" do
       dice = [
-        %Mjw.Die{value: 1, unicode: "⚀"},
-        %Mjw.Die{value: 1, unicode: "⚀"},
-        %Mjw.Die{value: 6, unicode: "⚅"}
+        %Mjw.Die{value: 1},
+        %Mjw.Die{value: 1},
+        %Mjw.Die{value: 6}
       ]
 
       assert Mjw.Die.sum(dice) == 8
