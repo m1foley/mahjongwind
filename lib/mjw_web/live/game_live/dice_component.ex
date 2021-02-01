@@ -26,7 +26,7 @@ defmodule MjwWeb.GameLive.DiceComponent do
     socket.assigns.game
     |> Mjw.Game.roll_dice()
     |> Mjw.Game.reseat_players()
-    |> MjwWeb.GameStore.update()
+    |> MjwWeb.GameStore.update(:rolled_for_first_dealer)
 
     socket
   end
@@ -42,22 +42,17 @@ defmodule MjwWeb.GameLive.DiceComponent do
 
   defp assign_game_info(socket) do
     game = socket.assigns.game
-    current_user_id = socket.assigns.current_user_id
     game_state = socket.assigns.game_state
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
 
-    roller_seat =
-      if game_state == :rolling_for_first_dealer do
-        game |> Mjw.Game.find_picked_wind_seat("we")
-      else
-        socket.assigns.turn_seat
-      end
+    {roller_seat, roller_relative_position} =
+      Mjw.Game.roller_seat_with_relative_position(game, game_state, current_user_sitting_at)
 
-    current_user_is_roller = roller_seat.player_id == current_user_id
     roller_name = roller_seat.player_name
     dice = game.dice
 
     socket
-    |> assign(:current_user_is_roller, current_user_is_roller)
+    |> assign(:roller_relative_position, roller_relative_position)
     |> assign(:roller_name, roller_name)
     |> assign(:dice, dice)
   end

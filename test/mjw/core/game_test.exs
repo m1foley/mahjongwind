@@ -320,4 +320,42 @@ defmodule Mjw.GameTest do
       assert game.turn_state == :discarding
     end
   end
+
+  describe "roller_seat_with_relative_position" do
+    test "uses the player who picked the East wind when rolling for first dealer" do
+      game = %Mjw.Game{
+        turn_seat_idx: 0,
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      {roller_seat, relative_position} =
+        Mjw.Game.roller_seat_with_relative_position(game, :rolling_for_first_dealer, 3)
+
+      assert roller_seat.player_id == "id1"
+      assert relative_position == 2
+    end
+
+    test "uses turn_seat_idx when rolling for deal" do
+      game = %Mjw.Game{
+        turn_seat_idx: 0,
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      {roller_seat, relative_position} =
+        Mjw.Game.roller_seat_with_relative_position(game, :rolling_for_deal, 3)
+
+      assert roller_seat.player_id == "id0"
+      assert relative_position == 1
+    end
+  end
 end
