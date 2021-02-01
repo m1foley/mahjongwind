@@ -21,18 +21,16 @@
       Waiting for <%= @roller_name %> to roll dice...
     <% end %>
   <% _discarding -> %>
-    <%= if @roller_relative_position == 0 do %>
-      Waiting for you to discard...
-    <% else %>
-      Waiting for <%= @roller_name %> to discard...
-    <% end %>
+    Tiles dealt. Waiting for
+    <%= if @roller_relative_position == 0, do: "you", else: @roller_name %>
+    to discard...
   <% end %>
 </div>
 
 <%= if @game_state == :rolling_for_deal || @roller_relative_position == 0 do %>
   <%= case @roller_relative_position do %>
   <% 0 -> %>
-    <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll", class: "hand hand-0") %>
+    <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll#{if @event == :rolled_for_first_dealer, do: "-first-deal"}", class: "hand hand-0") %>
   <% 1 -> %>
     <%= content_tag(:div, "🤛", class: "hand hand-1") %>
   <% 2 -> %>
