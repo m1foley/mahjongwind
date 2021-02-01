@@ -15,7 +15,7 @@ defmodule Mjw.Game do
   defstruct id: nil,
             deck: [],
             discards: [],
-            wind: @wind_tiles |> Enum.at(0),
+            wind: "we",
             # Seats sorted in standard wind order going counter-clockwise.
             # Index 0 = first dealer, possessor of the special stick.
             seats: @four_empty_seats,
@@ -197,6 +197,11 @@ defmodule Mjw.Game do
     |> Enum.find(&(&1.picked_wind == wind))
   end
 
+  defp find_picked_wind_seat_index(%__MODULE__{seats: seats}, wind) do
+    seats
+    |> Enum.find_index(&(&1.picked_wind == wind))
+  end
+
   defp dice_total(%__MODULE__{dice: dice}) do
     dice |> Enum.sum()
   end
@@ -255,9 +260,42 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  The seat of the person currently rolling the dice, and their relative seat
+  position to the current player
+  """
+  def roller_seat_with_relative_position(%__MODULE__{} = game, game_state, relative_to_seat_idx) do
+    roller_seat_idx = roller_seat_idx(game, game_state)
+    seat_with_relative_position(game, roller_seat_idx, relative_to_seat_idx)
+  end
+
+  defp roller_seat_idx(%__MODULE__{} = game, :rolling_for_first_dealer) do
+    game |> find_picked_wind_seat_index("we")
+  end
+
+  defp roller_seat_idx(%__MODULE__{} = game, _game_state) do
+    game.turn_seat_idx
+  end
+
+  @doc """
+  The seat at the given index, and its relative position to the current player
+  (see relative_position/2)
+  """
+  def seat_with_relative_position(%__MODULE__{seats: seats}, seat_idx, relative_to_seat_idx) do
+    seat = seats |> Enum.at(seat_idx)
+    relative_position = relative_position(seat_idx, relative_to_seat_idx)
+    {seat, relative_position}
+  end
+
+  # Where a seat appears relative to the player:
+  # 0 = self, 1 = right, 2 = across, 3 = left
+  defp relative_position(seat_idx, relative_to_seat_idx) do
+    rem(rem(4 - relative_to_seat_idx, 4) + seat_idx, 4)
+  end
+
+  @doc """
   Calculate the state of a game
   """
-  def state(game) do
+  def state(%__MODULE__{} = game) do
     {game, :tbd}
     |> state_waiting_for_players
     |> state_picking_winds

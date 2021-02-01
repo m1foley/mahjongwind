@@ -13,6 +13,7 @@ defmodule MjwWeb.GameLive.Show do
       socket =
         socket
         |> subscribe_to_game_updates()
+        |> assign_event(:initial)
         |> assign_game_info()
         |> ensure_game_joinable()
 
@@ -26,10 +27,11 @@ defmodule MjwWeb.GameLive.Show do
   def handle_params(_params, _url, socket), do: {:noreply, socket}
 
   @impl true
-  def handle_info({:game_updated, game}, socket) do
+  def handle_info({event, %Mjw.Game{} = game}, socket) do
     socket =
       socket
       |> assign(:game, game)
+      |> assign_event(event)
       |> assign_game_info()
 
     {:noreply, socket}
@@ -69,6 +71,23 @@ defmodule MjwWeb.GameLive.Show do
     turn_seat = Mjw.Game.turn_seat(game)
     picked_winds_player_names = Mjw.Game.picked_winds_player_names(game)
 
+    # seats ordered by their position to the current player (0 = self, etc.)
+    relative_game_seats =
+      if empty_seats_count > 0 do
+        []
+      else
+        0..3
+        |> Enum.map(fn i ->
+          Mjw.Game.seat_with_relative_position(game, i, current_user_sitting_at)
+        end)
+        |> Enum.sort_by(fn {_seat, relative_position} -> relative_position end)
+        |> Enum.map(fn {seat, _relative_position} -> seat end)
+      end
+
+    show_stick =
+      [:waiting_for_players, :picking_winds]
+      |> Enum.member?(game_state)
+
     show_wall =
       [:waiting_for_players, :picking_winds, :rolling_for_first_dealer, :rolling_for_deal]
       |> Enum.member?(game_state)
@@ -83,6 +102,8 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:game_state, game_state)
     |> assign(:turn_seat, turn_seat)
     |> assign(:picked_winds_player_names, picked_winds_player_names)
+    |> assign(:relative_game_seats, relative_game_seats)
+    |> assign(:show_stick, show_stick)
     |> assign(:show_wall, show_wall)
     |> assign(:show_player_names, show_player_names)
   end
@@ -96,5 +117,10 @@ defmodule MjwWeb.GameLive.Show do
     else
       socket
     end
+  end
+
+  defp assign_event(socket, event) do
+    socket
+    |> assign(:event, event)
   end
 end

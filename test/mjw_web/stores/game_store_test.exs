@@ -65,7 +65,7 @@ defmodule MjwWeb.GameStoreTest do
     assert Enum.sort_by(result, & &1.id) == Enum.sort_by(games, & &1.id)
   end
 
-  test "update/1 updates a game" do
+  test "update updates a game" do
     game = MjwWeb.GameStore.create()
     updated_game = game |> Map.merge(%{turn_seat_idx: 1})
     result = MjwWeb.GameStore.update(updated_game)
@@ -73,7 +73,7 @@ defmodule MjwWeb.GameStoreTest do
     assert MjwWeb.GameStore.get(game.id) == updated_game
   end
 
-  test "update/1 broadcasts change to game" do
+  test "update broadcasts change to game" do
     game = MjwWeb.GameStore.create()
     updated_game = game |> Map.merge(%{turn_seat_idx: 1})
 
@@ -83,7 +83,16 @@ defmodule MjwWeb.GameStoreTest do
     assert_received({:game_updated, ^updated_game})
   end
 
-  test "update/1 does not broadcast change to lobby" do
+  test "update broadcasts non-default events" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+
+    :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
+    MjwWeb.GameStore.update(updated_game, :event1)
+    assert_received({:event1, ^updated_game})
+  end
+
+  test "update does not broadcast change to lobby" do
     game = MjwWeb.GameStore.create()
     updated_game = game |> Map.merge(%{turn_seat_idx: 1})
 
@@ -93,31 +102,51 @@ defmodule MjwWeb.GameStoreTest do
     refute_received({:game_updated, _game})
   end
 
-  test "update/2 updates a game" do
+  test "update_with_lobby_change updates a game" do
     game = MjwWeb.GameStore.create()
     updated_game = game |> Map.merge(%{turn_seat_idx: 1})
-    result = MjwWeb.GameStore.update(updated_game, :change_appears_in_lobby)
+    result = MjwWeb.GameStore.update_with_lobby_change(updated_game)
     assert result == updated_game
     assert MjwWeb.GameStore.get(game.id) == updated_game
   end
 
-  test "update/2 broadcasts change to game" do
+  test "update_with_lobby_change broadcasts change to game" do
     game = MjwWeb.GameStore.create()
     updated_game = game |> Map.merge(%{turn_seat_idx: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
-    MjwWeb.GameStore.update(updated_game, :change_appears_in_lobby)
+    MjwWeb.GameStore.update_with_lobby_change(updated_game)
     :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
     assert_received({:game_updated, ^updated_game})
   end
 
-  test "update/2 broadcasts change to lobby" do
+  test "update_with_lobby_change broadcasts change to lobby" do
     game = MjwWeb.GameStore.create()
     updated_game = game |> Map.merge(%{turn_seat_idx: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_lobby_updates()
-    MjwWeb.GameStore.update(updated_game, :change_appears_in_lobby)
+    MjwWeb.GameStore.update_with_lobby_change(updated_game)
     :ok = MjwWeb.GameStore.unsubscribe_from_lobby_updates()
     assert_received({:game_updated, ^updated_game})
+  end
+
+  test "update_with_lobby_change broadcasts non-default change to game" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+
+    :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
+    MjwWeb.GameStore.update_with_lobby_change(updated_game, :event1)
+    :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
+    assert_received({:event1, ^updated_game})
+  end
+
+  test "update_with_lobby_change broadcasts non-default change to lobby" do
+    game = MjwWeb.GameStore.create()
+    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+
+    :ok = MjwWeb.GameStore.subscribe_to_lobby_updates()
+    MjwWeb.GameStore.update_with_lobby_change(updated_game, :event1)
+    :ok = MjwWeb.GameStore.unsubscribe_from_lobby_updates()
+    assert_received({:event1, ^updated_game})
   end
 end

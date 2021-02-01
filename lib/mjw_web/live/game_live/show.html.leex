@@ -3,10 +3,13 @@
 <% end %>
 
 <div class="game <%= unless @current_user_sitting_at, do: "blurred" %>">
-  <%= if @show_wall do %>
+
+  <%= if @show_stick do %>
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
-  <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+
+  <%# displaying seats based on z-index order: 2 has game info, 0 has user's hand %>
+  <%= for {seat, i} <- [1,3,2,0] |> Enum.map(fn i -> {Enum.at(@relative_game_seats, i), i} end) do %>
     <div class="seat seat-<%= i %>">
       <div class="tiles">
         <%= if @show_wall do %>
@@ -23,7 +26,7 @@
             <img src="/images/tiles/<%= tile %>.png" alt="<%= tile %>" class="tile concealed" />
           <% end %>
           <div class="line-break"></div>
-          <%= for tile <- seat.concealed |> Enum.slice(0..10) do %>
+          <%= for tile <- seat.exposed do %>
             <img src="/images/tiles/<%= tile %>.png" alt="<%= tile %>" class="tile exposed" />
           <% end %>
         <% end %>
@@ -41,20 +44,22 @@
 
           <% :rolling_for_first_dealer -> %>
             <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
 
           <% :rolling_for_deal -> %>
-            <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
+            <%= if @event == :rolled_for_first_dealer do %>
+              <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
+            <% end %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
 
           <% :discarding -> %>
-            <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, turn_seat: @turn_seat %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
           <% state -> %>
             Unknown state: <%= state %>
           <% end %>
 
-          <div class="debug hidden">
+          <div class="debug text-gray-900 text-sm opacity-50">
+            <div>event: <%= @event %></div>
             <div>live_action: <%= @live_action %></div>
             <div>current_user_id: <%= @current_user_id %></div>
             <div>Game state: <%= @game_state %></div>

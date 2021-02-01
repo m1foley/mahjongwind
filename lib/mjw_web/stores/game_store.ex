@@ -19,19 +19,19 @@ defmodule MjwWeb.GameStore do
   @doc """
   Persist an update to an existing game
   """
-  def update(game) do
+  def update(game, event \\ :game_updated) do
     game
     |> persist()
-    |> broadcast_game_update(:game_updated)
+    |> broadcast_game_update(event)
   end
 
   @doc """
   Persist an update to an existing game that changes the game lobby
   """
-  def update(game, :change_appears_in_lobby) do
+  def update_with_lobby_change(game, event \\ :game_updated) do
     game
-    |> update()
-    |> broadcast_lobby_update(:game_updated)
+    |> update(event)
+    |> broadcast_lobby_update(event)
   end
 
   def persist(game) do

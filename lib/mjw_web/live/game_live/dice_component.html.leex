@@ -1,40 +1,49 @@
-<div class="roll-component">
-  <div class="state-description">
-    <%= case @game_state do %>
-    <% :rolling_for_first_dealer -> %>
-      <%= if @current_user_is_roller do %>
-        Roll to determine first dealer:
+<div class="state-description">
+  <%= case @game_state do %>
+  <% :rolling_for_first_dealer -> %>
+    <%= if @roller_relative_position == 0 do %>
+      Roll to determine first dealer:
+    <% else %>
+      Waiting for <%= @roller_name %> to roll for first dealer...
+    <% end %>
+  <% :rolling_for_deal -> %>
+    <%= if @event == :rolled_for_first_dealer do %>
+      <%= if @roller_relative_position == 0 do %>
+        You are the first dealer!
       <% else %>
-        Waiting for <%= @roller_name %> to roll for first dealer...
-      <% end %>
-    <% :rolling_for_deal -> %>
-      <%= if @current_user_is_roller do %>
-        Roll for the next deal:
-      <% else %>
-        Waiting for <%= @roller_name %> to roll dice...
-      <% end %>
-    <% _discarding -> %>
-      <%= if @current_user_is_roller do %>
-        Waiting for you to discard...
-      <% else %>
-        Waiting for <%= @roller_name %> to discard...
+        <%= @roller_name %> is the first dealer.
       <% end %>
     <% end %>
-  </div>
 
-  <div class="diceroll">
-    <span class="rollhand">
-      <%= if @current_user_is_roller do %>
-        <%= content_tag(:span, "🤜", phx_target: @myself, phx_click: "roll", class: "rollable-dice") %>
-      <% else %>
-        <%= content_tag(:span, "🤜", class: "unrollable-dice") %>
-      <% end %>
-    </span>
-    <span class="dice">
-      <%= for die <- @dice do %>
-        <%# game_state class added to distinguish animations for the 2 types of rolls %>
-        <img src="/images/dice/d<%= die %>.png" alt="die" class="die <%= @game_state %>" />
-      <% end %>
-    </span>
-  </div>
+    <%= if @roller_relative_position == 0 do %>
+      Roll to deal the tiles:
+    <% else %>
+      Waiting for <%= @roller_name %> to roll dice...
+    <% end %>
+  <% _discarding -> %>
+    <%= if @roller_relative_position == 0 do %>
+      Waiting for you to discard...
+    <% else %>
+      Waiting for <%= @roller_name %> to discard...
+    <% end %>
+  <% end %>
+</div>
+
+<%= if @game_state == :rolling_for_deal || @roller_relative_position == 0 do %>
+  <%= case @roller_relative_position do %>
+  <% 0 -> %>
+    <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll", class: "hand hand-0") %>
+  <% 1 -> %>
+    <%= content_tag(:div, "🤛", class: "hand hand-1") %>
+  <% 2 -> %>
+    <%= content_tag(:div, "👊", class: "hand hand-2") %>
+  <% 3 -> %>
+    <%= content_tag(:div, "🤜", class: "hand hand-3") %>
+  <% end %>
+<% end %>
+<div class="dice dice-<%= @roller_relative_position %>">
+  <%= for {die, i} <- @dice |> Enum.with_index() do %>
+    <%# game_state class added to distinguish animations for the 2 types of rolls %>
+    <img src="/images/dice/d<%= die %>.png" alt="die" class="die die-<%= i %> <%= @game_state %>-<%= @roller_relative_position %>" />
+  <% end %>
 </div>
