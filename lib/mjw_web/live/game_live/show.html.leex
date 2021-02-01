@@ -14,11 +14,7 @@
       <div class="tiles">
         <%= if @show_wall do %>
           <%= for _ <- 0..14 do %>
-            <img src="/images/tiles/concealed.png" alt="concealed" class="tile wall-1" />
-          <% end %>
-          <div class="line-break"></div>
-          <%= for _ <- 0..14 do %>
-            <img src="/images/tiles/concealed.png" alt="concealed" class="tile wall-2" />
+            <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
           <% end %>
         <% else %>
           <%= for tile <- seat.concealed do %>
@@ -53,12 +49,15 @@
             <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
 
           <% :discarding -> %>
+            <%= if @event == :rolled_for_first_deal do %>
+              <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
+            <% end %>
             <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
           <% state -> %>
             Unknown state: <%= state %>
           <% end %>
 
-          <div class="debug text-gray-900 text-sm opacity-50">
+          <div class="debug text-gray-900 text-sm hidden">
             <div>event: <%= @event %></div>
             <div>live_action: <%= @live_action %></div>
             <div>current_user_id: <%= @current_user_id %></div>
