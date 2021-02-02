@@ -6,8 +6,10 @@ defmodule Mjw.Game do
   @dragon_tiles ~w(df dp dz)
   # winds sorted in standard wind order
   @wind_tiles ~w(we ws ww wn)
+  # hyphens added to give each tile in the deck a unique ID. e.g., the four
+  # plate tiles are dp-0..dp-3
   @all_tiles (@bamboo_tiles ++ @circle_tiles ++ @number_tiles ++ @dragon_tiles ++ @wind_tiles)
-             |> List.duplicate(4)
+             |> Enum.map(fn w -> Enum.map(0..3, fn i -> "#{w}-#{i}" end) end)
              |> List.flatten()
 
   @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)

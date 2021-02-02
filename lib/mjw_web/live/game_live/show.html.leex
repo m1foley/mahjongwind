@@ -3,7 +3,6 @@
 <% end %>
 
 <div class="game <%= unless @current_user_sitting_at, do: "blurred" %>">
-
   <%= if @show_stick do %>
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
@@ -13,18 +12,18 @@
     <div class="seat seat-<%= i %>">
       <div class="tiles">
         <%= if @show_wall do %>
-          <%= for _ <- 0..14 do %>
-            <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
-          <% end %>
+          <div class="wall-tiles">
+            <%= for _ <- 0..14 do %>
+              <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+            <% end %>
+          </div>
         <% else %>
-          <%= for tile <- seat.concealed do %>
-            <% tile = if i == 0, do: tile, else: "concealed" %>
-            <img src="/images/tiles/<%= tile %>.png" alt="<%= tile %>" class="tile concealed" />
-          <% end %>
-          <div class="line-break"></div>
-          <%= for tile <- seat.exposed do %>
-            <img src="/images/tiles/<%= tile %>.png" alt="<%= tile %>" class="tile exposed" />
-          <% end %>
+          <%= live_component @socket, MjwWeb.GameLive.TilesComponent, id: "concealed-tiles-#{i}", seatno: i, tiles: seat.concealed %>
+          <div class="exposed-tiles">
+            <%= for tile <- seat.exposed do %>
+              <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= tile %>" class="tile exposed" />
+            <% end %>
+          </div>
         <% end %>
       </div>
 

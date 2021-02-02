@@ -12,10 +12,10 @@ defmodule MjwWeb.GameLive.Show do
     if socket.assigns.game do
       socket =
         socket
-        |> subscribe_to_game_updates()
         |> assign_event(:initial)
         |> assign_game_info()
         |> ensure_game_joinable()
+        |> subscribe_to_game_updates()
 
       {:ok, socket}
     else
@@ -53,7 +53,7 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   defp subscribe_to_game_updates(socket) do
-    if connected?(socket) do
+    if connected?(socket) && game_joinable?(socket) do
       socket.assigns.game
       |> MjwWeb.GameStore.subscribe_to_game_updates()
     end
@@ -73,7 +73,7 @@ defmodule MjwWeb.GameLive.Show do
 
     # seats ordered by their position to the current player (0 = self, etc.)
     relative_game_seats =
-      if empty_seats_count > 0 do
+      if empty_seats_count > 0 || !current_user_sitting_at do
         []
       else
         0..3
@@ -109,14 +109,17 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   defp ensure_game_joinable(socket) do
-    if socket.assigns.empty_seats_count <= 0 &&
-         !socket.assigns.current_user_sitting_at do
+    if !game_joinable?(socket) do
       socket
       |> put_flash(:error, "Sorry, that game is full.")
       |> push_redirect(to: Routes.game_index_path(socket, :index))
     else
       socket
     end
+  end
+
+  defp game_joinable?(socket) do
+    socket.assigns.empty_seats_count > 0 || socket.assigns.current_user_sitting_at
   end
 
   defp assign_event(socket, event) do
