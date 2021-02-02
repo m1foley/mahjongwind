@@ -1,0 +1,15 @@
+<div id="<%= @id %>">
+  <%= if @seatno == 0 do %>
+    <div id="concealed-<%= @seatno %>" class="concealed-tiles" phx-hook="InitSortable" data-target-id="#<%= @id %>" data-list-id="concealed-<%= @seatno %>">
+      <%= for tile <- @tiles do %>
+        <img id="<%= tile %>" data-sortable-id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= tile %>" class="tile concealed cursor-move" />
+      <% end %>
+    </div>
+  <% else %>
+    <div class="concealed-tiles">
+      <%= for _tile <- @tiles do %>
+        <img src="/images/tiles/concealed.png" alt="concealed" class="tile concealed" />
+      <% end %>
+    </div>
+  <% end %>
+</div>

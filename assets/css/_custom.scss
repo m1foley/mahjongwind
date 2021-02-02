@@ -95,7 +95,7 @@
   position: absolute;
 }
 
-.tiles {
+.concealed-tiles, .exposed-tiles, .wall-tiles {
   @apply flex flex-row flex-wrap-reverse text-center justify-center;
 }
 
