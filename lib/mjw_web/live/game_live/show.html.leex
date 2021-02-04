@@ -2,7 +2,7 @@
   <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game %>
 <% end %>
 
-<div class="game <%= unless @current_user_sitting_at, do: "blurred" %>">
+<div id="game" class="game <%= unless @current_user_sitting_at, do: "blurred" %>">
   <%= if @show_stick do %>
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
@@ -18,10 +18,28 @@
             <% end %>
           </div>
         <% else %>
-          <%= live_component @socket, MjwWeb.GameLive.TilesComponent, id: "concealed-tiles-#{i}", seatno: i, tiles: seat.concealed %>
+          <%= if i == 0 do %>
+            <%= content_tag(:div, id: "discards", phx_hook: "Drag", class: "discards dropzone#{if @game_state != :discarding, do: " nodrops"}") do %>
+              <%= for {tile, j} <- @game.discards |> Enum.with_index()  do %>
+                <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: (if j == 0, do: "draggable largetile", else: "tile")) %>
+              <% end %>
+            <% end %>
+
+            <div id="concealed-0" phx-hook="Drag" class="concealed-tiles dropzone">
+              <%= for tile <- seat.concealed do %>
+                <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "tile concealed draggable") %>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="concealed-tiles">
+              <%= for _tile <- seat.concealed do %>
+                <%= img_tag("/images/tiles/concealed.png", alt: "concealed", class: "tile concealed") %>
+              <% end %>
+            </div>
+          <% end %>
           <div class="exposed-tiles">
             <%= for tile <- seat.exposed do %>
-              <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= tile %>" class="tile exposed" />
+              <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), class: "tile exposed#{if i == 0, do: " draggable"}") %>
             <% end %>
           </div>
         <% end %>

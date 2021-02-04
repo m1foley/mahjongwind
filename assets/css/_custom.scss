@@ -157,6 +157,7 @@
     @apply largetile mx-auto;
   }
   .picked-by-name {
+    overflow: hidden;
     @apply py-4;
   }
   @apply text-gray-800 text-xl font-sans font-bold flex flex-row flex-wrap content-between place-content-evenly text-center justify-center;
@@ -312,4 +313,20 @@
   45% { transform: translate(-10rem, 0) rotate(450deg); }
   90% { transform: translate(-0.5rem, 0) rotate(720deg); }
   100% { transform: translate(0, 0) rotate(720deg); }
+}
+
+.discards {
+  position: fixed;
+  top: 14rem;
+  bottom: 20rem;
+  left: 14rem;
+  right: 14rem;
+}
+
+.draggable {
+  cursor: move;
+}
+
+.sortable-ghost {
+  @apply opacity-70;
 }

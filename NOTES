@@ -9,6 +9,9 @@ iex -S mix test %
 
 sortablejs:
 https://fullstackphoenix.com/features/sortable-lists-with-sortable-js
+https://www.headway.io/blog/client-side-drag-and-drop-with-phoenix-liveview
+https://github.com/kelseyleftwich/phoenix-liveview-hook-demo
+https://github.com/SortableJS/Sortable
 
 Tile images:
 https://en.wikipedia.org/wiki/Mahjong_tiles

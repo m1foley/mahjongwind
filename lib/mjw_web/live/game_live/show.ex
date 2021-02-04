@@ -37,6 +37,38 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  @impl true
+  # discarding a tile
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "concealed-0",
+          "draggedToId" => "discards",
+          "draggedId" => discarded_tile
+        },
+        socket
+      ) do
+    socket.assigns.game
+    |> Mjw.Game.discard(discarded_tile)
+    |> MjwWeb.GameStore.update(:discarded_tile)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  # sorting one's own concealed tiles
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "concealed-0",
+          "draggedToId" => "concealed-0",
+          "draggedToList" => new_concealed
+        },
+        socket
+      ) do
+    {:noreply, socket}
+  end
+
   defp fetch_game(socket, id) do
     game = MjwWeb.GameStore.get(id)
     socket |> assign(:game, game)

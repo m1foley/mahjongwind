@@ -358,4 +358,20 @@ defmodule Mjw.GameTest do
       assert relative_position == 1
     end
   end
+
+  describe "discard" do
+    test "adds tile to discards and changes the turn to the next player" do
+      game =
+        %Mjw.Game{
+          turn_seat_idx: 3,
+          turn_state: :discarding,
+          discards: ["c1-3"]
+        }
+        |> Mjw.Game.discard("dp-0")
+
+      assert game.discards == ["dp-0", "c1-3"]
+      assert game.turn_state == :drawing
+      assert game.turn_seat_idx == 0
+    end
+  end
 end
