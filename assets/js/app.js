@@ -20,9 +20,8 @@ import NProgress from "nprogress";
 import {LiveSocket} from "phoenix_live_view";
 
 // sortablejs
-import {InitSortable} from "./init_sortable";
-let Hooks = {};
-Hooks.InitSortable = InitSortable;
+import Drag from './dragHook';
+const Hooks = { Drag: Drag };
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {

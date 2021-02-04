@@ -6,8 +6,8 @@ defmodule Mjw.Game do
   @dragon_tiles ~w(df dp dz)
   # winds sorted in standard wind order
   @wind_tiles ~w(we ws ww wn)
-  # hyphens added to give each tile in the deck a unique ID. e.g., the four
-  # plate tiles are dp-0..dp-3
+  # numbered suffixes are added to give each tile in the deck a unique ID.
+  # e.g., the four plate tiles are: dp-0, dp-1, dp-2, dp-3
   @all_tiles (@bamboo_tiles ++ @circle_tiles ++ @number_tiles ++ @dragon_tiles ++ @wind_tiles)
              |> Enum.map(fn w -> Enum.map(0..3, fn i -> "#{w}-#{i}" end) end)
              |> List.flatten()
@@ -155,7 +155,7 @@ defmodule Mjw.Game do
     # |> Enum.map(fn _ -> 1..6 |> Enum.random() end)
 
     # TODO temporarily hardcoded
-    dice = [3, 6, 4]
+    dice = [[3, 6, 4], [6, 3, 4], [3, 3, 3], [1, 2, 2]] |> Enum.random()
 
     %{game | dice: dice}
   end
@@ -225,7 +225,7 @@ defmodule Mjw.Game do
   Deal the deck. The dealer will have 14 tiles and others will have 13.
   Change turn_state to discarding.
   """
-  def deal(game) do
+  def deal(%__MODULE__{} = game) do
     new_seats =
       game.seats
       |> Enum.with_index()
@@ -295,6 +295,25 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  A player discards a tile. Changes turn state and turn_seat_idx.
+  """
+  def discard(%__MODULE__{turn_state: :discarding} = game, tile) do
+    new_discards = [tile | game.discards]
+    new_turn_seat_idx = increment_turn_seat_idx(game.turn_seat_idx)
+
+    %{
+      game
+      | discards: new_discards,
+        turn_state: :drawing,
+        turn_seat_idx: new_turn_seat_idx
+    }
+  end
+
+  defp increment_turn_seat_idx(turn_seat_idx) do
+    rem(turn_seat_idx + 1, 4)
+  end
+
+  @doc """
   Calculate the state of a game
   """
   def state(%__MODULE__{} = game) do
@@ -305,8 +324,8 @@ defmodule Mjw.Game do
     |> state_rolling_for_deal
     |> state_drawing
     |> state_discarding
-    # |> state_draw
     # |> state_win
+    # |> state_draw
     # |> state_dq
     |> state_invalid
   end
