@@ -31,7 +31,7 @@
   <%= case @roller_relative_position do %>
   <% 0 -> %>
     <%= if @game_state != :discarding do %>
-      <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll#{if @event == :rolled_for_first_dealer, do: "-first-deal"}", class: "hand hand-0") %>
+      <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll", class: "hand hand-0") %>
     <% end %>
   <% 1 -> %>
     <%= content_tag(:div, "🤛", class: "hand hand-1") %>

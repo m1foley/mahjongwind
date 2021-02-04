@@ -25,9 +25,9 @@ defmodule MjwWeb.GameLive.WindPickComponent do
   defp assign_game_info(socket) do
     game = socket.assigns.game
     current_user_id = socket.assigns.current_user_id
-    picked_winds_player_names = socket.assigns.picked_winds_player_names
     picked_wind = Mjw.Game.picked_wind(game, current_user_id)
     picked_wind_idx = Mjw.Game.picked_wind_idx(game, current_user_id)
+    picked_winds_player_names = Mjw.Game.picked_winds_player_names(game)
     all_winds = ~w(we ws ww wn)
 
     picked_winds =
