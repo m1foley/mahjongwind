@@ -255,13 +255,6 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  The seat whose turn it is
-  """
-  def turn_seat(%__MODULE__{seats: seats, turn_seat_idx: turn_seat_idx}) do
-    seats |> Enum.at(turn_seat_idx)
-  end
-
-  @doc """
   The seat of the person currently rolling the dice, and their relative seat
   position to the current player
   """
@@ -274,8 +267,8 @@ defmodule Mjw.Game do
     game |> find_picked_wind_seat_index("we")
   end
 
-  defp roller_seat_idx(%__MODULE__{} = game, _game_state) do
-    game.turn_seat_idx
+  defp roller_seat_idx(%__MODULE__{turn_seat_idx: turn_seat_idx}, _game_state) do
+    turn_seat_idx
   end
 
   @doc """

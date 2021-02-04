@@ -122,8 +122,6 @@ defmodule MjwWeb.GameLive.Show do
     empty_seats_count = Mjw.Game.empty_seats_count(game)
     current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
-    turn_seat = Mjw.Game.turn_seat(game)
-    picked_winds_player_names = Mjw.Game.picked_winds_player_names(game)
 
     # seats ordered by their position to the current player (0 = self, etc.)
     relative_game_seats =
@@ -134,8 +132,9 @@ defmodule MjwWeb.GameLive.Show do
         |> Enum.map(fn i ->
           Mjw.Game.seat_with_relative_position(game, i, current_user_sitting_at)
         end)
-        |> Enum.sort_by(fn {_seat, relative_position} -> relative_position end)
-        |> Enum.map(fn {seat, _relative_position} -> seat end)
+        |> Enum.with_index()
+        |> Enum.sort_by(fn {{_seat, relative_position}, _i} -> relative_position end)
+        |> Enum.map(fn {{seat, _relative_position}, i} -> Map.merge(seat, %{seatno: i}) end)
       end
 
     show_stick =
@@ -163,8 +162,6 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
     |> assign(:game_state, game_state)
-    |> assign(:turn_seat, turn_seat)
-    |> assign(:picked_winds_player_names, picked_winds_player_names)
     |> assign(:relative_game_seats, relative_game_seats)
     |> assign(:show_stick, show_stick)
     |> assign(:show_wind_picking, show_wind_picking)
