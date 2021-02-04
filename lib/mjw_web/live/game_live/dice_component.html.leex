@@ -27,7 +27,7 @@
   <% end %>
 </div>
 
-<%= if @game_state == :rolling_for_deal || @roller_relative_position == 0 do %>
+<%= if @game_state != :rolling_for_first_dealer || @roller_relative_position == 0 do %>
   <%= case @roller_relative_position do %>
   <% 0 -> %>
     <%= if @game_state != :discarding do %>
