@@ -48,30 +48,15 @@
       <%# to simplify the CSS, table-center is displayed beneath the tiles in the top of the screen %>
       <%= if i == 2 do %>
         <div class="table-center">
-          <%= case @game_state do %>
-          <% :waiting_for_players -> %>
+          <%= if @show_wind_picking do %>
+            <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
+          <% end %>
+          <%= if @show_dice do %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
+          <% end %>
+
+          <%= if @game_state == :waiting_for_players do %>
             <div class="state-description">Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
-
-          <% :picking_winds -> %>
-            <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-
-          <% :rolling_for_first_dealer -> %>
-            <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
-
-          <% :rolling_for_deal -> %>
-            <%= if @event == :rolled_for_first_dealer do %>
-              <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-            <% end %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
-
-          <% :discarding -> %>
-            <%= if @event == :rolled_for_first_deal do %>
-              <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, picked_winds_player_names: @picked_winds_player_names %>
-            <% end %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
-          <% state -> %>
-            Unknown state: <%= state %>
           <% end %>
 
           <div class="debug text-gray-900 text-sm hidden">

@@ -10,10 +10,10 @@ defmodule Mjw.Seat do
   def empty?(%__MODULE__{player_id: _id}), do: false
 
   def seat_player(seat, player_id, player_name) do
-    seat |> Map.merge(%{player_id: player_id, player_name: player_name})
+    %{seat | player_id: player_id, player_name: player_name}
   end
 
   def pick_wind(seat, picked_wind, picked_wind_idx) do
-    seat |> Map.merge(%{picked_wind: picked_wind, picked_wind_idx: picked_wind_idx})
+    %{seat | picked_wind: picked_wind, picked_wind_idx: picked_wind_idx}
   end
 end

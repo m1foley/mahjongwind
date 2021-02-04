@@ -37,8 +37,28 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # sorting one's own concealed tiles
   @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "concealed-0",
+          "draggedToId" => "concealed-0",
+          "draggedToList" => new_concealed
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
+    |> MjwWeb.GameStore.update(:concealed_sorted)
+
+    {:noreply, socket}
+  end
+
   # discarding a tile
+  @impl true
   def handle_event(
         "dropped",
         %{
@@ -55,17 +75,19 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # grabbing a discard
   @impl true
-  # sorting one's own concealed tiles
   def handle_event(
         "dropped",
         %{
-          "draggedFromId" => "concealed-0",
+          "draggedFromId" => "discards",
           "draggedToId" => "concealed-0",
-          "draggedToList" => new_concealed
+          "draggedId" => _tile
         },
         socket
       ) do
+    socket = socket |> put_flash(:error, "Grabbing a discard unimplemented.")
+
     {:noreply, socket}
   end
 
@@ -120,8 +142,17 @@ defmodule MjwWeb.GameLive.Show do
       [:waiting_for_players, :picking_winds]
       |> Enum.member?(game_state)
 
+    show_wind_picking =
+      [:picking_winds, :rolling_for_first_dealer, :rolling_for_deal, :discarding]
+      |> Enum.member?(game_state) &&
+        game.wind == "we" && game.discards == []
+
     show_wall =
       [:waiting_for_players, :picking_winds, :rolling_for_first_dealer, :rolling_for_deal]
+      |> Enum.member?(game_state)
+
+    show_dice =
+      [:rolling_for_first_dealer, :rolling_for_deal, :discarding]
       |> Enum.member?(game_state)
 
     show_player_names =
@@ -136,8 +167,10 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:picked_winds_player_names, picked_winds_player_names)
     |> assign(:relative_game_seats, relative_game_seats)
     |> assign(:show_stick, show_stick)
+    |> assign(:show_wind_picking, show_wind_picking)
     |> assign(:show_wall, show_wall)
     |> assign(:show_player_names, show_player_names)
+    |> assign(:show_dice, show_dice)
   end
 
   defp ensure_game_joinable(socket) do

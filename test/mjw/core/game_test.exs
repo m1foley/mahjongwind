@@ -374,4 +374,16 @@ defmodule Mjw.GameTest do
       assert game.turn_seat_idx == 0
     end
   end
+
+  describe "update_concealed" do
+    test "changes the concealed tiles for the given seat number" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.update_concealed(1, ["dp-0", "c1-3"])
+
+      assert game.seats |> Enum.map(& &1.concealed) == [[], ["dp-0", "c1-3"], [], []]
+    end
+  end
 end

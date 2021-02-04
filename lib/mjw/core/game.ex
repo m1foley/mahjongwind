@@ -314,6 +314,15 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Update a player's concealed tiles, like when rearranging their hand
+  """
+  def update_concealed(%__MODULE__{} = game, seatno, concealed) do
+    update_seat(game, seatno, fn seat ->
+      %{seat | concealed: concealed}
+    end)
+  end
+
+  @doc """
   Calculate the state of a game
   """
   def state(%__MODULE__{} = game) do
