@@ -7,6 +7,12 @@
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
 
+  <%= content_tag(:div, id: "discards", phx_hook: "Drag", class: "discards dropzone#{if @game_state != :discarding, do: " nodrops"}") do %>
+    <%= for {tile, j} <- @game.discards |> Enum.reverse() |> Enum.with_index()  do %>
+      <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "discard draggable #{(if j == length(@game.discards) - 1, do: "lastdiscard", else: "cursor-not-allowed")}") %>
+    <% end %>
+  <% end %>
+
   <%# displaying seats based on z-index order: 2 has game info, 0 has user's tiles %>
   <%= for {seat, i} <- [1,3,2,0] |> Enum.map(fn j -> {Enum.at(@relative_game_seats, j), j} end) do %>
     <div class="seat seat-<%= i %>">
@@ -19,12 +25,6 @@
           </div>
         <% else %>
           <%= if i == 0 do %>
-            <%= content_tag(:div, id: "discards", phx_hook: "Drag", class: "discards dropzone#{if @game_state != :discarding, do: " nodrops"}") do %>
-              <%= for {tile, j} <- @game.discards |> Enum.with_index()  do %>
-                <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: (if j == 0, do: "draggable largetile", else: "tile")) %>
-              <% end %>
-            <% end %>
-
             <div id="concealed-0" phx-hook="Drag" class="concealed-tiles dropzone">
               <%= for tile <- seat.concealed do %>
                 <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "tile concealed draggable") %>
@@ -57,11 +57,13 @@
 
           <%= case @game_state do %>
           <% :waiting_for_players -> %>
-            <div class="state-description">Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...</div>
+            <div class="state-description">
+              Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
+            </div>
           <% _ -> %>
           <% end %>
 
-          <div class="debug text-gray-900 text-sm opacity-50">
+          <div class="debug text-gray-900 text-sm opacity-50 hidden">
             <div>event: <%= @event %></div>
             <div>live_action: <%= @live_action %></div>
             <div>current_user_id: <%= @current_user_id %></div>
