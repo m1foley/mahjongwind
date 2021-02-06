@@ -44,7 +44,7 @@ export default {
           name: 'concealed-0',
           put: function (to, from) {
             if (dropzone.classList.contains('enableputs')) {
-              return ['concealed-0', 'discards', 'walloffer'];
+              return ['concealed-0', 'discards', 'deckoffer'];
             } else {
               return false;
             }
@@ -85,10 +85,10 @@ export default {
       });
     });
 
-    document.querySelectorAll('#walloffer.dropzone').forEach((dropzone) => {
+    document.querySelectorAll('#deckoffer.dropzone').forEach((dropzone) => {
       Sortable.create(dropzone, {
         group: {
-          name: 'walloffer',
+          name: 'deckoffer',
           put: false,
           pull: 'clone'
         },
