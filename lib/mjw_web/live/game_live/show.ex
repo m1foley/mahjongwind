@@ -106,7 +106,7 @@ defmodule MjwWeb.GameLive.Show do
   def handle_event(
         "dropped",
         %{
-          "draggedFromId" => "walloffer",
+          "draggedFromId" => "deckoffer",
           "draggedToId" => "concealed-0",
           "draggedToList" => new_concealed
         },
