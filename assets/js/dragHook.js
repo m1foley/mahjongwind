@@ -43,7 +43,7 @@ export default {
           name: 'concealed-0',
           put: function (to, from) {
             if (dropzone.classList.contains('enableputs')) {
-              return ['concealed-0', 'discards'];
+              return ['concealed-0', 'discards', 'walloffer'];
             } else {
               return false;
             }
@@ -83,5 +83,22 @@ export default {
         }
       });
     });
+
+    document.querySelectorAll('#walloffer.dropzone').forEach((dropzone) => {
+      Sortable.create(dropzone, {
+        group: {
+          name: 'walloffer',
+          put: false,
+          pull: 'clone'
+        },
+        direction: 'horizontal',
+        draggable: '.draggable',
+        ghostClass: 'sortable-ghost',
+        animation: 0,
+        delay: 50,
+        delayOnTouchOnly: true
+      });
+    });
+
   }
 };
