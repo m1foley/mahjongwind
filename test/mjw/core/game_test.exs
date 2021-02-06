@@ -360,18 +360,24 @@ defmodule Mjw.GameTest do
   end
 
   describe "discard" do
-    test "adds tile to discards and changes the turn to the next player" do
+    test "adds tile to discards, removes from player's hand, and changes turn to the next player" do
       game =
         %Mjw.Game{
           turn_seat_idx: 3,
           turn_state: :discarding,
-          discards: ["c1-3"]
+          discards: ["dp-0"],
+          seats:
+            0..3
+            |> Enum.map(fn i ->
+              %Mjw.Seat{concealed: ["c1-#{i}", "c2-#{i}", "c3-#{i}", "c4-#{i}"]}
+            end)
         }
-        |> Mjw.Game.discard("dp-0")
+        |> Mjw.Game.discard(3, "c2-3")
 
-      assert game.discards == ["dp-0", "c1-3"]
+      assert game.discards == ["c2-3", "dp-0"]
       assert game.turn_state == :drawing
       assert game.turn_seat_idx == 0
+      assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-3", "c3-3", "c4-3"]
     end
   end
 

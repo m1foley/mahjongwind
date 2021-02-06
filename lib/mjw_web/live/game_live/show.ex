@@ -68,8 +68,10 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
     socket.assigns.game
-    |> Mjw.Game.discard(discarded_tile)
+    |> Mjw.Game.discard(current_user_sitting_at, discarded_tile)
     |> MjwWeb.GameStore.update(:discarded_tile)
 
     {:noreply, socket}

@@ -21,19 +21,19 @@
           <%= if i == 0 do %>
             <%= content_tag(:div, id: "concealed-0", phx_hook: "Drag", class: "concealed-tiles dropzone#{if @current_user_discarding, do: " enablepulls"}#{if @enable_pull_from_discards, do: " enableputs"}") do %>
               <%= for tile <- seat.concealed do %>
-                <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "tile concealed draggable") %>
+                <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "tile draggable") %>
               <% end %>
             <% end %>
           <% else %>
             <div class="concealed-tiles">
               <%= for _tile <- seat.concealed do %>
-                <%= img_tag("/images/tiles/concealed.png", alt: "concealed", class: "tile concealed") %>
+                <%= img_tag("/images/tiles/concealed.png", alt: "concealed", class: "tile") %>
               <% end %>
             </div>
           <% end %>
           <div class="exposed-tiles">
             <%= for tile <- seat.exposed do %>
-              <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), class: "tile exposed#{if i == 0, do: " draggable"}") %>
+              <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), class: "tile #{if i == 0, do: " draggable"}") %>
             <% end %>
           </div>
         <% end %>
@@ -51,7 +51,7 @@
           <%= if @show_player_names do %>
             <%= content_tag(:div, id: "discards", phx_hook: "Drag", class: "discards dropzone#{if @current_user_discarding, do: " enableputs"}#{if @enable_pull_from_discards, do: " enablepulls"}") do %>
               <%= for {tile, j} <- @game.discards |> Enum.reverse() |> Enum.with_index()  do %>
-                <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "discard draggable #{(if j == length(@game.discards) - 1, do: "lastdiscard", else: "cursor-not-allowed")}") %>
+                <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "tile draggable #{(if j == length(@game.discards) - 1, do: "lastdiscard", else: "cursor-not-allowed")}") %>
               <% end %>
             <% end %>
           <% end %>
