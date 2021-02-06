@@ -26,6 +26,7 @@ export default {
             }
           }
         },
+        sort: false,
         direction: 'horizontal',
         draggable: '.draggable',
         ghostClass: 'sortable-ghost',
@@ -66,7 +67,7 @@ export default {
         delayOnTouchOnly: true,
         onSort: function (evt) {
           let draggedToList = [];
-          // we only need to know the new contents if dragging to concealed tiles
+          // we only need to know the new contents if dragging to concealed-0
           if (evt.to.id == 'concealed-0') {
             const draggedToNodes = evt.to.querySelectorAll('.draggable');
             for (let i = 0; i < draggedToNodes.length; i++) {
@@ -91,6 +92,7 @@ export default {
           put: false,
           pull: 'clone'
         },
+        sort: false,
         direction: 'horizontal',
         draggable: '.draggable',
         ghostClass: 'sortable-ghost',
