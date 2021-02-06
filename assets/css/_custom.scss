@@ -158,6 +158,20 @@
   max-height: 50rem;
 }
 
+.table-center {
+  position: fixed;
+  display: block;
+  top: 12rem;
+  left: 0;
+  width: 100%;
+}
+
+.windpick {
+  .state-description {
+    padding-top: 0;
+  }
+}
+
 .pickable-wind {
   cursor: pointer;
 }
