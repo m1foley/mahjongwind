@@ -52,17 +52,27 @@
   @apply bg-green-700 text-gray-100 text-lg font-sans font-bold border border-transparent rounded-lg py-3 px-16 my-3 shadow-md;
 }
 
+// force new flexbox row
+.line-break {
+  width: 100%;
+}
+
+.walltile {
+  height: 5.0rem;
+}
+
+.walltile-1 {
+  position: relative;
+  left: 0.2rem;
+  top: 4.85rem;
+}
+
 .tile {
   height: 5.8rem;
 }
 
 .largetile {
   height: 8rem;
-}
-
-// new row in flexbox
-.line-break {
-  width: 100%;
 }
 
 .player-name-container {
