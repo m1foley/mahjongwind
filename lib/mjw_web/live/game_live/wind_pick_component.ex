@@ -63,7 +63,7 @@ defmodule MjwWeb.GameLive.WindPickComponent do
 
     socket.assigns.game
     |> Mjw.Game.pick_random_available_wind(current_user_id, picked_wind_idx)
-    |> MjwWeb.GameStore.update()
+    |> MjwWeb.GameStore.update(:picked_wind)
 
     socket
   end

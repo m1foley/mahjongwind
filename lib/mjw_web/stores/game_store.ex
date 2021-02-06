@@ -19,16 +19,16 @@ defmodule MjwWeb.GameStore do
   @doc """
   Persist an update to an existing game
   """
-  def update(game, event \\ :game_updated) do
+  def update(game, event, detail \\ nil) do
     game
     |> persist()
-    |> broadcast_game_update(event)
+    |> broadcast_game_update(event, detail)
   end
 
   @doc """
   Persist an update to an existing game that changes the game lobby
   """
-  def update_with_lobby_change(game, event \\ :game_updated) do
+  def update_with_lobby_change(game, event) do
     game
     |> update(event)
     |> broadcast_lobby_update(event)
@@ -71,7 +71,7 @@ defmodule MjwWeb.GameStore do
   end
 
   defp broadcast_lobby_update(game, event) do
-    Phoenix.PubSub.broadcast(Mjw.PubSub, "games", {event, game})
+    Phoenix.PubSub.broadcast(Mjw.PubSub, "games", {game, event})
     game
   end
 
@@ -86,8 +86,8 @@ defmodule MjwWeb.GameStore do
     Phoenix.PubSub.unsubscribe(Mjw.PubSub, "game:#{game.id}")
   end
 
-  defp broadcast_game_update(game, event) do
-    Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.id}", {event, game})
+  defp broadcast_game_update(game, event, detail) do
+    Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.id}", {game, event, detail})
     game
   end
 end
