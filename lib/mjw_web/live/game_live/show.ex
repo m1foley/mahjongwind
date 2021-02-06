@@ -101,7 +101,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # drew from the wall
+  # drew from the deck
   @impl true
   def handle_event(
         "dropped",
@@ -112,13 +112,11 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       ) do
-    # current_user_sitting_at = socket.assigns.current_user_sitting_at
-    # game = socket.assigns.game
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
 
-    socket = socket |> put_flash(:error, "New concealed: #{new_concealed}")
-    # game
-    # |> Mjw.Game.draw_tile(current_user_sitting_at, new_concealed)
-    # |> MjwWeb.GameStore.update(:drew_wall)
+    {game, tile} = game |> Mjw.Game.draw_from_deck(current_user_sitting_at, new_concealed)
+    game |> MjwWeb.GameStore.update(:drew_from_deck, tile)
 
     {:noreply, socket}
   end
@@ -229,16 +227,19 @@ defmodule MjwWeb.GameLive.Show do
     socket.assigns.empty_seats_count > 0 || socket.assigns.current_user_sitting_at
   end
 
-  # A player sorting their own hand is an event we can ignore in terms of
-  # changing the UI, so restore the previous event for business logic
-  defp assign_event(socket, :concealed_sorted, _event_detail) do
+  # A player sorting their own hand is an event we typically ignore in terms of
+  # changing the UI, so restore the previous event for business logic (it's
+  # still assigned to raw_event if needed)
+  defp assign_event(socket, :concealed_sorted = event, _event_detail) do
     socket
+    |> assign(:raw_event, event)
     |> assign(:event, socket.assigns[:event])
     |> assign(:event_detail, socket.assigns[:event_detail])
   end
 
   defp assign_event(socket, event, event_detail) do
     socket
+    |> assign(:raw_event, event)
     |> assign(:event, event)
     |> assign(:event_detail, event_detail)
   end
