@@ -310,7 +310,7 @@ defmodule Mjw.GameTest do
       game =
         %{
           Mjw.Game.new()
-          | turn_seat_idx: 1,
+          | turn_seatno: 1,
             seats: 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
         }
         |> Mjw.Game.deal()
@@ -324,7 +324,7 @@ defmodule Mjw.GameTest do
   describe "roller_seat_with_relative_position" do
     test "uses the player who picked the East wind when rolling for first dealer" do
       game = %Mjw.Game{
-        turn_seat_idx: 0,
+        turn_seatno: 0,
         seats:
           ~w(ww we ws wn)
           |> Enum.with_index()
@@ -340,9 +340,9 @@ defmodule Mjw.GameTest do
       assert relative_position == 2
     end
 
-    test "uses turn_seat_idx when rolling for deal" do
+    test "uses turn_seatno when rolling for deal" do
       game = %Mjw.Game{
-        turn_seat_idx: 0,
+        turn_seatno: 0,
         seats:
           ~w(ww we ws wn)
           |> Enum.with_index()
@@ -363,7 +363,7 @@ defmodule Mjw.GameTest do
     test "adds tile to discards, removes from player's hand, and changes turn to the next player" do
       game =
         %Mjw.Game{
-          turn_seat_idx: 3,
+          turn_seatno: 3,
           turn_state: :discarding,
           discards: ["dp-0"],
           seats:
@@ -376,7 +376,7 @@ defmodule Mjw.GameTest do
 
       assert game.discards == ["c2-3", "dp-0"]
       assert game.turn_state == :drawing
-      assert game.turn_seat_idx == 0
+      assert game.turn_seatno == 0
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-3", "c3-3", "c4-3"]
     end
   end
@@ -397,7 +397,7 @@ defmodule Mjw.GameTest do
     test "removes the tile from discards, updates the player's concealed, updates turn state" do
       game =
         %Mjw.Game{
-          turn_seat_idx: 3,
+          turn_seatno: 3,
           turn_state: :drawing,
           discards: ["dp-0", "df-0", "dp-1"]
         }
@@ -409,7 +409,7 @@ defmodule Mjw.GameTest do
 
       assert game.discards == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
-      assert game.turn_seat_idx == 3
+      assert game.turn_seatno == 3
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
     end
   end
@@ -418,7 +418,7 @@ defmodule Mjw.GameTest do
     test "returns the name of the player whose turn it is" do
       game =
         %Mjw.Game{
-          turn_seat_idx: 2,
+          turn_seatno: 2,
           turn_state: :drawing
         }
         |> Mjw.Game.seat_player("id0", "name0")
@@ -432,7 +432,7 @@ defmodule Mjw.GameTest do
     test "returns empty string if seat is empty" do
       game =
         %Mjw.Game{
-          turn_seat_idx: 2,
+          turn_seatno: 2,
           turn_state: :drawing
         }
         |> Mjw.Game.seat_player("id0", "name0")

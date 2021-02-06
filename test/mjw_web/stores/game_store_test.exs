@@ -67,7 +67,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "update updates a game" do
     game = MjwWeb.GameStore.create()
-    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    updated_game = game |> Map.merge(%{turn_seatno: 1})
     result = MjwWeb.GameStore.update(updated_game, :event1)
     assert result == updated_game
     assert MjwWeb.GameStore.get(game.id) == updated_game
@@ -75,7 +75,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "update with no detail broadcasts the event" do
     game = MjwWeb.GameStore.create()
-    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    updated_game = game |> Map.merge(%{turn_seatno: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
     MjwWeb.GameStore.update(updated_game, :event1)
@@ -84,7 +84,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "update with detail broadcasts the event" do
     game = MjwWeb.GameStore.create()
-    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    updated_game = game |> Map.merge(%{turn_seatno: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
     MjwWeb.GameStore.update(updated_game, :event1, :detail1)
@@ -93,7 +93,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "update does not broadcast change to lobby" do
     game = MjwWeb.GameStore.create()
-    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    updated_game = game |> Map.merge(%{turn_seatno: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_lobby_updates()
     MjwWeb.GameStore.update(updated_game, :event1)
@@ -103,7 +103,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "update_with_lobby_change updates a game" do
     game = MjwWeb.GameStore.create()
-    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    updated_game = game |> Map.merge(%{turn_seatno: 1})
     result = MjwWeb.GameStore.update_with_lobby_change(updated_game, :event1)
     assert result == updated_game
     assert MjwWeb.GameStore.get(game.id) == updated_game
@@ -111,7 +111,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "update_with_lobby_change broadcasts change to game" do
     game = MjwWeb.GameStore.create()
-    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    updated_game = game |> Map.merge(%{turn_seatno: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
     MjwWeb.GameStore.update_with_lobby_change(updated_game, :event1)
@@ -121,7 +121,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "update_with_lobby_change broadcasts change to lobby" do
     game = MjwWeb.GameStore.create()
-    updated_game = game |> Map.merge(%{turn_seat_idx: 1})
+    updated_game = game |> Map.merge(%{turn_seatno: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_lobby_updates()
     MjwWeb.GameStore.update_with_lobby_change(updated_game, :event1)
