@@ -229,6 +229,14 @@ defmodule MjwWeb.GameLive.Show do
     socket.assigns.empty_seats_count > 0 || socket.assigns.current_user_sitting_at
   end
 
+  # A player sorting their own hand is an event we can ignore in terms of
+  # changing the UI, so restore the previous event for business logic
+  defp assign_event(socket, :concealed_sorted, _event_detail) do
+    socket
+    |> assign(:event, socket.assigns[:event])
+    |> assign(:event_detail, socket.assigns[:event_detail])
+  end
+
   defp assign_event(socket, event, event_detail) do
     socket
     |> assign(:event, event)
