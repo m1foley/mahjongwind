@@ -150,6 +150,7 @@ defmodule MjwWeb.GameLive.Show do
   defp assign_game_info(socket) do
     game = socket.assigns.game
     current_user_id = socket.assigns.current_user_id
+    event = socket.assigns.event
 
     empty_seats_count = Mjw.Game.empty_seats_count(game)
     current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
@@ -175,17 +176,17 @@ defmodule MjwWeb.GameLive.Show do
       |> Enum.member?(game_state)
 
     show_wind_picking =
-      [:picking_winds, :rolling_for_first_dealer, :rolling_for_deal, :discarding]
-      |> Enum.member?(game_state) &&
-        game.wind == "we" && game.discards == []
+      [:picking_winds, :rolling_for_first_dealer] |> Enum.member?(game_state) ||
+        ([:rolling_for_deal, :discarding] |> Enum.member?(game_state) &&
+           socket.assigns[:show_wind_picking])
 
     show_wall =
       [:waiting_for_players, :picking_winds, :rolling_for_first_dealer, :rolling_for_deal]
       |> Enum.member?(game_state)
 
     show_dice =
-      [:rolling_for_first_dealer, :rolling_for_deal, :discarding]
-      |> Enum.member?(game_state)
+      game_state == :rolling_for_first_dealer ||
+        [:rolled_for_first_dealer, :rolled_for_deal] |> Enum.member?(event)
 
     show_player_names =
       !([:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
