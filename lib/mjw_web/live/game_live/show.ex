@@ -112,8 +112,8 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       ) do
-    current_user_sitting_at = socket.assigns.current_user_sitting_at
-    game = socket.assigns.game
+    # current_user_sitting_at = socket.assigns.current_user_sitting_at
+    # game = socket.assigns.game
 
     socket = socket |> put_flash(:error, "New concealed: #{new_concealed}")
     # game
@@ -150,7 +150,6 @@ defmodule MjwWeb.GameLive.Show do
   defp assign_game_info(socket) do
     game = socket.assigns.game
     current_user_id = socket.assigns.current_user_id
-    event = socket.assigns.event
     show_wind_picking_was = socket.assigns[:show_wind_picking]
 
     empty_seats_count = Mjw.Game.empty_seats_count(game)
