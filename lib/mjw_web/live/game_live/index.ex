@@ -8,10 +8,14 @@ defmodule MjwWeb.GameLive.Index do
 
     if !MjwWeb.GameStore.get("test1") do
       test_game
-      |> Mjw.Game.seat_player("id0", "Snoop Dogg")
-      |> Mjw.Game.seat_player("id1", "Dr. Dre")
-      |> Mjw.Game.pick_random_available_wind("id0", 0)
-      |> Mjw.Game.pick_random_available_wind("id1", 0)
+      |> Map.merge(%{
+        seats: [
+          %Mjw.Seat{player_id: "id0", player_name: "Snoop Dogg", picked_wind: "ww"},
+          %Mjw.Seat{player_id: "id1", player_name: "Dr. Dre", picked_wind: "wn"},
+          %Mjw.Seat{},
+          %Mjw.Seat{}
+        ]
+      })
       |> MjwWeb.GameStore.update()
     end
 
