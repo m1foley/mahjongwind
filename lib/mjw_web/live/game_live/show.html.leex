@@ -13,8 +13,12 @@
       <div class="tiles">
         <%= if @show_wall do %>
           <div class="wall-tiles">
-            <%= for _ <- 0..14 do %>
-              <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+            <%= for _ <- 0..16 do %>
+              <img src="/images/tiles/concealed.png" alt="concealed" class="walltile walltile-0" />
+            <% end %>
+            <div class="line-break"></div>
+            <%= for _ <- 0..16 do %>
+              <img src="/images/tiles/concealed.png" alt="concealed" class="walltile walltile-1" />
             <% end %>
           </div>
         <% else %>
