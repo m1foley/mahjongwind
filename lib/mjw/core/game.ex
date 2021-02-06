@@ -294,7 +294,7 @@ defmodule Mjw.Game do
   """
   def discard(%__MODULE__{turn_state: :discarding} = game, seatno, tile) do
     new_discards = [tile | game.discards]
-    new_turn_seatno = game.turn_seatno |> next_turn_seatno()
+    new_turn_seatno = game.turn_seatno |> increment_seatno()
 
     new_concealed =
       game.seats
@@ -311,8 +311,19 @@ defmodule Mjw.Game do
     })
   end
 
-  defp next_turn_seatno(turn_seatno) do
+  @doc """
+  The seat number of the game's previous turn
+  """
+  def previous_turn_seatno(%__MODULE__{turn_seatno: turn_seatno}) do
+    decrement_seatno(turn_seatno)
+  end
+
+  defp increment_seatno(turn_seatno) do
     rem(turn_seatno + 1, 4)
+  end
+
+  defp decrement_seatno(turn_seatno) do
+    rem(turn_seatno + 3, 4)
   end
 
   @doc """

@@ -154,6 +154,7 @@ defmodule MjwWeb.GameLive.Show do
     current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
     turn_player_name = Mjw.Game.turn_player_name(game)
+    previous_turn_seatno = Mjw.Game.previous_turn_seatno(game)
 
     # seats ordered by their position to the current player (0 = self, etc.)
     relative_game_seats =
@@ -191,8 +192,9 @@ defmodule MjwWeb.GameLive.Show do
 
     current_user_drawing = game_state == :drawing && game.turn_seatno == current_user_sitting_at
 
-    # different from current_user_discarding because of pongs
-    enable_pull_from_discards = game_state == :drawing
+    # not limited to turn_seatno because of pongs
+    enable_pull_from_discards =
+      game_state == :drawing && previous_turn_seatno != current_user_sitting_at
 
     current_user_discarding =
       game_state == :discarding && game.turn_seatno == current_user_sitting_at

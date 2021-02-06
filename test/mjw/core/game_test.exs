@@ -462,4 +462,13 @@ defmodule Mjw.GameTest do
       assert Mjw.Game.turn_player_name(game) == ""
     end
   end
+
+  describe "previous_turn_seatno" do
+    test "returns the seat number of the game's previous turn" do
+      assert %Mjw.Game{turn_seatno: 0} |> Mjw.Game.previous_turn_seatno() == 3
+      assert %Mjw.Game{turn_seatno: 1} |> Mjw.Game.previous_turn_seatno() == 0
+      assert %Mjw.Game{turn_seatno: 2} |> Mjw.Game.previous_turn_seatno() == 1
+      assert %Mjw.Game{turn_seatno: 3} |> Mjw.Game.previous_turn_seatno() == 2
+    end
+  end
 end
