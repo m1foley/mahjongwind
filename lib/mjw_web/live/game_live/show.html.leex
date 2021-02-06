@@ -22,6 +22,11 @@
             <% end %>
           </div>
         <% else %>
+          <div class="exposed-tiles">
+            <%= for tile <- seat.exposed do %>
+              <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), class: "tile #{if i == 0, do: " draggable"}") %>
+            <% end %>
+          </div>
           <%= if i == 0 do %>
             <%= content_tag(:div, id: "concealed-0", phx_hook: "Drag", class: "concealed-tiles dropzone#{if @current_user_discarding, do: " enablepulls"}#{if @enable_pull_from_discards, do: " enableputs"}") do %>
               <%= for tile <- seat.concealed do %>
@@ -35,11 +40,6 @@
               <% end %>
             </div>
           <% end %>
-          <div class="exposed-tiles">
-            <%= for tile <- seat.exposed do %>
-              <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), class: "tile #{if i == 0, do: " draggable"}") %>
-            <% end %>
-          </div>
         <% end %>
       </div>
 
@@ -58,6 +58,11 @@
                 <%= img_tag("/images/tiles/#{String.slice(tile, 0..1)}.png", alt: String.slice(tile, 0..1), id: tile, class: "tile draggable #{(if j == length(@game.discards) - 1, do: "lastdiscard", else: "cursor-not-allowed")}") %>
               <% end %>
             <% end %>
+          <% end %>
+          <%= if @current_user_drawing do %>
+            <div class="walloffer">
+              <img src="/images/tiles/concealed.png" alt="wall tile" class="tile" />
+            </div>
           <% end %>
 
           <%= case @game_state do %>

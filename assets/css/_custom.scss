@@ -58,7 +58,7 @@
 }
 
 .walltile {
-  height: 5.0rem;
+  height: 5rem;
 }
 
 .walltile-1 {
@@ -389,4 +389,14 @@
 
 .sortable-ghost {
   @apply opacity-70;
+}
+
+.walloffer {
+  position: fixed;
+  bottom: 10rem;
+  right: 10rem;
+  .tile {
+    @apply largetile;
+  }
+  @apply bg-green-600 border-4 border-gray-800 rounded-full shadow-xl p-12;
 }
