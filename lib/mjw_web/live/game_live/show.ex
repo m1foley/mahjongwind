@@ -191,13 +191,13 @@ defmodule MjwWeb.GameLive.Show do
       !([:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
         |> Enum.member?(game_state))
 
-    current_user_drawing = game_state == :drawing && game.turn_seat_idx == current_user_sitting_at
+    current_user_drawing = game_state == :drawing && game.turn_seatno == current_user_sitting_at
 
     # different from current_user_discarding because of pongs
     enable_pull_from_discards = game_state == :drawing
 
     current_user_discarding =
-      game_state == :discarding && game.turn_seat_idx == current_user_sitting_at
+      game_state == :discarding && game.turn_seatno == current_user_sitting_at
 
     socket
     |> assign(:empty_seats_count, empty_seats_count)

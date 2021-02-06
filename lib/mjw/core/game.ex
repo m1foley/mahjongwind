@@ -22,9 +22,10 @@ defmodule Mjw.Game do
             # Index 0 = first dealer, possessor of the special stick.
             seats: @four_empty_seats,
             dice: [],
-            # rolling/drawing/discarding. Different from state/1.
+            # The normal game states: rolling/drawing/discarding.
+            # Different from state/1, which includes game start & end states.
             turn_state: :rolling,
-            turn_seat_idx: 0
+            turn_seatno: 0
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -64,9 +65,9 @@ defmodule Mjw.Game do
   Add a player to the first empty seat
   """
   def seat_player(%__MODULE__{} = game, player_id, player_name) do
-    empty_seat_idx = game.seats |> Enum.find_index(&Mjw.Seat.empty?/1)
+    empty_seatno = game.seats |> Enum.find_index(&Mjw.Seat.empty?/1)
 
-    update_seat(game, empty_seat_idx, fn seat ->
+    update_seat(game, empty_seatno, fn seat ->
       seat
       |> Mjw.Seat.seat_player(player_id, player_name)
     end)
@@ -199,7 +200,7 @@ defmodule Mjw.Game do
     |> Enum.find(&(&1.picked_wind == wind))
   end
 
-  defp find_picked_wind_seat_index(%__MODULE__{seats: seats}, wind) do
+  defp find_picked_wind_seatno(%__MODULE__{seats: seats}, wind) do
     seats
     |> Enum.find_index(&(&1.picked_wind == wind))
   end
@@ -234,7 +235,7 @@ defmodule Mjw.Game do
         tiles = game.deck |> Enum.slice(tiles_start, 13)
 
         tiles =
-          if seatno == game.turn_seat_idx do
+          if seatno == game.turn_seatno do
             extra_dealer_tile = game.deck |> Enum.at(52)
             [extra_dealer_tile | tiles]
           else
@@ -258,42 +259,42 @@ defmodule Mjw.Game do
   The seat of the person currently rolling the dice, and their relative seat
   position to the current player
   """
-  def roller_seat_with_relative_position(%__MODULE__{} = game, game_state, relative_to_seat_idx) do
-    roller_seat_idx = roller_seat_idx(game, game_state)
-    seat_with_relative_position(game, roller_seat_idx, relative_to_seat_idx)
+  def roller_seat_with_relative_position(%__MODULE__{} = game, game_state, relative_to_seatno) do
+    roller_seatno = roller_seatno(game, game_state)
+    seat_with_relative_position(game, roller_seatno, relative_to_seatno)
   end
 
-  defp roller_seat_idx(%__MODULE__{} = game, :rolling_for_first_dealer) do
-    game |> find_picked_wind_seat_index("we")
+  defp roller_seatno(%__MODULE__{} = game, :rolling_for_first_dealer) do
+    game |> find_picked_wind_seatno("we")
   end
 
-  defp roller_seat_idx(%__MODULE__{turn_seat_idx: turn_seat_idx}, _game_state) do
-    turn_seat_idx
+  defp roller_seatno(%__MODULE__{turn_seatno: turn_seatno}, _game_state) do
+    turn_seatno
   end
 
   @doc """
   The seat at the given index, and its relative position to the current player
   (see relative_position/2)
   """
-  def seat_with_relative_position(%__MODULE__{seats: seats}, seat_idx, relative_to_seat_idx) do
-    seat = seats |> Enum.at(seat_idx)
-    relative_position = relative_position(seat_idx, relative_to_seat_idx)
+  def seat_with_relative_position(%__MODULE__{seats: seats}, seatno, relative_to_seatno) do
+    seat = seats |> Enum.at(seatno)
+    relative_position = relative_position(seatno, relative_to_seatno)
     {seat, relative_position}
   end
 
   # Where a seat appears relative to the player:
   # 0 = self, 1 = right, 2 = across, 3 = left
-  defp relative_position(seat_idx, relative_to_seat_idx) do
-    rem(rem(4 - relative_to_seat_idx, 4) + seat_idx, 4)
+  defp relative_position(seatno, relative_to_seatno) do
+    rem(rem(4 - relative_to_seatno, 4) + seatno, 4)
   end
 
   @doc """
   A player discards a tile: add to discards, remove from player's hand,
-  increment turn_seat_idx & turn_state.
+  increment turn_seatno & turn_state.
   """
   def discard(%__MODULE__{turn_state: :discarding} = game, seatno, tile) do
     new_discards = [tile | game.discards]
-    new_turn_seat_idx = increment_turn_seat_idx(game.turn_seat_idx)
+    new_turn_seatno = game.turn_seatno |> next_turn_seatno()
 
     new_concealed =
       game.seats
@@ -306,12 +307,12 @@ defmodule Mjw.Game do
     |> Map.merge(%{
       discards: new_discards,
       turn_state: :drawing,
-      turn_seat_idx: new_turn_seat_idx
+      turn_seatno: new_turn_seatno
     })
   end
 
-  defp increment_turn_seat_idx(turn_seat_idx) do
-    rem(turn_seat_idx + 1, 4)
+  defp next_turn_seatno(turn_seatno) do
+    rem(turn_seatno + 1, 4)
   end
 
   @doc """
@@ -339,7 +340,7 @@ defmodule Mjw.Game do
   The name of the player whose turn it is
   """
   def turn_player_name(%__MODULE__{} = game) do
-    player_name_at(game, game.turn_seat_idx)
+    player_name_at(game, game.turn_seatno)
   end
 
   defp player_name_at(%__MODULE__{seats: seats}, seatno) do

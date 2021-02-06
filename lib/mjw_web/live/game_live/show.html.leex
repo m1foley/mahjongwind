@@ -74,7 +74,7 @@
               Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
             </div>
           <% :discarding -> %>
-            <%= if @event == :drew_discard && @game.turn_seat_idx != @current_user_sitting_at do %>
+            <%= if @event == :drew_discard && @game.turn_seatno != @current_user_sitting_at do %>
               <div class="state-description">
                 <%= @turn_player_name %> drew from discards:
                 <% tile_code = @event_detail |> String.slice(0..1) %>
@@ -102,7 +102,7 @@
             <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
             <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice %></span></div>
             <div>turn_state: <%= @game.turn_state %></div>
-            <div>turn_seat_idx: <%= @game.turn_seat_idx %></div>
+            <div>turn_seatno: <%= @game.turn_seatno %></div>
 
             <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
               <br />
@@ -121,7 +121,7 @@
 
       <%= if @show_player_names && i != 0 do %>
         <div class="player-name-container player-name-container-<%= i %>">
-          <div class="player-name<%= if seat.seatno == @game.turn_seat_idx, do: " player-turn" %>">
+          <div class="player-name<%= if seat.seatno == @game.turn_seatno, do: " player-turn" %>">
             <%= seat.player_name %>
           </div>
         </div>
