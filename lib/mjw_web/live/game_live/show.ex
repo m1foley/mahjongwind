@@ -93,6 +93,22 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # grabbing a tile from the wall
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "walloffer",
+          "draggedToId" => "concealed-0",
+          "draggedId" => _tile
+        },
+        socket
+      ) do
+    socket = socket |> put_flash(:error, "Grabbing walloffer unimplemented.")
+
+    {:noreply, socket}
+  end
+
   defp fetch_game(socket, id) do
     game = MjwWeb.GameStore.get(id)
     socket |> assign(:game, game)

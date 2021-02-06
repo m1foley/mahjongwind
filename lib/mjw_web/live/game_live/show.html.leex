@@ -60,9 +60,9 @@
             <% end %>
           <% end %>
           <%= if @current_user_drawing do %>
-            <div class="walloffer">
-              <img src="/images/tiles/concealed.png" alt="wall tile" class="tile" />
-            </div>
+            <%= content_tag(:div, id: "walloffer", phx_hook: "Drag", class: "walloffer dropzone") do %>
+              <img src="/images/tiles/concealed.png" alt="wall tile" class="tile draggable" />
+            <% end %>
           <% end %>
 
           <%= case @game_state do %>
