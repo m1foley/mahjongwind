@@ -288,18 +288,26 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  A player discards a tile. Changes turn state and turn_seat_idx.
+  A player discards a tile: add to discards, remove from player's hand,
+  increment turn_seat_idx & turn_state.
   """
-  def discard(%__MODULE__{turn_state: :discarding} = game, tile) do
+  def discard(%__MODULE__{turn_state: :discarding} = game, seatno, tile) do
     new_discards = [tile | game.discards]
     new_turn_seat_idx = increment_turn_seat_idx(game.turn_seat_idx)
 
-    %{
-      game
-      | discards: new_discards,
-        turn_state: :drawing,
-        turn_seat_idx: new_turn_seat_idx
-    }
+    new_concealed =
+      game.seats
+      |> Enum.at(seatno)
+      |> Map.get(:concealed)
+      |> List.delete(tile)
+
+    game
+    |> update_concealed(seatno, new_concealed)
+    |> Map.merge(%{
+      discards: new_discards,
+      turn_state: :drawing,
+      turn_seat_idx: new_turn_seat_idx
+    })
   end
 
   defp increment_turn_seat_idx(turn_seat_idx) do
@@ -307,7 +315,7 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  Update a player's concealed tiles, like when rearranging their hand
+  Update the given player's concealed tiles
   """
   def update_concealed(%__MODULE__{} = game, seatno, concealed) do
     update_seat(game, seatno, fn seat ->

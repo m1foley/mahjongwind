@@ -106,7 +106,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  .tile.concealed, .tile.exposed {
+  .tile {
     @apply largetile;
   }
 }
@@ -325,51 +325,51 @@
   left: 12rem;
   right: 12rem;
   @apply flex flex-row flex-wrap place-content-around justify-start;
-}
 
-.discard {
-  position: relative;
-  height: 3.1rem;
-  &.lastdiscard {
-    @apply tile;
-  }
-  &:nth-child(9n) {
-    top: -2rem;
-  }
-  &:nth-child(9n+1) {
-    top: 4rem;
-  }
-  &:nth-child(9n+2) {
-    top: -3.5rem;
-    left: -0.5rem;
-    transform: rotate(50deg);
-  }
-  &:nth-child(9n+3) {
-    top: 2rem;
-    transform: rotate(-24deg);
-  }
-  &:nth-child(9n+4) {
-    top: 6rem;
-    left: 4.5rem;
-    transform: rotate(73deg);
-  }
-  &:nth-child(9n+5) {
-    top: -3rem;
-    left: -2rem;
-    transform: rotate(30deg);
-  }
-  &:nth-child(9n+6) {
-    top: -0.4rem;
-    transform: rotate(12deg);
-  }
-  &:nth-child(9n+7) {
-    top: -2rem;
-    left: 1rem;
-    transform: rotate(-20deg);
-  }
-  &:nth-child(9n+8) {
-    top: 4rem;
-    transform: rotate(-40deg);
+  .tile {
+    position: relative;
+    height: 3.1rem;
+    &.lastdiscard {
+      height: 5.8rem;
+    }
+    &:nth-child(9n) {
+      top: -2rem;
+    }
+    &:nth-child(9n+1) {
+      top: 4rem;
+    }
+    &:nth-child(9n+2) {
+      top: -3.5rem;
+      left: -0.5rem;
+      transform: rotate(50deg);
+    }
+    &:nth-child(9n+3) {
+      top: 2rem;
+      transform: rotate(-24deg);
+    }
+    &:nth-child(9n+4) {
+      top: 6rem;
+      left: 4.5rem;
+      transform: rotate(73deg);
+    }
+    &:nth-child(9n+5) {
+      top: -3rem;
+      left: -2rem;
+      transform: rotate(30deg);
+    }
+    &:nth-child(9n+6) {
+      top: -0.4rem;
+      transform: rotate(12deg);
+    }
+    &:nth-child(9n+7) {
+      top: -2rem;
+      left: 1rem;
+      transform: rotate(-20deg);
+    }
+    &:nth-child(9n+8) {
+      top: 4rem;
+      transform: rotate(-40deg);
+    }
   }
 }
 
