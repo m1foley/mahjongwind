@@ -414,6 +414,28 @@ defmodule Mjw.GameTest do
     end
   end
 
+  describe "draw_from_deck" do
+    test "removes a tile from deck, updates the player's concealed, updates turn state" do
+      {game, tile} =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :drawing,
+          deck: ["dp-0", "df-0", "dp-1"]
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.draw_from_deck(3, ["c1-0", "c1-1", "decktile", "c2-0"])
+
+      assert game.deck == ["df-0", "dp-1"]
+      assert game.turn_state == :discarding
+      assert game.turn_seatno == 3
+      assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
+      assert tile == "dp-0"
+    end
+  end
+
   describe "turn_player_name" do
     test "returns the name of the player whose turn it is" do
       game =

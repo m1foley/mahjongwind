@@ -75,11 +75,18 @@ export default {
             }
           }
 
+          const draggedId = evt.item.id;
+          // The deck tile gets removed on the backend, but not in the DOM
+          // unless we do it manually like this
+          if (draggedId == "decktile") {
+            evt.item.remove();
+          }
+
           hook.pushEventTo(selector, 'dropped', {
             draggedFromId: evt.from.id,
             draggedToId: evt.to.id,
             draggedToList: draggedToList,
-            draggedId: evt.item.id
+            draggedId: draggedId
           });
         }
       });

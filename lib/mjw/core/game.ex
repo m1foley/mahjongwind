@@ -337,6 +337,24 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  A player draws from the deck: remove from the deck, update the
+  player's concealed tiles (already calculated on frontend), update turn_state.
+  "decktile" in the player's hand is swapped in-place with the next deck tile.
+  """
+  def draw_from_deck(%__MODULE__{turn_state: :drawing} = game, seatno, concealed) do
+    [tile | new_deck] = game.deck
+    decktile_idx = concealed |> Enum.find_index(&(&1 == "decktile"))
+    new_concealed = concealed |> List.replace_at(decktile_idx, tile)
+
+    game =
+      game
+      |> update_concealed(seatno, new_concealed)
+      |> Map.merge(%{deck: new_deck, turn_state: :discarding})
+
+    {game, tile}
+  end
+
+  @doc """
   The name of the player whose turn it is
   """
   def turn_player_name(%__MODULE__{} = game) do
