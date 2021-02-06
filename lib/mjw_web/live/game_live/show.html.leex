@@ -61,7 +61,7 @@
           <% end %>
           <%= if @current_user_drawing do %>
             <%= content_tag(:div, id: "walloffer", phx_hook: "Drag", class: "walloffer dropzone") do %>
-              <img src="/images/tiles/concealed.png" alt="wall tile" class="tile draggable" />
+              <img id="walloffer-tile", src="/images/tiles/concealed.png" alt="wall tile" class="tile draggable" />
             <% end %>
           <% end %>
 
@@ -70,16 +70,24 @@
             <div class="state-description">
               Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
             </div>
+          <% :discarding -> %>
+            <%= if @event == :drew_discard && @game.turn_seat_idx != @current_user_sitting_at do %>
+              <div class="state-description">
+                <%= @turn_player_name %> drew from discards: <%= img_tag("/images/tiles/#{String.slice(@event_detail, 0..1)}.png", alt: String.slice(@event_detail, 0..1), class: "tile") %>
+              </div>
+            <% end %>
           <% _ -> %>
           <% end %>
 
           <div class="debug text-gray-900 text-sm opacity-50 hidden">
             <div>event: <%= @event %></div>
+            <div>event_detail: <%= @event_detail %></div>
             <div>live_action: <%= @live_action %></div>
             <div>current_user_id: <%= @current_user_id %></div>
             <div>Game state: <%= @game_state %></div>
             <div>empty seats count: <%= @empty_seats_count %></div>
             <div>current_user_sitting_at: <%= @current_user_sitting_at %></div>
+            <div>turn_player_name: <%= @turn_player_name %></div>
 
             <br />
             <div>Game ID: <%= @game.id %></div>

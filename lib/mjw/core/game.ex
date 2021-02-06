@@ -324,6 +324,29 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  A player draws from the discards: remove from the discards, update the
+  player's concealed tiles (already calculated on frontend), update turn_state
+  """
+  def draw_discard(%__MODULE__{turn_state: :drawing} = game, seatno, new_concealed) do
+    new_discards = game.discards |> Enum.slice(1..-1)
+
+    game
+    |> update_concealed(seatno, new_concealed)
+    |> Map.merge(%{discards: new_discards, turn_state: :discarding})
+  end
+
+  @doc """
+  The name of the player whose turn it is
+  """
+  def turn_player_name(%__MODULE__{} = game) do
+    player_name_at(game, game.turn_seat_idx)
+  end
+
+  defp player_name_at(%__MODULE__{seats: seats}, seatno) do
+    seats |> Enum.at(seatno) |> Map.get(:player_name) || ""
+  end
+
+  @doc """
   Calculate the state of a game
   """
   def state(%__MODULE__{} = game) do

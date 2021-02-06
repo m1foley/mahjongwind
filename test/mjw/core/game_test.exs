@@ -392,4 +392,52 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.map(& &1.concealed) == [[], ["dp-0", "c1-3"], [], []]
     end
   end
+
+  describe "draw_discard" do
+    test "removes the tile from discards, updates the player's concealed, updates turn state" do
+      game =
+        %Mjw.Game{
+          turn_seat_idx: 3,
+          turn_state: :drawing,
+          discards: ["dp-0", "df-0", "dp-1"]
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.draw_discard(3, ["c1-0", "c1-1", "dp-0", "c2-0"])
+
+      assert game.discards == ["df-0", "dp-1"]
+      assert game.turn_state == :discarding
+      assert game.turn_seat_idx == 3
+      assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
+    end
+  end
+
+  describe "turn_player_name" do
+    test "returns the name of the player whose turn it is" do
+      game =
+        %Mjw.Game{
+          turn_seat_idx: 2,
+          turn_state: :drawing
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+
+      assert Mjw.Game.turn_player_name(game) == "name2"
+    end
+
+    test "returns empty string if seat is empty" do
+      game =
+        %Mjw.Game{
+          turn_seat_idx: 2,
+          turn_state: :drawing
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+
+      assert Mjw.Game.turn_player_name(game) == ""
+    end
+  end
 end

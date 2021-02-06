@@ -12,7 +12,7 @@ defmodule MjwWeb.GameLive.Show do
     if socket.assigns.game do
       socket =
         socket
-        |> assign_event(:initial)
+        |> assign_event(:initial, nil)
         |> assign_game_info()
         |> ensure_game_joinable()
         |> subscribe_to_game_updates()
@@ -26,12 +26,13 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_params(_params, _url, socket), do: {:noreply, socket}
 
+  # respond to game updates
   @impl true
-  def handle_info({event, %Mjw.Game{} = game}, socket) do
+  def handle_info({%Mjw.Game{} = game, event, event_detail}, socket) do
     socket =
       socket
       |> assign(:game, game)
-      |> assign_event(event)
+      |> assign_event(event, event_detail)
       |> assign_game_info()
 
     {:noreply, socket}
@@ -69,42 +70,55 @@ defmodule MjwWeb.GameLive.Show do
         socket
       ) do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
 
-    socket.assigns.game
+    game
     |> Mjw.Game.discard(current_user_sitting_at, discarded_tile)
     |> MjwWeb.GameStore.update(:discarded_tile)
 
     {:noreply, socket}
   end
 
-  # grabbing a discard
+  # drew a discard
   @impl true
   def handle_event(
         "dropped",
         %{
           "draggedFromId" => "discards",
           "draggedToId" => "concealed-0",
-          "draggedId" => _tile
+          "draggedId" => tile,
+          "draggedToList" => new_concealed
         },
         socket
       ) do
-    socket = socket |> put_flash(:error, "Grabbing a discard unimplemented.")
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
+
+    game
+    |> Mjw.Game.draw_discard(current_user_sitting_at, new_concealed)
+    |> MjwWeb.GameStore.update(:drew_discard, tile)
 
     {:noreply, socket}
   end
 
-  # grabbing a tile from the wall
+  # drew from the wall
   @impl true
   def handle_event(
         "dropped",
         %{
           "draggedFromId" => "walloffer",
           "draggedToId" => "concealed-0",
-          "draggedId" => _tile
+          "draggedToList" => new_concealed
         },
         socket
       ) do
-    socket = socket |> put_flash(:error, "Grabbing walloffer unimplemented.")
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
+
+    socket = socket |> put_flash(:error, "New concealed: #{new_concealed}")
+    # game
+    # |> Mjw.Game.draw_tile(current_user_sitting_at, new_concealed)
+    # |> MjwWeb.GameStore.update(:drew_wall)
 
     {:noreply, socket}
   end
@@ -140,6 +154,7 @@ defmodule MjwWeb.GameLive.Show do
     empty_seats_count = Mjw.Game.empty_seats_count(game)
     current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
+    turn_player_name = Mjw.Game.turn_player_name(game)
 
     # seats ordered by their position to the current player (0 = self, etc.)
     relative_game_seats =
@@ -188,6 +203,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
     |> assign(:game_state, game_state)
+    |> assign(:turn_player_name, turn_player_name)
     |> assign(:relative_game_seats, relative_game_seats)
     |> assign(:show_stick, show_stick)
     |> assign(:show_wind_picking, show_wind_picking)
@@ -213,8 +229,9 @@ defmodule MjwWeb.GameLive.Show do
     socket.assigns.empty_seats_count > 0 || socket.assigns.current_user_sitting_at
   end
 
-  defp assign_event(socket, event) do
+  defp assign_event(socket, event, event_detail) do
     socket
     |> assign(:event, event)
+    |> assign(:event_detail, event_detail)
   end
 end

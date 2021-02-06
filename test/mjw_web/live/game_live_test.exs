@@ -6,7 +6,7 @@ defmodule MjwWeb.GameLiveTest do
   defp fixture(:game) do
     MjwWeb.GameStore.create()
     |> Mjw.Game.seat_player("id0", "name0")
-    |> MjwWeb.GameStore.update()
+    |> MjwWeb.GameStore.update(:event1)
   end
 
   defp create_game(_) do

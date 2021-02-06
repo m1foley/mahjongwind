@@ -16,7 +16,7 @@ defmodule MjwWeb.GameLive.Index do
           %Mjw.Seat{}
         ]
       })
-      |> MjwWeb.GameStore.update()
+      |> MjwWeb.GameStore.update(:test_init)
     end
 
     socket =
@@ -28,19 +28,10 @@ defmodule MjwWeb.GameLive.Index do
     {:ok, socket}
   end
 
+  # Simply reload all data on any type of change we're subscribed to. It would
+  # be more elegant to update a particular row when someone joins a game.
   @impl true
-  def handle_info({:game_created, _game}, socket) do
-    {:noreply, fetch_games(socket)}
-  end
-
-  @impl true
-  def handle_info({:game_removed, _game}, socket) do
-    {:noreply, fetch_games(socket)}
-  end
-
-  @impl true
-  def handle_info({:game_updated, _game}, socket) do
-    # It would be more elegant to just update the game row. Brute force for now.
+  def handle_info({_game, _event}, socket) do
     {:noreply, fetch_games(socket)}
   end
 
