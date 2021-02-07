@@ -58,6 +58,26 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # sorting one's own exposed tiles
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "exposed-0",
+          "draggedToId" => "exposed-0",
+          "draggedToList" => new_exposed
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
+    |> MjwWeb.GameStore.update(:exposed_sorted)
+
+    {:noreply, socket}
+  end
+
   # discarding a tile
   @impl true
   def handle_event(

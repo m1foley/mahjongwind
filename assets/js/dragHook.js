@@ -115,9 +115,11 @@ export default {
         delay: 50,
         delayOnTouchOnly: true,
         onSort: function (evt) {
-          // discards -> exposed-0 is the only sortableJS interaction not picked
-          // up by the concealed-0 onSort
-          if (evt.from.id != 'discards' || evt.to.id != 'exposed-0') {
+          // Only need this code for the sortableJS interactions not also picked
+          // up by the concealed-0 onSort:
+          // - discards -> exposed-0
+          // - exposed-0 -> exposed-0
+          if (evt.to.id != 'exposed-0' || !['discards', 'exposed-0'].includes(evt.from.id)) {
             return;
           }
 
