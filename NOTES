@@ -1,3 +1,9 @@
+TODO:
+- don't move discards on size change
+- bug: move concealed to exposed, and then back. nothing happens
+- game wind
+- gongs
+
 console:
 iex -S mix
 
