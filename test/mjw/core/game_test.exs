@@ -377,6 +377,7 @@ defmodule Mjw.GameTest do
       assert game.discards == ["c2-3", "dp-0"]
       assert game.turn_state == :drawing
       assert game.turn_seatno == 0
+      assert game.prev_turn_seatno == 3
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-3", "c3-3", "c4-3"]
     end
   end
@@ -393,11 +394,24 @@ defmodule Mjw.GameTest do
     end
   end
 
-  describe "draw_discard" do
-    test "removes the tile from discards, updates the player's concealed, updates turn state" do
+  describe "update_exposed" do
+    test "changes the exposed tiles for the given seat number" do
       game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.update_exposed(1, ["dp-0", "c1-3"])
+
+      assert game.seats |> Enum.map(& &1.exposed) == [[], ["dp-0", "c1-3"], [], []]
+    end
+  end
+
+  describe "draw_discard" do
+    test "when it's not a pong, removes the tile from discards and updates the player's exposed & turn state" do
+      {event, game} =
         %Mjw.Game{
           turn_seatno: 3,
+          prev_turn_seatno: 2,
           turn_state: :drawing,
           discards: ["dp-0", "df-0", "dp-1"]
         }
@@ -407,10 +421,34 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id3", "name3")
         |> Mjw.Game.draw_discard(3, ["c1-0", "c1-1", "dp-0", "c2-0"])
 
+      assert event == :drew_discard
       assert game.discards == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 3
-      assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
+      assert game.prev_turn_seatno == 2
+      assert game.seats |> Enum.at(3) |> Map.get(:exposed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
+    end
+
+    test "when it's a pong, removes the tile from discards and updates the player's exposed, turn state, and turn" do
+      {event, game} =
+        %Mjw.Game{
+          turn_seatno: 3,
+          prev_turn_seatno: 2,
+          turn_state: :drawing,
+          discards: ["dp-0", "df-0", "dp-1"]
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.draw_discard(0, ["c1-0", "c1-1", "dp-0", "c2-0"])
+
+      assert event == :ponged
+      assert game.discards == ["df-0", "dp-1"]
+      assert game.turn_state == :discarding
+      assert game.turn_seatno == 0
+      assert game.prev_turn_seatno == 3
+      assert game.seats |> Enum.at(0) |> Map.get(:exposed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
     end
   end
 
@@ -419,6 +457,7 @@ defmodule Mjw.GameTest do
       {game, tile} =
         %Mjw.Game{
           turn_seatno: 3,
+          prev_turn_seatno: 2,
           turn_state: :drawing,
           deck: ["dp-0", "df-0", "dp-1"]
         }
@@ -431,6 +470,7 @@ defmodule Mjw.GameTest do
       assert game.deck == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 3
+      assert game.prev_turn_seatno == 2
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
       assert tile == "dp-0"
     end
@@ -460,15 +500,6 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id0", "name0")
 
       assert Mjw.Game.turn_player_name(game) == ""
-    end
-  end
-
-  describe "previous_turn_seatno" do
-    test "returns the seat number of the game's previous turn" do
-      assert %Mjw.Game{turn_seatno: 0} |> Mjw.Game.previous_turn_seatno() == 3
-      assert %Mjw.Game{turn_seatno: 1} |> Mjw.Game.previous_turn_seatno() == 0
-      assert %Mjw.Game{turn_seatno: 2} |> Mjw.Game.previous_turn_seatno() == 1
-      assert %Mjw.Game{turn_seatno: 3} |> Mjw.Game.previous_turn_seatno() == 2
     end
   end
 end

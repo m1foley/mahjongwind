@@ -414,6 +414,11 @@
   @apply bg-green-600 border-4 border-gray-800 rounded-full shadow-xl p-12;
 }
 
-.recent-draw {
+.glow {
   box-shadow: 0px 0px 2rem #eee;
+}
+
+// ensure we can drag & drop into an empty list
+.dropzone {
+  min-height: 8rem;
 }

@@ -12,15 +12,15 @@ export default {
         group: {
           name: 'discards',
           put: function (to, from) {
-            if (dropzone.classList.contains('enableputs')) {
+            if (dropzone.classList.contains('current-user-discarding')) {
               return ['concealed-0'];
             } else {
               return false;
             }
           },
           pull: function (to, from) {
-            if (dropzone.classList.contains('enablepulls')) {
-              return ['concealed-0'];
+            if (dropzone.classList.contains('enable-pull-from-discards')) {
+              return ['exposed-0'];
             } else {
               return false;
             }
@@ -43,17 +43,17 @@ export default {
         group: {
           name: 'concealed-0',
           put: function (to, from) {
-            if (dropzone.classList.contains('enableputs')) {
-              return ['concealed-0', 'discards', 'deckoffer'];
+            if (dropzone.classList.contains('enable-pull-from-discards')) {
+              return ['discards', 'exposed-0', 'deckoffer'];
             } else {
-              return false;
+              return ['exposed-0']; // for accidents
             }
           },
           pull: function (to, from) {
-            if (dropzone.classList.contains('enablepulls')) {
-              return ['discards'];
+            if (dropzone.classList.contains('current-user-discarding')) {
+              return ['discards', 'exposed-0'];
             } else {
-              return false;
+              return ['exposed-0'];
             }
           },
         },
@@ -62,16 +62,23 @@ export default {
         ghostClass: 'sortable-ghost',
         swapThreshold: 0.2,
         animation: 100,
-        emptyInsertThreshold: 0,
         delay: 50,
         delayOnTouchOnly: true,
         onSort: function (evt) {
+          // if the action involves the player's concealed and/or exposed
+          // tiles, we probably need to know what the updated list(s) look like
           let draggedToList = [];
-          // we only need to know the new contents if dragging to concealed-0
-          if (evt.to.id == 'concealed-0') {
+          if (['concealed-0', 'exposed-0'].includes(evt.to.id)) {
             const draggedToNodes = evt.to.querySelectorAll('.draggable');
             for (let i = 0; i < draggedToNodes.length; i++) {
               draggedToList.push(draggedToNodes[i].id);
+            }
+          }
+          let draggedFromList = [];
+          if (['concealed-0', 'exposed-0'].includes(evt.from.id)) {
+            const draggedFromNodes = evt.from.querySelectorAll('.draggable');
+            for (let i = 0; i < draggedFromNodes.length; i++) {
+              draggedFromList.push(draggedFromNodes[i].id);
             }
           }
 
@@ -85,8 +92,46 @@ export default {
           hook.pushEventTo(selector, 'dropped', {
             draggedFromId: evt.from.id,
             draggedToId: evt.to.id,
+            draggedFromList: draggedFromList,
             draggedToList: draggedToList,
             draggedId: draggedId
+          });
+        }
+      });
+    });
+
+    document.querySelectorAll('#exposed-0.dropzone').forEach((dropzone) => {
+      Sortable.create(dropzone, {
+        group: {
+          name: 'exposed-0',
+          put: ['concealed-0', 'discards'],
+          pull: ['concealed-0'] // for accidents
+        },
+        direction: 'horizontal',
+        draggable: '.draggable',
+        ghostClass: 'sortable-ghost',
+        swapThreshold: 0.2,
+        animation: 100,
+        delay: 50,
+        delayOnTouchOnly: true,
+        onSort: function (evt) {
+          // discards -> exposed-0 is the only sortableJS interaction not picked
+          // up by the concealed-0 onSort
+          if (evt.from.id != 'discards' || evt.to.id != 'exposed-0') {
+            return;
+          }
+
+          let draggedToList = [];
+          const draggedToNodes = evt.to.querySelectorAll('.draggable');
+          for (let i = 0; i < draggedToNodes.length; i++) {
+            draggedToList.push(draggedToNodes[i].id);
+          }
+
+          hook.pushEventTo(selector, 'dropped', {
+            draggedFromId: evt.from.id,
+            draggedToId: evt.to.id,
+            draggedToList: draggedToList,
+            draggedId: evt.item.id
           });
         }
       });
@@ -108,6 +153,5 @@ export default {
         delayOnTouchOnly: true
       });
     });
-
   }
 };
