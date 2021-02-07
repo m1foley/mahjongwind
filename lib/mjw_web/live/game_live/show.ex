@@ -74,29 +74,33 @@ defmodule MjwWeb.GameLive.Show do
 
     game
     |> Mjw.Game.discard(current_user_sitting_at, discarded_tile)
-    |> MjwWeb.GameStore.update(:discarded_tile)
+    |> MjwWeb.GameStore.update(:discarded)
 
     {:noreply, socket}
   end
 
-  # drew a discard
+  # drew a discard, or ponged
   @impl true
   def handle_event(
         "dropped",
         %{
           "draggedFromId" => "discards",
-          "draggedToId" => "concealed-0",
+          "draggedToId" => "exposed-0",
           "draggedId" => tile,
-          "draggedToList" => new_concealed
+          "draggedToList" => new_exposed
         },
         socket
       ) do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
     game = socket.assigns.game
 
+    # event is :drew_discard or :ponged, depending on if it's the player's turn
+    {event, game} =
+      game
+      |> Mjw.Game.draw_discard(current_user_sitting_at, new_exposed)
+
     game
-    |> Mjw.Game.draw_discard(current_user_sitting_at, new_concealed)
-    |> MjwWeb.GameStore.update(:drew_discard, tile)
+    |> MjwWeb.GameStore.update(event, tile)
 
     {:noreply, socket}
   end
@@ -117,6 +121,52 @@ defmodule MjwWeb.GameLive.Show do
 
     {game, tile} = game |> Mjw.Game.draw_from_deck(current_user_sitting_at, new_concealed)
     game |> MjwWeb.GameStore.update(:drew_from_deck, tile)
+
+    {:noreply, socket}
+  end
+
+  # concealed -> exposed: exposing a tile
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "concealed-0",
+          "draggedToId" => "exposed-0",
+          "draggedToList" => new_exposed,
+          "draggedFromList" => new_concealed,
+          "draggedId" => tile
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
+    |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
+    |> MjwWeb.GameStore.update(:exposed_tile, tile)
+
+    {:noreply, socket}
+  end
+
+  # exposed -> concealed: fixing accidental exposure
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "exposed-0",
+          "draggedToId" => "concealed-0",
+          "draggedToList" => new_concealed,
+          "draggedFromList" => new_exposed
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
+
+    game
+    |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
+    |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
+    |> MjwWeb.GameStore.update(:unexposed_tile)
 
     {:noreply, socket}
   end
@@ -154,7 +204,6 @@ defmodule MjwWeb.GameLive.Show do
     current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
     turn_player_name = Mjw.Game.turn_player_name(game)
-    previous_turn_seatno = Mjw.Game.previous_turn_seatno(game)
 
     # seats ordered by their position to the current player (0 = self, etc.)
     relative_game_seats =
@@ -194,7 +243,7 @@ defmodule MjwWeb.GameLive.Show do
 
     # not limited to turn_seatno because of pongs
     enable_pull_from_discards =
-      game_state == :drawing && previous_turn_seatno != current_user_sitting_at
+      game_state == :drawing && game.prev_turn_seatno != current_user_sitting_at
 
     current_user_discarding =
       game_state == :discarding && game.turn_seatno == current_user_sitting_at

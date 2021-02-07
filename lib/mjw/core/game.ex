@@ -25,7 +25,8 @@ defmodule Mjw.Game do
             # The normal game states: rolling/drawing/discarding.
             # Different from state/1, which includes game start & end states.
             turn_state: :rolling,
-            turn_seatno: 0
+            turn_seatno: 0,
+            prev_turn_seatno: 0
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -294,7 +295,6 @@ defmodule Mjw.Game do
   """
   def discard(%__MODULE__{turn_state: :discarding} = game, seatno, tile) do
     new_discards = [tile | game.discards]
-    new_turn_seatno = game.turn_seatno |> increment_seatno()
 
     new_concealed =
       game.seats
@@ -304,26 +304,24 @@ defmodule Mjw.Game do
 
     game
     |> update_concealed(seatno, new_concealed)
+    |> increment_turn_seatno()
     |> Map.merge(%{
       discards: new_discards,
-      turn_state: :drawing,
-      turn_seatno: new_turn_seatno
+      turn_state: :drawing
     })
   end
 
-  @doc """
-  The seat number of the game's previous turn
-  """
-  def previous_turn_seatno(%__MODULE__{turn_seatno: turn_seatno}) do
-    decrement_seatno(turn_seatno)
+  defp increment_turn_seatno(%__MODULE__{} = game) do
+    turn_seatno = rem(game.turn_seatno + 1, 4)
+    set_turn_seatno(game, turn_seatno)
   end
 
-  defp increment_seatno(turn_seatno) do
-    rem(turn_seatno + 1, 4)
-  end
-
-  defp decrement_seatno(turn_seatno) do
-    rem(turn_seatno + 3, 4)
+  defp set_turn_seatno(%__MODULE__{} = game, turn_seatno) do
+    %{
+      game
+      | turn_seatno: turn_seatno,
+        prev_turn_seatno: game.turn_seatno
+    }
   end
 
   @doc """
@@ -336,15 +334,38 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  A player draws from the discards: remove from the discards, update the
-  player's concealed tiles (already calculated on frontend), update turn_state
+  Update the given player's exposed tiles
   """
-  def draw_discard(%__MODULE__{turn_state: :drawing} = game, seatno, new_concealed) do
+  def update_exposed(%__MODULE__{} = game, seatno, exposed) do
+    update_seat(game, seatno, fn seat ->
+      %{seat | exposed: exposed}
+    end)
+  end
+
+  @doc """
+  A player draws from the discards OR pongs (the difference being if it was the
+  player's turn). Remove from the discards, update the player's concealed tiles
+  (already calculated on frontend), update turn_state, and change turn_seatno
+  if it was a pong.
+  """
+  def draw_discard(%__MODULE__{turn_state: :drawing} = game, seatno, new_exposed) do
     new_discards = game.discards |> Enum.slice(1..-1)
 
-    game
-    |> update_concealed(seatno, new_concealed)
-    |> Map.merge(%{discards: new_discards, turn_state: :discarding})
+    {event, game} =
+      if seatno == game.turn_seatno do
+        {:drew_discard, game}
+      else
+        # pongs change the turn seat
+        game = game |> set_turn_seatno(seatno)
+        {:ponged, game}
+      end
+
+    game =
+      game
+      |> update_exposed(seatno, new_exposed)
+      |> Map.merge(%{discards: new_discards, turn_state: :discarding})
+
+    {event, game}
   end
 
   @doc """
