@@ -59,11 +59,9 @@
 
 .gamewind {
   position: fixed;
-  top: 0;
-  right: 0;
+  top: 1rem;
+  right: 1rem;
   height: 3rem;
-  margin-top: 1rem;
-  margin-right: 1rem;
 }
 
 .walltile {
@@ -139,6 +137,9 @@
     transform: rotate(-90deg) translate(0, -100%);
     transform-origin: top right;
   }
+  .wall-tiles {
+    margin-top: 5%;
+  }
 }
 
 .seat-2 {
@@ -157,6 +158,9 @@
   .tiles {
     transform: rotate(90deg) translate(0, -100%);
     transform-origin: top left;
+  }
+  .wall-tiles {
+    margin-top: 5%;
   }
 }
 
