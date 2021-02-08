@@ -343,55 +343,69 @@
 
 .discards {
   position: fixed;
-  top: 12rem;
+  top: 0rem;
   bottom: 17rem;
-  left: 12rem;
-  right: 12rem;
-  @apply flex flex-row flex-wrap place-content-around justify-start;
+  left: 13rem;
+  right: 13rem;
 
   .tile {
-    position: relative;
     height: 3.1rem;
-    &.lastdiscard {
+  }
+
+  .lastdiscard-container {
+    height: 3.1rem; // without this the larger tile moves the other tiles around
+    margin-left: 1rem;
+    .tile {
       height: 5.8rem;
     }
+  }
+
+  // scramble the discards
+  .discard-container {
+    position: relative;
     &:nth-child(9n) {
-      top: -2rem;
-    }
-    &:nth-child(9n+1) {
-      top: 4rem;
-    }
-    &:nth-child(9n+2) {
-      top: -3.5rem;
-      left: -0.5rem;
-      transform: rotate(50deg);
-    }
-    &:nth-child(9n+3) {
-      top: 2rem;
-      transform: rotate(-24deg);
-    }
-    &:nth-child(9n+4) {
-      top: 6rem;
-      left: 4.5rem;
-      transform: rotate(73deg);
-    }
-    &:nth-child(9n+5) {
-      top: -3rem;
-      left: -2rem;
-      transform: rotate(30deg);
-    }
-    &:nth-child(9n+6) {
-      top: -0.4rem;
+      top: 0.6rem;
       transform: rotate(12deg);
     }
-    &:nth-child(9n+7) {
+    &:nth-child(9n+1) {
       top: -2rem;
       left: 1rem;
       transform: rotate(-20deg);
     }
-    &:nth-child(9n+8) {
+    &:nth-child(9n+2) {
       top: 4rem;
       transform: rotate(-40deg);
+    }
+    &:nth-child(9n+3) {
+      top: -2rem;
+    }
+    &:nth-child(9n+4) {
+      top: 4rem;
+    }
+    &:nth-child(9n+5) {
+      top: -1.5rem;
+      left: 0.5rem;
+      transform: rotate(50deg);
+    }
+    &:nth-child(9n+6) {
+      top: 2rem;
+      transform: rotate(-24deg);
+    }
+    &:nth-child(9n+7) {
+      top: 5.0rem;
+      left: 0.5rem;
+      transform: rotate(73deg);
+    }
+    &:nth-child(9n+8) {
+      top: -2.5rem;
+      transform: rotate(30deg);
+    }
+    // not sure why but space-y-32 makes the first child appear way off to
+    // the upper left
+    &:first-child {
+      top: 7rem;
+      left: 0;
+      transform: rotate(14deg);
     }
   }
 }
@@ -406,12 +420,12 @@
 
 .deckoffer {
   position: fixed;
-  bottom: 10rem;
-  right: 10rem;
+  bottom: 10%;
+  right: 10%;
   .tile {
     @apply largetile;
   }
-  @apply bg-green-600 border-4 border-gray-800 rounded-full shadow-xl p-12;
+  @apply bg-green-600 bg-opacity-50 border-4 border-gray-800 rounded-full shadow-xl p-12;
 }
 
 .glow {

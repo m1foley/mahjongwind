@@ -7,7 +7,7 @@ export default {
     const hook = this;
     const selector = '#' + this.el.id;
 
-    document.querySelectorAll('#discards.dropzone').forEach((dropzone) => {
+    document.querySelectorAll('#discards.dropzone.dzuninitialized').forEach((dropzone) => {
       Sortable.create(dropzone, {
         group: {
           name: 'discards',
@@ -36,9 +36,10 @@ export default {
         delay: 50,
         delayOnTouchOnly: true
       });
+      dropzone.classList.remove('dzuninitialized');
     });
 
-    document.querySelectorAll('#concealed-0.dropzone').forEach((dropzone) => {
+    document.querySelectorAll('#concealed-0.dropzone.dzuninitialized').forEach((dropzone) => {
       Sortable.create(dropzone, {
         group: {
           name: 'concealed-0',
@@ -85,7 +86,7 @@ export default {
           const draggedId = evt.item.id;
           // The deck tile gets removed on the backend, but not in the DOM
           // unless we do it manually like this
-          if (draggedId == "decktile") {
+          if (draggedId == 'decktile') {
             evt.item.remove();
           }
 
@@ -98,9 +99,10 @@ export default {
           });
         }
       });
+      dropzone.classList.remove('dzuninitialized');
     });
 
-    document.querySelectorAll('#exposed-0.dropzone').forEach((dropzone) => {
+    document.querySelectorAll('#exposed-0.dropzone.dzuninitialized').forEach((dropzone) => {
       Sortable.create(dropzone, {
         group: {
           name: 'exposed-0',
@@ -137,9 +139,10 @@ export default {
           });
         }
       });
+      dropzone.classList.remove('dzuninitialized');
     });
 
-    document.querySelectorAll('#deckoffer.dropzone').forEach((dropzone) => {
+    document.querySelectorAll('#deckoffer.dropzone.dzuninitialized').forEach((dropzone) => {
       Sortable.create(dropzone, {
         group: {
           name: 'deckoffer',
@@ -154,6 +157,7 @@ export default {
         delay: 50,
         delayOnTouchOnly: true
       });
+      dropzone.classList.remove('dzuninitialized');
     });
   }
 };
