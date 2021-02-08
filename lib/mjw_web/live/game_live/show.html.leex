@@ -7,6 +7,10 @@
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
 
+  <%= unless @show_wall do %>
+    <img src="/images/tiles/<%= @game.wind %>.png" alt="game wind" class="gamewind" />
+  <% end %>
+
   <%# displaying seats based on z-index order: 2 has game info, 0 has user's tiles %>
   <%= for {seat, i} <- [1,3,0,2] |> Enum.map(fn j -> {Enum.at(@relative_game_seats, j), j} end) do %>
     <div class="seat seat-<%= i %>">
