@@ -6,6 +6,10 @@ TODO:
 - Win conditions: win/draw/dq
 - Copy URL link
 
+Menu:
+- Extra tile from deck (gong)
+- Declare draw/DQ
+
 console:
 iex -S mix
 
