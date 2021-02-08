@@ -60,9 +60,10 @@
 .gamewind {
   position: fixed;
   top: 0;
-  left: 0;
-  height: 2.5rem;
-  margin: 1rem;
+  right: 0;
+  height: 3rem;
+  margin-top: 1rem;
+  margin-right: 1rem;
 }
 
 .walltile {
@@ -85,22 +86,23 @@
 
 .player-name-container {
   position: absolute;
-  margin: 1rem;
   z-index: 20;
 }
 
 .player-name-container-1 {
-  right: 0;
+  right: 6rem;
+  padding-top: 4rem;
 }
 
 .player-name-container-2 {
   left: 0;
-  top: 0;
+  top: 1rem;
   width: 100%;
 }
 
 .player-name-container-3 {
-  left: 0;
+  left: 6rem;
+  padding-top: 4rem;
 }
 
 .player-name {
