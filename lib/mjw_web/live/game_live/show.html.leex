@@ -8,7 +8,7 @@
   <% end %>
 
   <%= unless @show_wall do %>
-    <img src="/images/tiles/<%= @game.wind %>.png" alt="game wind" class="gamewind" />
+    <img src="/images/gamewind/<%= @game.wind %>.png" alt="game wind" class="gamewind" />
   <% end %>
 
   <%# displaying seats based on z-index order: 2 has game info, 0 has user's tiles %>
