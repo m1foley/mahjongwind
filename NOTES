@@ -1,12 +1,12 @@
 TODO:
-- don't move discards on size change
 - bug: move concealed to exposed, and then back. nothing happens
 - game wind
 - gongs
 - hidden gong
-- CSS animations: exposing a tile
+- CSS animations: exposing a tile, new discards
 - Leave a game
 - Win conditions: win/draw/dq
+- Copy URL link
 
 console:
 iex -S mix
