@@ -25,14 +25,30 @@
           </div>
         <% else %>
           <%= if i == 0 do %>
-            <div id="exposed-0" phx-hook="Drag" class="exposed-tiles dropzone dzuninitialized">
+            <div id="hiddengongs-0" phx-hook="Drag" class="hiddengongs-tiles dropzone dzuninitialized flex flex-row flex-wrap-reverse<%= unless @show_hidden_gongs_zone, do: " hidden" %>">
+              <%= for tile <- seat.hidden_gongs do %>
+                <% tile_code = tile |> String.slice(0..1) %>
+                <% newly_ponged = @event == :ponged && @event_detail == tile %>
+                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
+              <% end %>
+              <div class="dropzone-description">
+                Hidden gongs
+              </div>
+            </div>
+            <div id="exposed-0" class="exposed-tiles dropzone dzuninitialized<%= if Enum.empty?(seat.exposed), do: " empty" %>">
               <%= for tile <- seat.exposed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% newly_ponged = @event == :ponged && @event_detail == tile %>
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
               <% end %>
             </div>
-            <div id="concealed-0" phx-hook="Drag" class="concealed-tiles dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
+            <div id="wintile-0" phx-hook="Drag" class="wintile-tiles dropzone dzuninitialized<%= unless @show_hidden_gongs_zone, do: " without-hidden-gongs-zone" %>">
+              <div class="dropzone-description">
+                Winning tile
+              </div>
+            </div>
+            <div class="line-break"></div>
+            <div id="concealed-0" class="concealed-tiles dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
               <%= for tile <- seat.concealed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% recent_draw = [:drew_from_deck, :drew_discard] |> Enum.member?(@raw_event) && @event_detail == tile %>
@@ -47,6 +63,7 @@
                 <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if newly_exposed, do: " glow" %>" />
               <% end %>
             </div>
+            <div class="line-break"></div>
             <div class="concealed-tiles">
               <%= for _tile <- seat.concealed do %>
                 <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
@@ -66,7 +83,7 @@
             <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
           <% end %>
           <%= if @show_player_names do %>
-            <div id="discards" phx-hook="Drag" class="discards flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>" >
+            <div id="discards" phx-hook="Drag" class="flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>" >
               <%= for {tile, tileno} <- @game.discards |> Enum.reverse() |> Enum.with_index() do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% last_discard = @enable_pull_from_discards && tileno == length(@game.discards) - 1 %>

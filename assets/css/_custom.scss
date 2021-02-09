@@ -116,8 +116,54 @@
   position: absolute;
 }
 
-.concealed-tiles, .exposed-tiles, .wall-tiles {
+.dropzone {
+  // ensure we can drag & drop into an empty list
+  min-height: 8rem;
+  // ensure the description boxes can be read
+  min-width: 10rem;
+}
+
+.tiles, .concealed-tiles, .exposed-tiles, .hiddengongs-tiles, .wintile-tiles {
+  @apply flex flex-row flex-wrap text-center justify-center;
+}
+
+.wall-tiles {
   @apply flex flex-row flex-wrap-reverse text-center justify-center;
+}
+
+#hiddengongs-0 {
+  position: absolute;
+  left: 0;
+}
+
+#wintile-0 {
+  position: absolute;
+  right: 0;
+  height: 8rem;
+  &.without-hidden-gongs-zone {
+    bottom: 0;
+  }
+}
+
+.dropzone-description {
+  display: none;
+}
+
+.with-description {
+  opacity: 0.7;
+  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1));
+  .dropzone-description {
+    position: absolute;
+    top: 3rem;
+    display: block;
+    height: 0px; // hack because the text might interfere with dragging
+    text-shadow: 2px 2px 4px #000;
+    @apply text-gray-100 text-xl font-sans font-bold;
+  }
+}
+
+#exposed-0 {
+  min-width: 24rem;
 }
 
 .seat-0 {
@@ -138,7 +184,7 @@
     transform-origin: top right;
   }
   .wall-tiles {
-    margin-top: 5%;
+    margin-right: 5%;
   }
 }
 
@@ -160,7 +206,7 @@
     transform-origin: top left;
   }
   .wall-tiles {
-    margin-top: 5%;
+    margin-left: 5%;
   }
 }
 
@@ -355,17 +401,15 @@
   100% { transform: translate(0, 0) rotate(720deg); }
 }
 
-.discards {
+#discards {
   position: fixed;
   top: 0rem;
   bottom: 17rem;
   left: 13rem;
   right: 13rem;
-
   .tile {
     height: 3.1rem;
   }
-
   .lastdiscard-container {
     height: 3.1rem; // without this the larger tile moves the other tiles around
     margin-left: 1rem;
@@ -373,7 +417,6 @@
       height: 5.8rem;
     }
   }
-
   // scramble the discards
   .discard-container {
     position: relative;
@@ -444,9 +487,4 @@
 
 .glow {
   box-shadow: 0px 0px 2rem #eee;
-}
-
-// ensure we can drag & drop into an empty list
-.dropzone {
-  min-height: 8rem;
 }

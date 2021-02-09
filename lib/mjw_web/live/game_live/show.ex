@@ -268,6 +268,9 @@ defmodule MjwWeb.GameLive.Show do
     current_user_discarding =
       game_state == :discarding && game.turn_seatno == current_user_sitting_at
 
+    player_seat = relative_game_seats |> Enum.at(0)
+    show_hidden_gongs_zone = player_seat && show_hidden_gongs_zone?(player_seat)
+
     socket
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
@@ -282,6 +285,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_drawing, current_user_drawing)
     |> assign(:enable_pull_from_discards, enable_pull_from_discards)
     |> assign(:current_user_discarding, current_user_discarding)
+    |> assign(:show_hidden_gongs_zone, show_hidden_gongs_zone)
   end
 
   defp ensure_game_joinable(socket) do
@@ -313,5 +317,11 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:raw_event, event)
     |> assign(:event, event)
     |> assign(:event_detail, event_detail)
+  end
+
+  # This means it's impossible for the player to achieve a hidden gong.
+  # Hide the dropzone to make room in the UI.
+  defp show_hidden_gongs_zone?(%Mjw.Seat{} = seat) do
+    seat.hidden_gongs == [] && length(seat.concealed) > 3
   end
 end

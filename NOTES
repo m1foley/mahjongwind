@@ -1,10 +1,12 @@
 TODO:
-- gongs
+- correcting for gongs
 - hidden gong
+- Fix drag image from discards
 - CSS animations: exposing a tile, new discards
 - Leave a game
 - Win conditions: win/draw/dq
 - Copy URL link
+- Make ghost look better when dragging to discards
 
 Menu:
 - Extra tile from deck (gong)
