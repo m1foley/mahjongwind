@@ -21,7 +21,7 @@ defmodule Mjw.SeatTest do
       assert seat.player_name == "New Name"
       assert seat.concealed == []
       assert seat.exposed == []
-      assert seat.hidden_gong == []
+      assert seat.hidden_gongs == []
     end
 
     test "replaces an existing player with the new player" do
@@ -30,7 +30,7 @@ defmodule Mjw.SeatTest do
         player_name: "Old Name",
         concealed: ["n1-0"],
         exposed: ["n2-0"],
-        hidden_gong: ["n3-0"]
+        hidden_gongs: ["n3-0"]
       }
 
       seat = Mjw.Seat.seat_player(seat, "new_id", "New Name")
@@ -38,7 +38,7 @@ defmodule Mjw.SeatTest do
       assert seat.player_name == "New Name"
       assert seat.concealed == ["n1-0"]
       assert seat.exposed == ["n2-0"]
-      assert seat.hidden_gong == ["n3-0"]
+      assert seat.hidden_gongs == ["n3-0"]
     end
   end
 

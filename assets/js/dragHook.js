@@ -45,16 +45,16 @@ export default {
           name: 'concealed-0',
           put: function (to, from) {
             if (dropzone.classList.contains('enable-pull-from-discards')) {
-              return ['discards', 'exposed-0', 'deckoffer'];
+              return ['discards', 'exposed-0', 'hiddengongs-0', 'deckoffer'];
             } else {
-              return ['exposed-0']; // for accidents
+              return ['exposed-0', 'hiddengongs-0']; // for accidents
             }
           },
           pull: function (to, from) {
             if (dropzone.classList.contains('current-user-discarding')) {
-              return ['discards', 'exposed-0'];
+              return ['discards', 'exposed-0', 'hiddengongs-0', 'wintile-0'];
             } else {
-              return ['exposed-0'];
+              return ['exposed-0', 'hiddengongs-0', 'wintile-0'];
             }
           },
         },
@@ -65,18 +65,34 @@ export default {
         animation: 100,
         delay: 50,
         delayOnTouchOnly: true,
+        onStart: function (evt) {
+          let hlSelector;
+          if (dropzone.classList.contains('current-user-discarding')) {
+            hlSelector = '#hiddengongs-0, #wintile-0';
+          } else {
+            hlSelector = '#hiddengongs-0, #wintile-0';
+          }
+          document.querySelectorAll(hlSelector).forEach((hlZone) => {
+            hlZone.classList.add('with-description');
+          });
+        },
+        onEnd: function (evt) {
+          document.querySelectorAll('.dropzone.with-description').forEach((hlZone) => {
+            hlZone.classList.remove('with-description');
+          });
+        },
         onSort: function (evt) {
-          // if the action involves the player's concealed and/or exposed
-          // tiles, we probably need to know what the updated list(s) look like
+          // if the action involves adding/removing from the player's personal
+          // tiles, we'll need to know what the updated list(s) look like
           let draggedToList = [];
-          if (['concealed-0', 'exposed-0'].includes(evt.to.id)) {
+          if (['concealed-0', 'exposed-0', 'hiddengongs-0'].includes(evt.to.id)) {
             const draggedToNodes = evt.to.querySelectorAll('.draggable');
             for (let i = 0; i < draggedToNodes.length; i++) {
               draggedToList.push(draggedToNodes[i].id);
             }
           }
           let draggedFromList = [];
-          if (['concealed-0', 'exposed-0'].includes(evt.from.id)) {
+          if (['concealed-0', 'exposed-0', 'hiddengongs-0'].includes(evt.from.id)) {
             const draggedFromNodes = evt.from.querySelectorAll('.draggable');
             for (let i = 0; i < draggedFromNodes.length; i++) {
               draggedFromList.push(draggedFromNodes[i].id);
@@ -106,8 +122,57 @@ export default {
       Sortable.create(dropzone, {
         group: {
           name: 'exposed-0',
-          put: ['concealed-0', 'discards'],
-          pull: ['concealed-0'] // for accidents
+          put: ['concealed-0', 'hiddengongs-0', 'discards'],
+          pull: ['concealed-0', 'hiddengongs-0', 'wintile-0']
+        },
+        direction: 'horizontal',
+        draggable: '.draggable',
+        ghostClass: 'sortable-ghost',
+        swapThreshold: 0.2,
+        animation: 100,
+        delay: 50,
+        delayOnTouchOnly: true,
+        onStart: function (evt) {
+          const hlSelector = '#hiddengongs-0, #wintile-0';
+          document.querySelectorAll(hlSelector).forEach((hlZone) => {
+            hlZone.classList.add('with-description');
+          });
+        },
+        onEnd: function (evt) {
+          document.querySelectorAll('.dropzone.with-description').forEach((hlZone) => {
+            hlZone.classList.remove('with-description');
+          });
+        },
+        onSort: function (evt) {
+          // Any interaction with the concealed tiles are handled in the
+          // concealed-0 onSort
+          if (evt.to.id == 'concealed-0' || evt.from.id == 'concealed-0') {
+            return;
+          }
+
+          let draggedToList = [];
+          const draggedToNodes = evt.to.querySelectorAll('.draggable');
+          for (let i = 0; i < draggedToNodes.length; i++) {
+            draggedToList.push(draggedToNodes[i].id);
+          }
+
+          hook.pushEventTo(selector, 'dropped', {
+            draggedFromId: evt.from.id,
+            draggedToId: evt.to.id,
+            draggedToList: draggedToList,
+            draggedId: evt.item.id
+          });
+        }
+      });
+      dropzone.classList.remove('dzuninitialized');
+    });
+
+    document.querySelectorAll('#hiddengongs-0.dropzone.dzuninitialized').forEach((dropzone) => {
+      Sortable.create(dropzone, {
+        group: {
+          name: 'hiddengongs-0',
+          put: ['concealed-0', 'exposed-0'],
+          pull: ['concealed-0', 'exposed-0'] // for accidents
         },
         direction: 'horizontal',
         draggable: '.draggable',
@@ -117,11 +182,9 @@ export default {
         delay: 50,
         delayOnTouchOnly: true,
         onSort: function (evt) {
-          // Only need this code for the sortableJS interactions not also picked
-          // up by the concealed-0 onSort:
-          // - discards -> exposed-0
-          // - exposed-0 -> exposed-0
-          if (evt.to.id != 'exposed-0' || !['discards', 'exposed-0'].includes(evt.from.id)) {
+          // Any interactions with the concealed or exposed tiles are handled in
+          // their respective onSort methods. That leaves just sorting.
+          if (evt.to.id != 'hiddengongs-0' || evt.from.id != 'hiddengongs-0') {
             return;
           }
 
