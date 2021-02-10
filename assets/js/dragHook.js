@@ -151,7 +151,7 @@ export default {
             draggedToList.push(draggedToNodes[i].id);
           }
           let draggedFromList = [];
-          if (evt.from.id == 'hiddengongs-0') {
+          if (evt.to.id != 'exposed-0' || evt.from.id != 'exposed-0') {
             const draggedFromNodes = evt.from.querySelectorAll('.draggable');
             for (let i = 0; i < draggedFromNodes.length; i++) {
               draggedFromList.push(draggedFromNodes[i].id);
