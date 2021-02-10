@@ -418,6 +418,18 @@ defmodule Mjw.GameTest do
     end
   end
 
+  describe "update_wintile" do
+    test "updates the winning tile for the given seat number" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.update_wintile(1, "n9-1")
+
+      assert game.seats |> Enum.map(& &1.wintile) == [nil, "n9-1", nil, nil]
+    end
+  end
+
   describe "draw_discard" do
     test "when it's not a pong, removes the tile from discards and updates the player's exposed & turn state" do
       {event, game} =

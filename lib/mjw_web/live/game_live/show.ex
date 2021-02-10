@@ -90,9 +90,8 @@ defmodule MjwWeb.GameLive.Show do
         socket
       ) do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
-    game = socket.assigns.game
 
-    game
+    socket.assigns.game
     |> Mjw.Game.discard(current_user_sitting_at, discarded_tile)
     |> MjwWeb.GameStore.update(:discarded)
 
@@ -125,7 +124,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # drew from the deck
+  # drew from the deck offer
   @impl true
   def handle_event(
         "dropped",
@@ -181,9 +180,8 @@ defmodule MjwWeb.GameLive.Show do
         socket
       ) do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
-    game = socket.assigns.game
 
-    game
+    socket.assigns.game
     |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
     |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
     |> MjwWeb.GameStore.update(:unexposed_tile)
@@ -246,9 +244,8 @@ defmodule MjwWeb.GameLive.Show do
         socket
       ) do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
-    game = socket.assigns.game
 
-    game
+    socket.assigns.game
     |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
     |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
     |> MjwWeb.GameStore.update(:unhiddengonged_tile)
@@ -256,7 +253,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # hiddengongs -> exposed: changing hidden gong to normal gong
+  # hiddengongs -> exposed: exposing a hidden gong tile
   @impl true
   def handle_event(
         "dropped",
@@ -269,9 +266,8 @@ defmodule MjwWeb.GameLive.Show do
         socket
       ) do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
-    game = socket.assigns.game
 
-    game
+    socket.assigns.game
     |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
     |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
     |> MjwWeb.GameStore.update(:exposed_hiddengong_tile)
@@ -431,7 +427,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:event_detail, event_detail)
   end
 
-  # No room for hidden gongs & wintile areas if there are too many exposed-0
+  # No room for hidden gongs & wintile areas if there are too many exposed
   defp crowded_exposed_row?(%Mjw.Seat{} = seat) do
     length(seat.exposed) + length(seat.hidden_gongs) > 10
   end
