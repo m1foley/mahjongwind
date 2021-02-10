@@ -1,7 +1,6 @@
 TODO:
-- correcting for gongs
-- hidden gong
-- Protect against JS wonkiness
+- Correction tile for gongs
+- Protect against JS errors
 - Fix drag image from discards
 - CSS animations: exposing a tile, new discards
 - Leave a game
