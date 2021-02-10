@@ -2,6 +2,7 @@ defmodule Mjw.Seat do
   defstruct concealed: [],
             exposed: [],
             hidden_gongs: [],
+            wintile: nil,
             player_id: nil,
             player_name: nil,
             picked_wind: nil,
