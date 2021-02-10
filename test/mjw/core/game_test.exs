@@ -161,7 +161,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.pick_random_available_wind("id1", 3)
 
       wind = game |> Mjw.Game.picked_wind("id1")
-      assert Enum.member?(~w(we ws ww wn), wind)
+      assert wind in ~w(we ws ww wn)
       assert game |> Mjw.Game.picked_wind("id0") == nil
       assert game |> Mjw.Game.picked_wind_idx("id1") == 3
       assert game |> Mjw.Game.picked_wind_idx("id0") == nil
@@ -403,6 +403,18 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.update_exposed(1, ["dp-0", "c1-3"])
 
       assert game.seats |> Enum.map(& &1.exposed) == [[], ["dp-0", "c1-3"], [], []]
+    end
+  end
+
+  describe "update_hiddengongs" do
+    test "changes the hidden gongs for the given seat number" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.update_hiddengongs(1, ["dp-0", "c1-3"])
+
+      assert game.seats |> Enum.map(& &1.hidden_gongs) == [[], ["dp-0", "c1-3"], [], []]
     end
   end
 

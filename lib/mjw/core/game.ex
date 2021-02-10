@@ -343,6 +343,15 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Update the given player's hidden gongs
+  """
+  def update_hiddengongs(%__MODULE__{} = game, seatno, hidden_gongs) do
+    update_seat(game, seatno, fn seat ->
+      %{seat | hidden_gongs: hidden_gongs}
+    end)
+  end
+
+  @doc """
   A player draws from the discards OR pongs (the difference being if it was the
   player's turn). Remove from the discards, update the player's concealed tiles
   (already calculated on frontend), update turn_state, and change turn_seatno
