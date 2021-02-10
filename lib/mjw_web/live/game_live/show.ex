@@ -152,8 +152,8 @@ defmodule MjwWeb.GameLive.Show do
         %{
           "draggedFromId" => "concealed-0",
           "draggedToId" => "exposed-0",
-          "draggedToList" => new_exposed,
           "draggedFromList" => new_concealed,
+          "draggedToList" => new_exposed,
           "draggedId" => tile
         },
         socket
@@ -175,8 +175,8 @@ defmodule MjwWeb.GameLive.Show do
         %{
           "draggedFromId" => "exposed-0",
           "draggedToId" => "concealed-0",
-          "draggedToList" => new_concealed,
-          "draggedFromList" => new_exposed
+          "draggedFromList" => new_exposed,
+          "draggedToList" => new_concealed
         },
         socket
       ) do
@@ -187,6 +187,116 @@ defmodule MjwWeb.GameLive.Show do
     |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
     |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
     |> MjwWeb.GameStore.update(:unexposed_tile)
+
+    {:noreply, socket}
+  end
+
+  # concealed -> hiddengongs
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "concealed-0",
+          "draggedToId" => "hiddengongs-0",
+          "draggedFromList" => new_concealed,
+          "draggedToList" => new_hiddengongs
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
+    |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
+    |> MjwWeb.GameStore.update(:hiddengonged_tile)
+
+    {:noreply, socket}
+  end
+
+  # sorting one's own hidden gongs
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "hiddengongs-0",
+          "draggedToId" => "hiddengongs-0",
+          "draggedToList" => new_hiddengongs
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
+    |> MjwWeb.GameStore.update(:hiddengongs_sorted)
+
+    {:noreply, socket}
+  end
+
+  # hiddengongs -> concealed: fixing accidental hidden gongs
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "hiddengongs-0",
+          "draggedToId" => "concealed-0",
+          "draggedFromList" => new_hiddengongs,
+          "draggedToList" => new_concealed
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
+
+    game
+    |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
+    |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
+    |> MjwWeb.GameStore.update(:unhiddengonged_tile)
+
+    {:noreply, socket}
+  end
+
+  # hiddengongs -> exposed: changing hidden gong to normal gong
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "hiddengongs-0",
+          "draggedToId" => "exposed-0",
+          "draggedFromList" => new_hiddengongs,
+          "draggedToList" => new_exposed
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
+
+    game
+    |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
+    |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
+    |> MjwWeb.GameStore.update(:exposed_hiddengong_tile)
+
+    {:noreply, socket}
+  end
+
+  # exposed -> hiddengongs: hiding an exposed gong
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "exposed-0",
+          "draggedToId" => "hiddengongs-0",
+          "draggedFromList" => new_exposed,
+          "draggedToList" => new_hiddengongs
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
+    |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
+    |> MjwWeb.GameStore.update(:hiddengonged_exposed_tile)
 
     {:noreply, socket}
   end
@@ -239,25 +349,26 @@ defmodule MjwWeb.GameLive.Show do
         |> Enum.map(fn {{seat, _relative_position}, i} -> Map.merge(seat, %{seatno: i}) end)
       end
 
-    show_stick =
-      [:waiting_for_players, :picking_winds]
-      |> Enum.member?(game_state)
+    show_stick = game_state in [:waiting_for_players, :picking_winds]
 
     show_wind_picking =
-      [:picking_winds, :rolling_for_first_dealer] |> Enum.member?(game_state) ||
-        ([:rolling_for_deal, :discarding] |> Enum.member?(game_state) && show_wind_picking_was)
+      game_state in [:picking_winds, :rolling_for_first_dealer] ||
+        (game_state in [:rolling_for_deal, :discarding] && show_wind_picking_was)
 
     show_wall =
-      [:waiting_for_players, :picking_winds, :rolling_for_first_dealer, :rolling_for_deal]
-      |> Enum.member?(game_state)
+      game_state in [
+        :waiting_for_players,
+        :picking_winds,
+        :rolling_for_first_dealer,
+        :rolling_for_deal
+      ]
 
     show_dice =
-      [:rolling_for_first_dealer, :rolling_for_deal] |> Enum.member?(game_state) ||
+      game_state in [:rolling_for_first_dealer, :rolling_for_deal] ||
         (game_state == :discarding && show_wind_picking_was)
 
     show_player_names =
-      !([:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
-        |> Enum.member?(game_state))
+      game_state not in [:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
 
     current_user_drawing = game_state == :drawing && game.turn_seatno == current_user_sitting_at
 
@@ -269,7 +380,7 @@ defmodule MjwWeb.GameLive.Show do
       game_state == :discarding && game.turn_seatno == current_user_sitting_at
 
     player_seat = relative_game_seats |> Enum.at(0)
-    show_hidden_gongs_zone = player_seat && show_hidden_gongs_zone?(player_seat)
+    crowded_exposed_row = player_seat && crowded_exposed_row?(player_seat)
 
     socket
     |> assign(:empty_seats_count, empty_seats_count)
@@ -285,7 +396,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_drawing, current_user_drawing)
     |> assign(:enable_pull_from_discards, enable_pull_from_discards)
     |> assign(:current_user_discarding, current_user_discarding)
-    |> assign(:show_hidden_gongs_zone, show_hidden_gongs_zone)
+    |> assign(:crowded_exposed_row, crowded_exposed_row)
   end
 
   defp ensure_game_joinable(socket) do
@@ -305,7 +416,8 @@ defmodule MjwWeb.GameLive.Show do
   # A player sorting their own hand is an event we typically ignore in terms of
   # changing the UI, so restore the previous event for business logic (it's
   # still assigned to raw_event if needed)
-  defp assign_event(socket, :concealed_sorted = event, _event_detail) do
+  defp assign_event(socket, event, _event_detail)
+       when event in [:concealed_sorted, :hiddengongs_sorted] do
     socket
     |> assign(:raw_event, event)
     |> assign(:event, socket.assigns[:event])
@@ -319,9 +431,8 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:event_detail, event_detail)
   end
 
-  # This means it's impossible for the player to achieve a hidden gong.
-  # Hide the dropzone to make room in the UI.
-  defp show_hidden_gongs_zone?(%Mjw.Seat{} = seat) do
-    seat.hidden_gongs == [] && length(seat.concealed) > 3
+  # No room for hidden gongs & wintile areas if there are too many exposed-0
+  defp crowded_exposed_row?(%Mjw.Seat{} = seat) do
+    length(seat.exposed) + length(seat.hidden_gongs) > 10
   end
 end

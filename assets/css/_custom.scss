@@ -134,13 +134,16 @@
 #hiddengongs-0 {
   position: absolute;
   left: 0;
+  &.bottomrow {
+    bottom: 0;
+  }
 }
 
 #wintile-0 {
   position: absolute;
   right: 0;
   height: 8rem;
-  &.without-hidden-gongs-zone {
+  &.bottomrow {
     bottom: 0;
   }
 }

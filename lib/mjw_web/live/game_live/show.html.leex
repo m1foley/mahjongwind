@@ -25,11 +25,10 @@
           </div>
         <% else %>
           <%= if i == 0 do %>
-            <div id="hiddengongs-0" phx-hook="Drag" class="hiddengongs-tiles dropzone dzuninitialized flex flex-row flex-wrap-reverse<%= unless @show_hidden_gongs_zone, do: " hidden" %>">
+            <div id="hiddengongs-0" phx-hook="Drag" class="hiddengongs-tiles dropzone dzuninitialized<%= if @crowded_exposed_row, do: " bottomrow" %>">
               <%= for tile <- seat.hidden_gongs do %>
                 <% tile_code = tile |> String.slice(0..1) %>
-                <% newly_ponged = @event == :ponged && @event_detail == tile %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
+                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable" />
               <% end %>
               <div class="dropzone-description">
                 Hidden gongs
@@ -42,7 +41,7 @@
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
               <% end %>
             </div>
-            <div id="wintile-0" phx-hook="Drag" class="wintile-tiles dropzone dzuninitialized<%= unless @show_hidden_gongs_zone, do: " without-hidden-gongs-zone" %>">
+            <div id="wintile-0" phx-hook="Drag" class="wintile-tiles dropzone dzuninitialized<%= if @crowded_exposed_row, do: " bottomrow" %>">
               <div class="dropzone-description">
                 Winning tile
               </div>
@@ -51,7 +50,7 @@
             <div id="concealed-0" class="concealed-tiles dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
               <%= for tile <- seat.concealed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
-                <% recent_draw = [:drew_from_deck, :drew_discard] |> Enum.member?(@raw_event) && @event_detail == tile %>
+                <% recent_draw = @raw_event in [:drew_from_deck, :drew_discard] && @event_detail == tile %>
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if recent_draw, do: " glow" %>" />
               <% end %>
             </div>
@@ -59,7 +58,7 @@
             <div class="exposed-tiles">
               <%= for tile <- seat.exposed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
-                <% newly_exposed = [:exposed_tile, :drew_discard, :ponged] |> Enum.member?(@event) && @event_detail == tile %>
+                <% newly_exposed = @event in [:exposed_tile, :drew_discard, :ponged] && @event_detail == tile %>
                 <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if newly_exposed, do: " glow" %>" />
               <% end %>
             </div>

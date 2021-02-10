@@ -66,12 +66,7 @@ export default {
         delay: 50,
         delayOnTouchOnly: true,
         onStart: function (evt) {
-          let hlSelector;
-          if (dropzone.classList.contains('current-user-discarding')) {
-            hlSelector = '#hiddengongs-0, #wintile-0';
-          } else {
-            hlSelector = '#hiddengongs-0, #wintile-0';
-          }
+          const hlSelector = '#hiddengongs-0, #wintile-0';
           document.querySelectorAll(hlSelector).forEach((hlZone) => {
             hlZone.classList.add('with-description');
           });
@@ -100,7 +95,7 @@ export default {
           }
 
           const draggedId = evt.item.id;
-          // The deck tile gets removed on the backend, but not in the DOM
+          // The deck tile gets replaced on the backend, but not in the DOM
           // unless we do it manually like this
           if (draggedId == 'decktile') {
             evt.item.remove();
@@ -155,10 +150,18 @@ export default {
           for (let i = 0; i < draggedToNodes.length; i++) {
             draggedToList.push(draggedToNodes[i].id);
           }
+          let draggedFromList = [];
+          if (evt.from.id == 'hiddengongs-0') {
+            const draggedFromNodes = evt.from.querySelectorAll('.draggable');
+            for (let i = 0; i < draggedFromNodes.length; i++) {
+              draggedFromList.push(draggedFromNodes[i].id);
+            }
+          }
 
           hook.pushEventTo(selector, 'dropped', {
             draggedFromId: evt.from.id,
             draggedToId: evt.to.id,
+            draggedFromList: draggedFromList,
             draggedToList: draggedToList,
             draggedId: evt.item.id
           });
