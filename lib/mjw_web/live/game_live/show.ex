@@ -290,8 +290,8 @@ defmodule MjwWeb.GameLive.Show do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
 
     socket.assigns.game
-    |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
     |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
+    |> Mjw.Game.update_hiddengongs(current_user_sitting_at, new_hiddengongs)
     |> MjwWeb.GameStore.update(:hiddengonged_exposed_tile)
 
     {:noreply, socket}
