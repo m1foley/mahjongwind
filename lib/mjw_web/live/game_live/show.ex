@@ -28,11 +28,11 @@ defmodule MjwWeb.GameLive.Show do
 
   # respond to game updates
   @impl true
-  def handle_info({%Mjw.Game{} = game, event, event_detail}, socket) do
+  def handle_info({%Mjw.Game{} = game, event, event_details}, socket) do
     socket =
       socket
       |> assign(:game, game)
-      |> assign_event(event, event_detail)
+      |> assign_event(event, event_details)
       |> assign_game_info()
 
     {:noreply, socket}
@@ -119,7 +119,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.draw_discard(current_user_sitting_at, new_exposed)
 
     game
-    |> MjwWeb.GameStore.update(event, tile)
+    |> MjwWeb.GameStore.update(event, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -139,7 +139,7 @@ defmodule MjwWeb.GameLive.Show do
     game = socket.assigns.game
 
     {game, tile} = game |> Mjw.Game.draw_from_deck(current_user_sitting_at, new_concealed)
-    game |> MjwWeb.GameStore.update(:drew_from_deck, tile)
+    game |> MjwWeb.GameStore.update(:drew_from_deck, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -162,7 +162,7 @@ defmodule MjwWeb.GameLive.Show do
     socket.assigns.game
     |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
     |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
-    |> MjwWeb.GameStore.update(:exposed_tile, tile)
+    |> MjwWeb.GameStore.update(:exposed_tile, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -310,9 +310,10 @@ defmodule MjwWeb.GameLive.Show do
       ) do
     current_user_sitting_at = socket.assigns.current_user_sitting_at
     game = socket.assigns.game
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
 
     {game, tile} = game |> Mjw.Game.draw_correction_tile(current_user_sitting_at, new_concealed)
-    game |> MjwWeb.GameStore.update(:drew_correction_tile, tile)
+    game |> MjwWeb.GameStore.update(:drew_correction_tile, %{tile: tile, seat: player_seat})
 
     {:noreply, socket}
   end
@@ -431,22 +432,22 @@ defmodule MjwWeb.GameLive.Show do
     socket.assigns.empty_seats_count > 0 || socket.assigns.current_user_sitting_at
   end
 
-  # A player sorting their own hand is an event we typically ignore in terms of
-  # changing the UI, so restore the previous event for business logic (it's
-  # still assigned to raw_event if needed)
-  defp assign_event(socket, event, _event_detail)
-       when event in [:concealed_sorted, :hiddengongs_sorted] do
+  # A player sorting their own hand is not considered a significant event to
+  # other players, so restore the previous event for business logic (it's still
+  # assigned to raw_event if needed)
+  defp assign_event(socket, event, _event_details)
+       when event in [:concealed_sorted, :exposed_sorted, :hiddengongs_sorted] do
     socket
     |> assign(:raw_event, event)
     |> assign(:event, socket.assigns[:event])
-    |> assign(:event_detail, socket.assigns[:event_detail])
+    |> assign(:event_details, socket.assigns[:event_details])
   end
 
-  defp assign_event(socket, event, event_detail) do
+  defp assign_event(socket, event, event_details) do
     socket
     |> assign(:raw_event, event)
     |> assign(:event, event)
-    |> assign(:event_detail, event_detail)
+    |> assign(:event_details, event_details)
   end
 
   defp crowded_exposed_row?(nil = _seat), do: false

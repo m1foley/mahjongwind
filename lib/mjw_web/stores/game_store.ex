@@ -19,10 +19,10 @@ defmodule MjwWeb.GameStore do
   @doc """
   Persist an update to an existing game
   """
-  def update(game, event, detail \\ nil) do
+  def update(game, event, details \\ %{}) do
     game
     |> persist()
-    |> broadcast_game_update(event, detail)
+    |> broadcast_game_update(event, details)
   end
 
   @doc """
@@ -86,8 +86,8 @@ defmodule MjwWeb.GameStore do
     Phoenix.PubSub.unsubscribe(Mjw.PubSub, "game:#{game.id}")
   end
 
-  defp broadcast_game_update(game, event, detail) do
-    Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.id}", {game, event, detail})
+  defp broadcast_game_update(game, event, details) do
+    Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.id}", {game, event, details})
     game
   end
 end

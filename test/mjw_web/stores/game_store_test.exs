@@ -73,13 +73,13 @@ defmodule MjwWeb.GameStoreTest do
     assert MjwWeb.GameStore.get(game.id) == updated_game
   end
 
-  test "update with no detail broadcasts the event" do
+  test "update with no details broadcasts the event" do
     game = MjwWeb.GameStore.create()
     updated_game = game |> Map.merge(%{turn_seatno: 1})
 
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
     MjwWeb.GameStore.update(updated_game, :event1)
-    assert_received({^updated_game, :event1, nil})
+    assert_received({^updated_game, :event1, %{}})
   end
 
   test "update with detail broadcasts the event" do
@@ -116,7 +116,7 @@ defmodule MjwWeb.GameStoreTest do
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
     MjwWeb.GameStore.update_with_lobby_change(updated_game, :event1)
     :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
-    assert_received({^updated_game, :event1, nil})
+    assert_received({^updated_game, :event1, %{}})
   end
 
   test "update_with_lobby_change broadcasts change to lobby" do

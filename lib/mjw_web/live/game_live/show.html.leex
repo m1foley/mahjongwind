@@ -35,7 +35,7 @@
             <div id="exposed-0" class="exposed-tiles dropzone dzuninitialized<%= if Enum.empty?(seat.exposed), do: " empty" %>">
               <%= for tile <- seat.exposed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
-                <% newly_ponged = @event == :ponged && @event_detail == tile %>
+                <% newly_ponged = @event == :ponged && @event_details[:tile] == tile %>
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
               <% end %>
             </div>
@@ -48,7 +48,7 @@
             <div id="concealed-0" class="concealed-tiles dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
               <%= for tile <- seat.concealed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
-                <% recent_draw = @raw_event in [:drew_from_deck, :drew_discard, :drew_correction_tile] && @event_detail == tile %>
+                <% recent_draw = @raw_event in [:drew_from_deck, :drew_discard, :drew_correction_tile] && @event_details[:tile] == tile %>
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if recent_draw, do: " glow" %>" />
               <% end %>
             </div>
@@ -56,7 +56,7 @@
             <div class="exposed-tiles">
               <%= for tile <- seat.exposed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
-                <% newly_exposed = @event in [:exposed_tile, :drew_discard, :ponged] && @event_detail == tile %>
+                <% newly_exposed = @event in [:exposed_tile, :drew_discard, :ponged] && @event_details[:tile] == tile %>
                 <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if newly_exposed, do: " glow" %>" />
               <% end %>
             </div>
@@ -110,23 +110,18 @@
                   <% :drew_discard -> %>
                     <div class="state-description">
                       <%= @turn_player_name %> drew from discards:
-                      <% tile_code = @event_detail |> String.slice(0..1) %>
+                      <% tile_code = @event_details[:tile] |> String.slice(0..1) %>
                       <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile" />
                     </div>
                   <% :ponged -> %>
                     <div class="state-description">
                       <%= @turn_player_name %> ponged:
-                      <% tile_code = @event_detail |> String.slice(0..1) %>
+                      <% tile_code = @event_details[:tile] |> String.slice(0..1) %>
                       <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile" />
                     </div>
                   <% :drew_from_deck -> %>
                     <div class="state-description">
                       <%= @turn_player_name %> drew from the deck.
-                      <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
-                    </div>
-                  <% :drew_correction_tile -> %>
-                    <div class="state-description">
-                      <%= @turn_player_name %> drew a correction tile.
                       <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
                     </div>
                   <% _other_event -> %>
@@ -135,9 +130,16 @@
             <% _ -> %>
           <% end %>
 
+          <%= if @event == :drew_correction_tile do %>
+            <div class="state-description">
+              <%= @event_details[:seat].player_name %> drew a correction tile.
+              <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+            </div>
+          <% end %>
+
           <div class="debug text-gray-900 text-sm opacity-30 hidden">
             <div>event: <%= @event %></div>
-            <div>event_detail: <%= @event_detail %></div>
+            <div>event_details: <%= inspect(@event_details) %></div>
             <div>live_action: <%= @live_action %></div>
             <div>current_user_id: <%= @current_user_id %></div>
             <div>Game state: <%= @game_state %></div>
