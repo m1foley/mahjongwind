@@ -1,13 +1,13 @@
 TODO:
-- CSS animations: exposing a tile, new discards
-- Leave a game
+- Wind menu:
+  - Declare draw/DQ
+  - Quit game
 - Win conditions: win/draw/dq
+- CSS animations:
+  - Discards fly from different directions
+  - Exposing a tile?
 - Copy URL link
 - Defensive code to protect against random JS errors
-
-Menu:
-- Extra tile from deck (gong)
-- Declare draw/DQ
 
 console:
 iex -S mix
