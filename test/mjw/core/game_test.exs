@@ -478,7 +478,7 @@ defmodule Mjw.GameTest do
 
   describe "draw_from_deck" do
     test "removes a tile from deck, updates the player's concealed, updates turn state" do
-      {game, tile} =
+      {game, returned_tile} =
         %Mjw.Game{
           turn_seatno: 3,
           prev_turn_seatno: 2,
@@ -496,7 +496,31 @@ defmodule Mjw.GameTest do
       assert game.turn_seatno == 3
       assert game.prev_turn_seatno == 2
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
-      assert tile == "dp-0"
+      assert returned_tile == "dp-0"
+    end
+  end
+
+  describe "draw_correction_tile" do
+    test "removes a tile from deck and updates the player's concealed tiles" do
+      {game, returned_tile} =
+        %Mjw.Game{
+          turn_seatno: 3,
+          prev_turn_seatno: 2,
+          turn_state: :discarding,
+          deck: ["dp-0", "df-0", "dp-1"]
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.draw_correction_tile(0, ["c1-0", "c1-1", "decktile", "c2-0"])
+
+      assert game.deck == ["df-0", "dp-1"]
+      assert game.turn_state == :discarding
+      assert game.turn_seatno == 3
+      assert game.prev_turn_seatno == 2
+      assert game.seats |> Enum.at(0) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
+      assert returned_tile == "dp-0"
     end
   end
 
