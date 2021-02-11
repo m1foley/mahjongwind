@@ -30,6 +30,7 @@ export default {
         direction: 'horizontal',
         draggable: '.draggable',
         ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
         swapThreshold: 1,
         animation: 0,
         emptyInsertThreshold: 0,
