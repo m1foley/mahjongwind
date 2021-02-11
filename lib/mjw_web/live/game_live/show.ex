@@ -297,6 +297,26 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # drew a gong correction tile
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "correctiontiles",
+          "draggedToId" => "concealed-0",
+          "draggedToList" => new_concealed
+        },
+        socket
+      ) do
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    game = socket.assigns.game
+
+    {game, tile} = game |> Mjw.Game.draw_correction_tile(current_user_sitting_at, new_concealed)
+    game |> MjwWeb.GameStore.update(:drew_correction_tile, tile)
+
+    {:noreply, socket}
+  end
+
   defp fetch_game(socket, id) do
     game = MjwWeb.GameStore.get(id)
     socket |> assign(:game, game)
@@ -376,7 +396,8 @@ defmodule MjwWeb.GameLive.Show do
       game_state == :discarding && game.turn_seatno == current_user_sitting_at
 
     player_seat = relative_game_seats |> Enum.at(0)
-    crowded_exposed_row = player_seat && crowded_exposed_row?(player_seat)
+    crowded_exposed_row = crowded_exposed_row?(player_seat)
+    show_correction_tile = !current_user_drawing && might_have_gongs?(player_seat)
 
     socket
     |> assign(:empty_seats_count, empty_seats_count)
@@ -393,6 +414,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:enable_pull_from_discards, enable_pull_from_discards)
     |> assign(:current_user_discarding, current_user_discarding)
     |> assign(:crowded_exposed_row, crowded_exposed_row)
+    |> assign(:show_correction_tile, show_correction_tile)
   end
 
   defp ensure_game_joinable(socket) do
@@ -427,8 +449,17 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:event_detail, event_detail)
   end
 
+  defp crowded_exposed_row?(nil = _seat), do: false
+
   # No room for hidden gongs & wintile areas if there are too many exposed
   defp crowded_exposed_row?(%Mjw.Seat{} = seat) do
     length(seat.exposed) + length(seat.hidden_gongs) > 10
+  end
+
+  defp might_have_gongs?(nil = _seat), do: false
+
+  # Show the gong correction tile if it's possible the user has a gong
+  defp might_have_gongs?(%Mjw.Seat{} = seat) do
+    length(seat.exposed) + length(seat.hidden_gongs) > 3
   end
 end

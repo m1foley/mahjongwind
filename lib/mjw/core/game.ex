@@ -392,9 +392,7 @@ defmodule Mjw.Game do
   "decktile" in the player's hand is swapped in-place with the next deck tile.
   """
   def draw_from_deck(%__MODULE__{turn_state: :drawing} = game, seatno, concealed) do
-    [tile | new_deck] = game.deck
-    decktile_idx = concealed |> Enum.find_index(&(&1 == "decktile"))
-    new_concealed = concealed |> List.replace_at(decktile_idx, tile)
+    {new_deck, new_concealed, tile} = swap_concealed_deck_tile(game, concealed)
 
     game =
       game
@@ -402,6 +400,35 @@ defmodule Mjw.Game do
       |> Map.merge(%{deck: new_deck, turn_state: :discarding})
 
     {game, tile}
+  end
+
+  @doc """
+  A player draws a gong correction tile: remove from the deck and update the
+  player's concealed tiles (already calculated on frontend).
+  "decktile" in the player's hand is swapped in-place with the next deck tile.
+  """
+  def draw_correction_tile(%__MODULE__{} = game, seatno, concealed) do
+    {new_deck, new_concealed, tile} = swap_concealed_deck_tile(game, concealed)
+
+    game =
+      game
+      |> update_concealed(seatno, new_concealed)
+      |> Map.merge(%{deck: new_deck})
+
+    {game, tile}
+  end
+
+  defp swap_concealed_deck_tile(%__MODULE__{deck: deck}, tiles) do
+    decktile_idx = tiles |> Enum.find_index(&(&1 == "decktile"))
+
+    if decktile_idx do
+      [next_deck_tile | remaining_deck] = deck
+      new_tiles = tiles |> List.replace_at(decktile_idx, next_deck_tile)
+      {remaining_deck, new_tiles, next_deck_tile}
+    else
+      # no change (unexpected behavior)
+      {deck, tiles, nil}
+    end
   end
 
   @doc """

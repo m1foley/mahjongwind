@@ -45,9 +45,9 @@ export default {
           name: 'concealed-0',
           put: function (to, from) {
             if (dropzone.classList.contains('enable-pull-from-discards')) {
-              return ['discards', 'exposed-0', 'hiddengongs-0', 'deckoffer'];
+              return ['discards', 'exposed-0', 'hiddengongs-0', 'correctiontiles', 'deckoffer'];
             } else {
-              return ['exposed-0', 'hiddengongs-0']; // for accidents
+              return ['exposed-0', 'hiddengongs-0', 'correctiontiles'];
             }
           },
           pull: function (to, from) {
@@ -212,6 +212,24 @@ export default {
       Sortable.create(dropzone, {
         group: {
           name: 'deckoffer',
+          put: false,
+          pull: 'clone'
+        },
+        sort: false,
+        direction: 'horizontal',
+        draggable: '.draggable',
+        ghostClass: 'sortable-ghost',
+        animation: 0,
+        delay: 50,
+        delayOnTouchOnly: true
+      });
+      dropzone.classList.remove('dzuninitialized');
+    });
+
+    document.querySelectorAll('#correctiontiles.dropzone.dzuninitialized').forEach((dropzone) => {
+      Sortable.create(dropzone, {
+        group: {
+          name: 'correctiontiles',
           put: false,
           pull: 'clone'
         },
