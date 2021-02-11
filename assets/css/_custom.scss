@@ -422,16 +422,9 @@
   .tile {
     height: 3.1rem;
   }
-  .lastdiscard-container {
-    height: 3.1rem; // without this the larger tile moves the other tiles around
-    margin-left: 1rem;
-    .tile {
-      height: 5.8rem;
-    }
-  }
-  // scramble the discards
   .discard-container {
     position: relative;
+    // scramble the discards
     &:nth-child(9n) {
       top: 0.6rem;
       transform: rotate(12deg);
@@ -475,6 +468,19 @@
       top: 7rem;
       left: 0;
       transform: rotate(14deg);
+    }
+    &.lastdiscard-container {
+      height: 3.1rem; // without this the larger tile moves the other tiles around
+      margin-left: 1.5rem;
+      .tile {
+        height: 5.8rem;
+      }
+      &.sortable-drag {
+        height: 5.8rem;
+        .tile {
+          height: 5.8rem;
+        }
+      }
     }
   }
 }
