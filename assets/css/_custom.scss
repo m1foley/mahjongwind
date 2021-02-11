@@ -421,10 +421,12 @@
   right: 13rem;
   .tile {
     height: 3.1rem;
-  }
-  .discard-container {
     position: relative;
-    // scramble the discards
+    &.lastdiscard {
+      @apply glow;
+    }
+
+    // scramble the discarded tiles
     &:nth-child(9n) {
       top: 0.6rem;
       transform: rotate(12deg);
@@ -468,9 +470,6 @@
       top: 7rem;
       left: 0;
       transform: rotate(14deg);
-    }
-    &.lastdiscard-container {
-      @apply glow;
     }
   }
 }
