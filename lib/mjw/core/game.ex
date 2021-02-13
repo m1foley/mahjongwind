@@ -31,9 +31,13 @@ defmodule Mjw.Game do
   @doc """
   Initialize a game with a random ID and a shuffled deck
   """
-  def new do
+  def new() do
+    new(UUID.uuid4())
+  end
+
+  defp new(id) do
     %__MODULE__{
-      id: UUID.uuid4(),
+      id: id,
       deck: Enum.shuffle(@all_tiles)
     }
   end
@@ -454,6 +458,17 @@ defmodule Mjw.Game do
     update_seat(game, seatno, fn seat ->
       seat
       |> Mjw.Seat.evacuate_player()
+    end)
+  end
+
+  @doc """
+  Reset the game, preserving only the id and player info
+  """
+  def reset(%__MODULE__{id: id, seats: seats}) do
+    seats
+    |> Enum.with_index()
+    |> Enum.reduce(new(id), fn {seat, i}, game ->
+      game |> seat_player_at(seat.player_id, seat.player_name, i)
     end)
   end
 

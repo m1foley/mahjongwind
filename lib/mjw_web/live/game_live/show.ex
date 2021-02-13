@@ -90,10 +90,11 @@ defmodule MjwWeb.GameLive.Show do
 
   @impl true
   def handle_event("reset", _params, socket) do
-    socket =
-      socket
-      |> put_flash(:error, "Reset!")
-      |> assign(:show_game_menu, false)
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+
+    socket.assigns.game
+    |> Mjw.Game.reset()
+    |> MjwWeb.GameStore.update(:reset, %{seat: player_seat})
 
     {:noreply, socket}
   end
