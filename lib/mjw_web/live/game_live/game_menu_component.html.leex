@@ -1,0 +1,37 @@
+<div id="<%= @id %>" class="phx-modal" phx-target="#game" phx-click="closegamemenu" phx-hook="CopyToClipboard">
+  <div class="gamemenu-content rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-6 my-16 mx-auto shadow-md w-6/12 content-center text-center">
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+      <div phx-target="#game" phx-click="draw">
+        Declare draw 🤝
+      </div>
+    </div>
+
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+      <div phx-target="#game" phx-click="dq">
+        Declare DQ 🙅‍♀️
+      </div>
+    </div>
+
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+      <div phx-target="#<%= @id %>" phx-click="quit">
+        Leave game
+      </div>
+    </div>
+
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+      <div phx-target="#<%= @id %>" phx-click="reset">
+        Reset game
+      </div>
+    </div>
+
+    <div class="text-gray-800 font-semibold py-2 px-4 my-4">
+      Invite link:
+      <% game_url = Routes.game_show_url(@socket, :show, @game.id) %>
+      <input id="game-url" type="text" value="<%= game_url %>" size="<%= game_url |> String.length() %>" class="text-gray-800 bg-white ml-2 px-1" />
+      <span id="copy-to-clipboard" style="cursor:pointer;">📋</span>
+    </div>
+    <div id="clipboard-success" class="text-xs text-red-500 hidden">
+      Invite link copied to clipboard.
+    </div>
+  </div>
+</div>
