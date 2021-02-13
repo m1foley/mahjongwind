@@ -565,4 +565,38 @@ defmodule Mjw.GameTest do
       assert Enum.map(game.seats, & &1.player_name) == ["name0", nil, "name2", "name3"]
     end
   end
+
+  describe "reset" do
+    test "resets the game except for player info" do
+      orig_game = %Mjw.Game{
+        id: "6c1d42d8-28db-4b3b-a3f2-976d854e0394",
+        turn_seatno: 3,
+        prev_turn_seatno: 2,
+        turn_state: :discarding,
+        deck: ["dp-1"],
+        discards: ["dp-0"],
+        dice: [1, 2, 3],
+        wind: "wn",
+        seats:
+          0..3
+          |> Enum.map(fn i ->
+            %Mjw.Seat{picked_wind: "ww", player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      game = Mjw.Game.reset(orig_game)
+
+      assert game.id == orig_game.id
+      assert length(game.deck) == 136
+      assert game.wind == "we"
+      assert game.discards == []
+      assert game.turn_state == :rolling
+      assert game.turn_seatno == 0
+      assert game.prev_turn_seatno == 0
+      assert game.dice == []
+      assert game.wind == "we"
+      assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
+      assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
+    end
+  end
 end

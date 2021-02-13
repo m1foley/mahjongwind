@@ -167,17 +167,23 @@
             <% _ -> %>
           <% end %>
 
-          <%= if @event == :drew_correction_tile do %>
-            <div class="state-description">
-              <%= @event_details[:seat].player_name %> drew a correction tile.
-              <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
-            </div>
-          <% end %>
-
-          <%= if @event == :player_seated && @event_details[:seat].player_id != @current_user_id do %>
-            <div class="state-description">
-              <%= @event_details[:seat].player_name %> joined the game!
-            </div>
+          <%= case @event do %>
+            <% :drew_correction_tile -> %>
+              <div class="state-description">
+                <%= @event_details[:seat].player_name %> drew a correction tile.
+                <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+              </div>
+            <% :player_seated -> %>
+              <%= if @event_details[:seat].player_id != @current_user_id do %>
+                <div class="state-description">
+                  <%= @event_details[:seat].player_name %> joined the game!
+                </div>
+              <% end %>
+            <% :reset -> %>
+              <div class="state-description">
+                <%= @event_details[:seat].player_name %> reset the game.
+              </div>
+            <% _event -> %>
           <% end %>
 
           <div class="debug text-gray-900 text-sm opacity-30 hidden">
