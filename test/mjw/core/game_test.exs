@@ -550,4 +550,19 @@ defmodule Mjw.GameTest do
       assert Mjw.Game.turn_player_name(game) == ""
     end
   end
+
+  describe "evacuate_seat" do
+    test "removes a player from the given seatno" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.evacuate_seat(1)
+
+      assert Enum.map(game.seats, & &1.player_id) == ["id0", nil, "id2", "id3"]
+      assert Enum.map(game.seats, & &1.player_name) == ["name0", nil, "name2", "name3"]
+    end
+  end
 end

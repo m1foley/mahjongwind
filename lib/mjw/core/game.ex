@@ -67,8 +67,13 @@ defmodule Mjw.Game do
   """
   def seat_player(%__MODULE__{} = game, player_id, player_name) do
     empty_seatno = game.seats |> Enum.find_index(&Mjw.Seat.empty?/1)
+    seat_player_at(game, player_id, player_name, empty_seatno)
+  end
 
-    update_seat(game, empty_seatno, fn seat ->
+  defp seat_player_at(%__MODULE__{} = game, _player_id, _player_name, nil), do: game
+
+  defp seat_player_at(%__MODULE__{} = game, player_id, player_name, seatno) do
+    update_seat(game, seatno, fn seat ->
       seat
       |> Mjw.Seat.seat_player(player_id, player_name)
     end)
@@ -440,6 +445,16 @@ defmodule Mjw.Game do
 
   defp player_name_at(%__MODULE__{seats: seats}, seatno) do
     seats |> Enum.at(seatno) |> Map.get(:player_name) || ""
+  end
+
+  @doc """
+  Player quits the game
+  """
+  def evacuate_seat(%__MODULE__{} = game, seatno) do
+    update_seat(game, seatno, fn seat ->
+      seat
+      |> Mjw.Seat.evacuate_player()
+    end)
   end
 
   @doc """

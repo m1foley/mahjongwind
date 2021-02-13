@@ -18,9 +18,13 @@ defmodule MjwWeb.GameLive.SeatOfferingComponent do
   defp seat_current_user(socket, player_name) do
     player_id = socket.assigns.current_user_id
 
-    socket.assigns.game
-    |> Mjw.Game.seat_player(player_id, player_name)
-    |> MjwWeb.GameStore.update_with_lobby_change(:player_seated)
+    game =
+      socket.assigns.game
+      |> Mjw.Game.seat_player(player_id, player_name)
+
+    seat = game |> Mjw.Game.seat(player_id)
+
+    game |> MjwWeb.GameStore.update_with_lobby_change(:player_seated, %{seat: seat})
 
     socket
   end

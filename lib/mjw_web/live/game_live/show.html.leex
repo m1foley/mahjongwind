@@ -17,6 +17,10 @@
         <%= content_tag(:div, "Leave game", phx_target: "#game", phx_click: "quit") %>
       </div>
 
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+        <%= content_tag(:div, "Reset game", phx_target: "#game", phx_click: "reset") %>
+      </div>
+
       <div class="text-gray-800 font-semibold py-2 px-4 my-4">
         Invite link:
         <% game_url = Routes.game_show_url(@socket, :show, @game.id) %>
@@ -129,6 +133,11 @@
 
           <%= case @game_state do %>
             <% :waiting_for_players -> %>
+              <%= if @event == :left_game do %>
+                <div class="state-description">
+                  <%= @event_details[:seat].player_name %> left the game.
+                </div>
+              <% end %>
               <div class="state-description">
                 Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
               </div>
@@ -162,6 +171,12 @@
             <div class="state-description">
               <%= @event_details[:seat].player_name %> drew a correction tile.
               <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+            </div>
+          <% end %>
+
+          <%= if @event == :player_seated && @event_details[:seat].player_id != @current_user_id do %>
+            <div class="state-description">
+              <%= @event_details[:seat].player_name %> joined the game!
             </div>
           <% end %>
 
