@@ -1,5 +1,33 @@
 <%= unless @current_user_sitting_at do %>
-  <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game %>
+  <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: "seat_offering_modal", current_user_id: @current_user_id, game: @game %>
+<% end %>
+
+<%= if @show_game_menu do %>
+  <div id="gamemenu" class="phx-modal" phx-target="#game" phx-capture-click="closegamemenu" phx-hook="CopyToClipboard">
+    <div class="gamemenu-content rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-6 my-16 mx-auto shadow-md w-6/12 content-center text-center">
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+        <%= content_tag(:div, "Declare draw 🤝", phx_target: "#game", phx_click: "draw") %>
+      </div>
+
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+        <%= content_tag(:div, "Declare DQ 🙅‍♀️", phx_target: "#game", phx_click: "dq") %>
+      </div>
+
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+        <%= content_tag(:div, "Leave game", phx_target: "#game", phx_click: "quit") %>
+      </div>
+
+      <div class="text-gray-800 font-semibold py-2 px-4 my-4">
+        Invite link:
+        <% game_url = Routes.game_show_url(@socket, :show, @game.id) %>
+        <input id="game-url" type="text" value="<%= game_url %>" size="<%= game_url |> String.length() %>" class="text-gray-800 bg-white ml-2 px-1" />
+        <span id="copy-to-clipboard" style="cursor:pointer;">📋</span>
+      </div>
+      <div id="clipboard-success" class="text-xs text-red-500 hidden">
+        Invite link copied to clipboard.
+      </div>
+    </div>
+  </div>
 <% end %>
 
 <div id="game" class="game<%= unless @current_user_sitting_at, do: " blurred" %>">
@@ -79,10 +107,10 @@
       <%= if i == 2 do %>
         <div class="table-center">
           <%= if @show_wind_picking do %>
-            <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game %>
+            <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
           <% end %>
           <%= if @show_dice do %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: @current_user_id, current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
           <% end %>
           <%= if @show_player_names do %>
             <div id="discards" phx-hook="Drag" class="flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>" >
@@ -188,6 +216,6 @@
         <img id="decktile" src="/images/tiles/concealed.png" alt="correction tile" class="tile draggable bg-red-600" />
       </div>
     <% end %>
-    <img src="/images/gamewind/<%= @game.wind %>.png" alt="game wind" class="gamewind" />
+    <img src="/images/gamewind/<%= @game.wind %>.png" alt="game wind" class="gamewind" phx-click="opengamemenu"  phx-target="#game" />
   </div>
 </div>

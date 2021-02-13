@@ -1,12 +1,10 @@
 TODO:
-- Wind menu:
-  - Declare draw/DQ
-  - Quit game
-- Win conditions: win/draw/dq
+- Decorate hidden gongs
+- Quit game
+- End conditions: win/draw/dq
 - CSS animations:
   - Discards fly from different directions
   - Exposing a tile?
-- Copy URL link
 - Defensive code to protect against random JS errors
 
 console:

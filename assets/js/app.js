@@ -21,7 +21,11 @@ import {LiveSocket} from "phoenix_live_view";
 
 // sortablejs
 import Drag from './dragHook';
-const Hooks = { Drag: Drag };
+
+// copyToClipboard
+import CopyToClipboard from './copyToClipboard';
+
+const Hooks = { Drag: Drag, CopyToClipboard: CopyToClipboard };
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
