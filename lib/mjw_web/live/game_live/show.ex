@@ -38,6 +38,50 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("opengamemenu", _params, socket) do
+    socket = socket |> assign(:show_game_menu, true)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("closegamemenu", _params, socket) do
+    socket = socket |> assign(:show_game_menu, false)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("draw", _params, socket) do
+    socket =
+      socket
+      |> put_flash(:error, "test123")
+      |> assign(:show_game_menu, false)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("dq", _params, socket) do
+    socket =
+      socket
+      |> put_flash(:error, "debug2")
+      |> assign(:show_game_menu, false)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("quit", _params, socket) do
+    socket =
+      socket
+      |> put_flash(:error, "debug3")
+      |> assign(:show_game_menu, false)
+
+    {:noreply, socket}
+  end
+
   # sorting one's own concealed tiles
   @impl true
   def handle_event(
@@ -401,6 +445,7 @@ defmodule MjwWeb.GameLive.Show do
     show_correction_tile = !current_user_drawing && might_have_gongs?(player_seat)
 
     socket
+    |> assign(:show_game_menu, false)
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
     |> assign(:game_state, game_state)
