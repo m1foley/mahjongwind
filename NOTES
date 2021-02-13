@@ -3,7 +3,7 @@ TODO:
 - CSS animations:
   - Discards fly from different directions
   - Exposing a tile?
-- Defensive code to protect against random JS errors
+- Defensive backend code to protect against JS errors
 
 console:
 iex -S mix
@@ -25,10 +25,6 @@ https://en.wikipedia.org/wiki/Mahjong_tiles
 
 Tailwind:
 https://pragmaticstudio.com/tutorials/adding-tailwind-css-to-phoenix
-
-rotating the sides if needed:
-writing-mode: vertical-rl;
-transform: rotate(90deg);
 
 PresidentCardGames:
 - https://twitter.com/toranb/status/1341069221829242881
