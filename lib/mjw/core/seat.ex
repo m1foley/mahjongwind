@@ -18,4 +18,8 @@ defmodule Mjw.Seat do
   def pick_wind(%__MODULE__{} = seat, picked_wind, picked_wind_idx) do
     %{seat | picked_wind: picked_wind, picked_wind_idx: picked_wind_idx}
   end
+
+  def evacuate_player(%__MODULE__{} = seat) do
+    %{seat | player_id: nil, player_name: nil}
+  end
 end

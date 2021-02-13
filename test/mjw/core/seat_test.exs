@@ -52,4 +52,24 @@ defmodule Mjw.SeatTest do
       assert seat.picked_wind_idx == 2
     end
   end
+
+  describe "evacuate_player" do
+    test "removes the player from the seat" do
+      seat =
+        %Mjw.Seat{
+          player_id: "id1",
+          player_name: "Name1",
+          concealed: ["n1-0"],
+          exposed: ["n2-0"],
+          hidden_gongs: ["n3-0"]
+        }
+        |> Mjw.Seat.evacuate_player()
+
+      assert seat.player_id == nil
+      assert seat.player_name == nil
+      assert seat.concealed == ["n1-0"]
+      assert seat.exposed == ["n2-0"]
+      assert seat.hidden_gongs == ["n3-0"]
+    end
+  end
 end
