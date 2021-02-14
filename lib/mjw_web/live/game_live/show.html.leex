@@ -112,6 +112,12 @@
               <% end %>
               <div class="state-description">
                 Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
+                <div id="center-invite-link" class="text-gray-800 text-base font-semibold mt-12" phx-hook="CopyToClipboard">
+                  <span>Invite link:</span>
+                  <% game_url = Routes.game_show_url(@socket, :show, @game.id) %>
+                  <input id="game-url" type="text" value="<%= game_url %>" size="<%= game_url |> String.length() %>" class="text-gray-800 bg-white ml-3 mr-1 px-1" />
+                  <span class="copy-to-clipboard" style="cursor:pointer;">📋</span>
+                </div>
               </div>
             <% :discarding -> %>
               <%= if @game.turn_seatno != @current_user_sitting_at do %>
