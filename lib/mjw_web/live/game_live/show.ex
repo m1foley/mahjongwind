@@ -9,18 +9,18 @@ defmodule MjwWeb.GameLive.Show do
       |> fetch_game(id)
       |> ensure_game_exists()
 
-    if socket.assigns.game do
-      socket =
+    socket =
+      if socket.assigns.game do
         socket
         |> assign_event(:initial, nil)
         |> assign_game_info()
         |> ensure_game_joinable()
         |> subscribe_to_game_updates()
+      else
+        socket
+      end
 
-      {:ok, socket}
-    else
-      {:ok, socket}
-    end
+    {:ok, socket}
   end
 
   @impl true
@@ -53,11 +53,38 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   @impl true
-  def handle_event("draw", _params, socket) do
+  def handle_event("quit", _params, socket) do
+    seat = socket.assigns.relative_game_seats |> Enum.at(0)
+
+    socket.assigns.game
+    |> Mjw.Game.evacuate_seat(seat.seatno)
+    |> MjwWeb.GameStore.update(:left_game, %{seat: seat})
+
     socket =
       socket
-      |> put_flash(:error, "test123")
-      |> assign(:show_game_menu, false)
+      |> push_redirect(to: Routes.game_index_path(socket, :index))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("reset", _params, socket) do
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+
+    socket.assigns.game
+    |> Mjw.Game.reset()
+    |> MjwWeb.GameStore.update(:reset, %{seat: player_seat})
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("draw", _params, socket) do
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+
+    socket.assigns.game
+    |> Mjw.Game.draw()
+    |> MjwWeb.GameStore.update(:draw, %{seat: player_seat})
 
     {:noreply, socket}
   end
@@ -414,11 +441,10 @@ defmodule MjwWeb.GameLive.Show do
         :rolling_for_deal
       ]
 
-    show_dice =
-      game_state in [:rolling_for_first_dealer, :rolling_for_deal] ||
-        (game_state == :discarding && show_wind_picking_was)
+    rolling_dice = game_state in [:rolling_for_first_dealer, :rolling_for_deal]
+    rolled_dice = socket.assigns.event in [:rolled_for_first_dealer, :rolled_for_deal]
 
-    show_player_names =
+    player_seats_finalized =
       game_state not in [:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
 
     current_user_drawing = game_state == :drawing && game.turn_seatno == current_user_sitting_at
@@ -444,8 +470,9 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:show_stick, show_stick)
     |> assign(:show_wind_picking, show_wind_picking)
     |> assign(:show_wall, show_wall)
-    |> assign(:show_dice, show_dice)
-    |> assign(:show_player_names, show_player_names)
+    |> assign(:rolling_dice, rolling_dice)
+    |> assign(:rolled_dice, rolled_dice)
+    |> assign(:player_seats_finalized, player_seats_finalized)
     |> assign(:current_user_drawing, current_user_drawing)
     |> assign(:enable_pull_from_discards, enable_pull_from_discards)
     |> assign(:current_user_discarding, current_user_discarding)

@@ -41,9 +41,12 @@
     <%= content_tag(:div, "🤜", class: "hand hand-3") %>
   <% end %>
 <% end %>
-<div class="dice dice-<%= @roller_relative_position %>">
-  <%= for {die, i} <- @dice |> Enum.with_index() do %>
-    <%# game_state class added to distinguish animations for the 2 types of rolls %>
-    <img src="/images/dice/d<%= die %>.png" alt="die" class="die die-<%= i %> <%= @game_state %>-<%= @roller_relative_position %>" />
-  <% end %>
-</div>
+
+<%= if @rolled_dice do %>
+  <div id="<%= @id %>" class="dice-<%= @roller_relative_position %>">
+    <%= for {die, i} <- @dice |> Enum.with_index() do %>
+      <%# game_state class added to distinguish animations for the 2 types of rolls %>
+      <img src="/images/dice/d<%= die %>.png" alt="die" class="die die-<%= i %> <%= @game_state %>-<%= @roller_relative_position %>" />
+    <% end %>
+  </div>
+<% end %>
