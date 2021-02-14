@@ -2,16 +2,19 @@
 
 export default {
   mounted() {
-    const copyElt = document.getElementById('copy-to-clipboard');
-    copyElt.addEventListener('click', copyToClipboard, false);
-
-    function copyToClipboard() {
-      const element = document.getElementById('game-url');
-      element.select();
-      element.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      element.blur();
-      document.getElementById("clipboard-success").classList.remove("hidden");
-    }
+    document.querySelectorAll('.copy-to-clipboard').forEach((copyElt) => {
+      copyElt.addEventListener('click', copyToClipboard, false);
+      function copyToClipboard() {
+        const element = document.getElementById('game-url');
+        element.select();
+        element.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        element.blur();
+        copyElt.textContent = "✅";
+        new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
+          copyElt.textContent = "📋";
+        });
+      }
+    });
   }
 };
