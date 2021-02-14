@@ -644,14 +644,104 @@ defmodule Mjw.GameTest do
         }
         |> Mjw.Game.draw()
 
-      assert game.turn_seatno == 1
       assert length(game.deck) == 136
       assert game.discards == []
-      assert game.dice == [1, 2, 3]
       assert game.wind == "wn"
       assert game.turn_state == :rolling
       assert game.dealer_seatno == 1
       assert game.turn_seatno == 1
+      assert game.prev_turn_seatno == 2
+      assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
+      assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
+      assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
+      assert Enum.map(game.seats, & &1.concealed) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.exposed) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.hidden_gongs) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.wintile) == [nil, nil, nil, nil]
+      assert Mjw.Game.state(game) == :rolling_for_deal
+    end
+  end
+
+  describe "dq" do
+    test "DQing a non-dealer behaves like draw" do
+      game =
+        %Mjw.Game{
+          deck: ["dp-1"],
+          discards: ["dp-0"],
+          dice: [1, 2, 3],
+          dealer_seatno: 1,
+          turn_seatno: 3,
+          prev_turn_seatno: 2,
+          turn_state: :discarding,
+          wind: "wn",
+          seats:
+            ~w(ww we ws wn)
+            |> Enum.with_index()
+            |> Enum.map(fn {w, i} ->
+              %Mjw.Seat{
+                player_id: "id#{i}",
+                player_name: "name#{i}",
+                picked_wind: w,
+                concealed: ["n1-#{i}"],
+                exposed: ["n2-#{i}"],
+                hidden_gongs: ["n3-#{i}"],
+                wintile: "n4-#{i}"
+              }
+            end)
+        }
+        |> Mjw.Game.dq(3)
+
+      assert length(game.deck) == 136
+      assert game.discards == []
+      assert game.wind == "wn"
+      assert game.turn_state == :rolling
+      assert game.dealer_seatno == 1
+      assert game.turn_seatno == 1
+      assert game.prev_turn_seatno == 2
+      assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
+      assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
+      assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
+      assert Enum.map(game.seats, & &1.concealed) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.exposed) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.hidden_gongs) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.wintile) == [nil, nil, nil, nil]
+      assert Mjw.Game.state(game) == :rolling_for_deal
+    end
+
+    test "DQing a dealer advances the dealer" do
+      game =
+        %Mjw.Game{
+          deck: ["dp-1"],
+          discards: ["dp-0"],
+          dice: [1, 2, 3],
+          dealer_seatno: 3,
+          turn_seatno: 2,
+          prev_turn_seatno: 1,
+          turn_state: :discarding,
+          wind: "wn",
+          seats:
+            ~w(ww we ws wn)
+            |> Enum.with_index()
+            |> Enum.map(fn {w, i} ->
+              %Mjw.Seat{
+                player_id: "id#{i}",
+                player_name: "name#{i}",
+                picked_wind: w,
+                concealed: ["n1-#{i}"],
+                exposed: ["n2-#{i}"],
+                hidden_gongs: ["n3-#{i}"],
+                wintile: "n4-#{i}"
+              }
+            end)
+        }
+        |> Mjw.Game.dq(3)
+
+      assert length(game.deck) == 136
+      assert game.discards == []
+      assert game.wind == "we"
+      assert game.turn_state == :rolling
+      assert game.dealer_seatno == 0
+      assert game.turn_seatno == 0
       assert game.prev_turn_seatno == 2
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
       assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]

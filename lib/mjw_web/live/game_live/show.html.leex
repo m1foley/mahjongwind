@@ -133,6 +133,10 @@
               <div class="state-description">
                 <%= @event_details[:seat].player_name %> declared a draw.
               </div>
+            <% :dq -> %>
+              <div class="state-description">
+                <%= @event_details[:seat].player_name %> has been disqualified.
+              </div>
             <% _event -> %>
           <% end %>
 

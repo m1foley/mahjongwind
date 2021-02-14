@@ -22,4 +22,8 @@ defmodule Mjw.Seat do
   def evacuate_player(%__MODULE__{} = seat) do
     %{seat | player_id: nil, player_name: nil}
   end
+
+  def clear_tiles(%__MODULE__{} = seat) do
+    %{seat | concealed: [], exposed: [], hidden_gongs: [], wintile: nil}
+  end
 end

@@ -44,11 +44,12 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
   end
 
   @impl true
-  def handle_event("dq", _params, socket) do
-    socket =
-      socket
-      |> put_flash(:error, "debug2")
-      |> assign(:show_game_menu, false)
+  def handle_event("dq", %{"seatno" => seatno}, socket) do
+    seat = socket.assigns.game.seats |> Enum.at(String.to_integer(seatno))
+
+    socket.assigns.game
+    |> Mjw.Game.dq(seatno)
+    |> MjwWeb.GameStore.update(:dq, %{seat: seat})
 
     {:noreply, socket}
   end

@@ -72,4 +72,26 @@ defmodule Mjw.SeatTest do
       assert seat.hidden_gongs == ["n3-0"]
     end
   end
+
+  describe "clear_tiles" do
+    test "removes the round-specific tiles from the seat" do
+      seat =
+        %Mjw.Seat{
+          player_id: "id1",
+          player_name: "Name1",
+          concealed: ["n1-0"],
+          exposed: ["n2-0"],
+          hidden_gongs: ["n3-0"],
+          wintile: "n4-0"
+        }
+        |> Mjw.Seat.clear_tiles()
+
+      assert seat.player_id == "id1"
+      assert seat.player_name == "Name1"
+      assert seat.concealed == []
+      assert seat.exposed == []
+      assert seat.hidden_gongs == []
+      assert seat.wintile == nil
+    end
+  end
 end

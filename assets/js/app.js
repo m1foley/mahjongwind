@@ -22,10 +22,11 @@ import {LiveSocket} from "phoenix_live_view";
 // sortablejs
 import Drag from './dragHook';
 
-// copyToClipboard
+// various JS hooks
 import CopyToClipboard from './copyToClipboard';
+import DeclareDq from './declareDq';
 
-const Hooks = { Drag: Drag, CopyToClipboard: CopyToClipboard };
+const Hooks = { Drag: Drag, CopyToClipboard: CopyToClipboard, DeclareDq: DeclareDq };
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {

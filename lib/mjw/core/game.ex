@@ -318,24 +318,36 @@ defmodule Mjw.Game do
 
     game
     |> update_concealed(seatno, new_concealed)
-    |> increment_turn_seatno()
+    |> advance_turn_seat()
     |> Map.merge(%{
       discards: new_discards,
       turn_state: :drawing
     })
   end
 
-  defp increment_turn_seatno(%__MODULE__{} = game) do
+  defp advance_turn_seat(%__MODULE__{} = game) do
     turn_seatno = rem(game.turn_seatno + 1, 4)
     set_turn_seatno(game, turn_seatno)
   end
 
+  defp advance_dealer(%__MODULE__{} = game) do
+    dealer_seatno = rem(game.dealer_seatno + 1, 4)
+
+    # the game wind changes when it gets back to the first dealer
+    wind =
+      if dealer_seatno == 0 do
+        game.wind |> cycle_wind(1)
+      else
+        game.wind
+      end
+
+    game
+    |> set_turn_seatno(dealer_seatno)
+    |> Map.merge(%{dealer_seatno: dealer_seatno, wind: wind})
+  end
+
   defp set_turn_seatno(%__MODULE__{} = game, turn_seatno) do
-    %{
-      game
-      | turn_seatno: turn_seatno,
-        prev_turn_seatno: game.turn_seatno
-    }
+    %{game | turn_seatno: turn_seatno, prev_turn_seatno: game.turn_seatno}
   end
 
   @doc """
@@ -460,19 +472,18 @@ defmodule Mjw.Game do
   Player quits the game
   """
   def evacuate_seat(%__MODULE__{} = game, seatno) do
-    update_seat(game, seatno, fn seat ->
-      seat
-      |> Mjw.Seat.evacuate_player()
-    end)
+    update_seat(game, seatno, &Mjw.Seat.evacuate_player/1)
   end
 
   @doc """
   Reset the game, preserving only the id and player info
   """
   def reset(%__MODULE__{id: id, seats: seats}) do
+    new_game_with_same_id = new(id)
+
     seats
     |> Enum.with_index()
-    |> Enum.reduce(new(id), fn {seat, i}, game ->
+    |> Enum.reduce(new_game_with_same_id, fn {seat, i}, game ->
       game |> seat_player_at(seat.player_id, seat.player_name, i)
     end)
   end
@@ -481,20 +492,37 @@ defmodule Mjw.Game do
   Declare a draw game
   """
   def draw(%__MODULE__{} = game) do
-    seats =
-      game.seats
-      |> Enum.map(fn seat ->
-        %{seat | concealed: [], exposed: [], hidden_gongs: [], wintile: nil}
-      end)
+    game
+    |> clear_seat_tiles()
+    |> Map.merge(%{
+      deck: shuffled_deck(),
+      discards: [],
+      turn_state: :rolling,
+      turn_seatno: game.dealer_seatno
+    })
+  end
 
-    %{
-      game
-      | deck: shuffled_deck(),
-        discards: [],
-        turn_state: :rolling,
-        turn_seatno: game.dealer_seatno,
-        seats: seats
-    }
+  @doc """
+  DQ the player in the given seat. DQing a non-dealer is the same as a draw,
+  and DQing the dealer advances the dealer.
+  """
+  def dq(%__MODULE__{} = game, seatno) when seatno != game.dealer_seatno, do: draw(game)
+
+  def dq(%__MODULE__{} = game, seatno)
+      when seatno == game.dealer_seatno do
+    game
+    |> advance_dealer()
+    |> clear_seat_tiles()
+    |> Map.merge(%{
+      deck: shuffled_deck(),
+      discards: [],
+      turn_state: :rolling
+    })
+  end
+
+  defp clear_seat_tiles(%__MODULE__{} = game) do
+    seats = game.seats |> Enum.map(&Mjw.Seat.clear_tiles/1)
+    %{game | seats: seats}
   end
 
   @doc """
@@ -509,8 +537,6 @@ defmodule Mjw.Game do
     |> state_drawing
     |> state_discarding
     # |> state_win
-    # |> state_draw
-    # |> state_dq
     |> state_invalid
   end
 
