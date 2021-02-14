@@ -1,9 +1,9 @@
 <%= unless @current_user_sitting_at do %>
-  <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: "seat_offering_modal", current_user_id: @current_user_id, game: @game %>
+  <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: "seat_offering_modal", game: @game, current_user_id: @current_user_id %>
 <% end %>
 
 <%= if @show_game_menu do %>
-  <%= live_component @socket, MjwWeb.GameLive.GameMenuComponent, id: "gamemenu", game: @game, relative_game_seats: @relative_game_seats %>
+  <%= live_component @socket, MjwWeb.GameLive.GameMenuComponent, id: "gamemenu", game: @game, relative_game_seats: @relative_game_seats, player_seats_finalized: @player_seats_finalized %>
 <% end %>
 
 <div id="game" class="game<%= unless @current_user_sitting_at, do: " blurred" %>">
@@ -27,7 +27,7 @@
           </div>
         <% else %>
           <%= if i == 0 do %>
-            <div id="hiddengongs-0" phx-hook="Drag" class="hiddengong-tiles dropzone dzuninitialized<%= if @crowded_exposed_row, do: " bottomrow" %>">
+            <div id="hiddengongs-0" phx-hook="Drag" class="hiddengong-tiles dropzone<%= if @crowded_exposed_row, do: " bottomrow" %>">
               <%= for tile <- seat.hidden_gongs do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable" />
@@ -36,20 +36,20 @@
                 Hidden gongs
               </div>
             </div>
-            <div id="exposed-0" class="exposed-tiles dropzone dzuninitialized<%= if Enum.empty?(seat.exposed), do: " empty" %>">
+            <div id="exposed-0" phx-hook="Drag" class="exposed-tiles dropzone<%= if Enum.empty?(seat.exposed), do: " empty" %>">
               <%= for tile <- seat.exposed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% newly_ponged = @event == :ponged && @event_details[:tile] == tile %>
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
               <% end %>
             </div>
-            <div id="wintile-0" phx-hook="Drag" class="wintile-tiles dropzone dzuninitialized<%= if @crowded_exposed_row, do: " bottomrow" %>">
+            <div id="wintile-0" phx-hook="Drag" class="wintile-tiles dropzone<%= if @crowded_exposed_row, do: " bottomrow" %>">
               <div class="dropzone-description">
                 Winning tile
               </div>
             </div>
             <div class="line-break"></div>
-            <div id="concealed-0" class="concealed-tiles dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
+            <div id="concealed-0" phx-hook="Drag" class="concealed-tiles dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
               <%= for tile <- seat.concealed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% recent_draw = @raw_event in [:drew_from_deck, :drew_discard, :drew_correction_tile] && @event_details[:tile] == tile %>
@@ -82,14 +82,69 @@
       <%# to simplify the CSS, table-center is displayed beneath the tiles in the top of the screen %>
       <%= if i == 2 do %>
         <div class="table-center">
+          <div class="debug text-gray-900 text-sm opacity-30 z-0 hidden">
+            <div>event: <%= @event %></div>
+            <div>event_details: <%= inspect(@event_details) %></div>
+            <div>live_action: <%= @live_action %></div>
+            <div>current_user_id: <%= @current_user_id %></div>
+            <div>Game state: <%= @game_state %></div>
+            <div>empty seats count: <%= @empty_seats_count %></div>
+            <div>current_user_sitting_at: <%= @current_user_sitting_at %></div>
+            <div>turn_player_name: <%= @turn_player_name %></div>
+            <br />
+            <div>Game ID: <%= @game.id %></div>
+            <div>Deck:</div>
+            <div class="mahjongtilesmall"><%= @game.deck %></div>
+            <div>Discards:<span span class="mahjongtilesmall"><%= @game.discards %></span></div>
+            <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
+            <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice %></span></div>
+            <div>turn_state: <%= @game.turn_state %></div>
+            <div>turn_seatno: <%= @game.turn_seatno %></div>
+            <div>dealer_seatno: <%= @game.dealer_seatno %></div>
+            <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
+              <br />
+              <div>
+                <strong>Seat <%= i %>:</strong>
+                <div>Concealed: <%= seat.concealed %></div>
+                <div>Exposed: <%= seat.exposed %></div>
+                <div>Player ID: <%= seat.player_id %></div>
+                <div>Player name: <%= seat.player_name %></div>
+                <div>Picked wind: <%= seat.picked_wind %></div>
+              </div>
+            <% end %>
+          </div>
+          <%= case @event do %>
+            <% :drew_correction_tile -> %>
+              <div class="state-description">
+                <%= @event_details[:seat].player_name %> drew a correction tile.
+                <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+              </div>
+            <% :player_seated -> %>
+              <%= if @event_details[:seat].player_id != @current_user_id do %>
+                <div class="state-description">
+                  <%= @event_details[:seat].player_name %> joined the game!
+                </div>
+              <% end %>
+            <% :reset -> %>
+              <div class="state-description">
+                <%= @event_details[:seat].player_name %> reset the game.
+              </div>
+            <% :draw -> %>
+              <div class="state-description">
+                <%= @event_details[:seat].player_name %> declared a draw.
+              </div>
+            <% _event -> %>
+          <% end %>
+
           <%= if @show_wind_picking do %>
             <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
           <% end %>
-          <%= if @show_dice do %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event %>
+          <%= if @rolling_dice || @rolled_dice do %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event, rolled_dice: @rolled_dice %>
           <% end %>
-          <%= if @show_player_names do %>
-            <div id="discards" phx-hook="Drag" class="flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone dzuninitialized<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>" >
+
+          <%= unless @show_wall do %>
+            <div id="discards" phx-hook="Drag" class="flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
               <%= for {tile, tileno} <- @game.discards |> Enum.reverse() |> Enum.with_index() do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% last_discard = @enable_pull_from_discards && tileno == length(@game.discards) - 1 %>
@@ -97,8 +152,9 @@
               <% end %>
             </div>
           <% end %>
+
           <%= if @current_user_drawing do %>
-            <div id="deckoffer" phx-hook="Drag" class="dropzone dzuninitialized">
+            <div id="deckoffer" phx-hook="Drag" class="dropzone">
               <img id="decktile" src="/images/tiles/concealed.png" alt="wall tile" class="tile draggable" />
             </div>
           <% end %>
@@ -112,12 +168,7 @@
               <% end %>
               <div class="state-description">
                 Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
-                <div id="center-invite-link" class="text-gray-800 text-base font-semibold mt-12" phx-hook="CopyToClipboard">
-                  <span>Invite link:</span>
-                  <% game_url = Routes.game_show_url(@socket, :show, @game.id) %>
-                  <input id="game-url" type="text" value="<%= game_url %>" size="<%= game_url |> String.length() %>" class="text-gray-800 bg-white ml-3 mr-1 px-1" />
-                  <span class="copy-to-clipboard" style="cursor:pointer;">📋</span>
-                </div>
+                <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-center", game: @game %>
               </div>
             <% :discarding -> %>
               <%= if @game.turn_seatno != @current_user_sitting_at do %>
@@ -144,62 +195,10 @@
               <% end %>
             <% _ -> %>
           <% end %>
-
-          <%= case @event do %>
-            <% :drew_correction_tile -> %>
-              <div class="state-description">
-                <%= @event_details[:seat].player_name %> drew a correction tile.
-                <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
-              </div>
-            <% :player_seated -> %>
-              <%= if @event_details[:seat].player_id != @current_user_id do %>
-                <div class="state-description">
-                  <%= @event_details[:seat].player_name %> joined the game!
-                </div>
-              <% end %>
-            <% :reset -> %>
-              <div class="state-description">
-                <%= @event_details[:seat].player_name %> reset the game.
-              </div>
-            <% _event -> %>
-          <% end %>
-
-          <div class="debug text-gray-900 text-sm opacity-30 hidden">
-            <div>event: <%= @event %></div>
-            <div>event_details: <%= inspect(@event_details) %></div>
-            <div>live_action: <%= @live_action %></div>
-            <div>current_user_id: <%= @current_user_id %></div>
-            <div>Game state: <%= @game_state %></div>
-            <div>empty seats count: <%= @empty_seats_count %></div>
-            <div>current_user_sitting_at: <%= @current_user_sitting_at %></div>
-            <div>turn_player_name: <%= @turn_player_name %></div>
-
-            <br />
-            <div>Game ID: <%= @game.id %></div>
-            <div>Deck:</div>
-            <div class="mahjongtilesmall"><%= @game.deck %></div>
-            <div>Discards:<span span class="mahjongtilesmall"><%= @game.discards %></span></div>
-            <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
-            <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice %></span></div>
-            <div>turn_state: <%= @game.turn_state %></div>
-            <div>turn_seatno: <%= @game.turn_seatno %></div>
-
-            <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
-              <br />
-              <div>
-                <strong>Seat <%= i %>:</strong>
-                <div>Concealed: <%= seat.concealed %></div>
-                <div>Exposed: <%= seat.exposed %></div>
-                <div>Player ID: <%= seat.player_id %></div>
-                <div>Player name: <%= seat.player_name %></div>
-                <div>Picked wind: <%= seat.picked_wind %></div>
-              </div>
-            <% end %>
-          </div>
         </div>
       <% end %>
 
-      <%= if @show_player_names && i != 0 do %>
+      <%= if @player_seats_finalized && i != 0 do %>
         <div class="player-name-container player-name-container-<%= i %>">
           <div class="player-name<%= if seat.seatno == @game.turn_seatno, do: " player-turn" %>">
             <%= seat.player_name %>
@@ -211,10 +210,10 @@
 
   <div class="icons flex flex-row flex-wrap text-center justify-center items-center space-x-6">
     <%= if @show_correction_tile do %>
-      <div id="correctiontiles" phx-hook="Drag" class="dropzone dzuninitialized bg-blue-300">
+      <div id="correctiontiles" phx-hook="Drag" class="dropzone bg-blue-300">
         <img id="decktile" src="/images/tiles/concealed.png" alt="correction tile" class="tile draggable bg-red-600" />
       </div>
     <% end %>
-    <img src="/images/gamewind/<%= @game.wind %>.png" alt="game wind" class="gamewind" phx-click="opengamemenu"  phx-target="#game" />
+    <img src="/images/gamewind/<%= @game.wind %>.png" alt="game wind" class="gamewind" phx-click="opengamemenu" phx-target="#game" />
   </div>
 </div>

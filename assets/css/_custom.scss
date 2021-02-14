@@ -268,8 +268,9 @@
     height: 3.1rem;
     margin-left: 0.7rem;
   }
-  #center-invite-link {
+  #invite-link-center {
     text-shadow: none;
+    @apply mt-12;
   }
 }
 
@@ -306,21 +307,18 @@
   top: 8rem;
 }
 
-.dice {
+#dicecomponent {
   display: block;
   width: 100%;
-}
-
-.dice-0 {
-  margin-top: 5%;
-}
-
-.dice-1, .dice-3 {
-  margin-top: 15%;
-}
-
-.dice-2 {
-  margin-top: 10%;
+  &.dice-0 {
+    margin-top: 5%;
+  }
+  &.dice-1, &.dice-3 {
+    margin-top: 15%;
+  }
+  &.dice-2 {
+    margin-top: 10%;
+  }
 }
 
 .die {

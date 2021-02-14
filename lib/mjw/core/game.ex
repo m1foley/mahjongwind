@@ -23,8 +23,9 @@ defmodule Mjw.Game do
             seats: @four_empty_seats,
             dice: [],
             # The normal game states: rolling/drawing/discarding.
-            # Different from state/1, which includes game start & end states.
+            # Different from state/1, of which this is just one element.
             turn_state: :rolling,
+            dealer_seatno: 0,
             turn_seatno: 0,
             prev_turn_seatno: 0
 
@@ -38,8 +39,12 @@ defmodule Mjw.Game do
   defp new(id) do
     %__MODULE__{
       id: id,
-      deck: Enum.shuffle(@all_tiles)
+      deck: shuffled_deck()
     }
+  end
+
+  defp shuffled_deck() do
+    @all_tiles |> Enum.shuffle()
   end
 
   def empty?(%__MODULE__{seats: seats}) do
@@ -173,7 +178,7 @@ defmodule Mjw.Game do
 
   @doc """
   Reseat the players according to the first dealer roll and the picked winds.
-  The first dealer (possessor of the special stick) will be in seat index 0.
+  Sets the first dealer (possessor of the special stick) as seat index 0.
   """
   def reseat_players(game) do
     first_dealer_picked_wind =
@@ -470,6 +475,26 @@ defmodule Mjw.Game do
     |> Enum.reduce(new(id), fn {seat, i}, game ->
       game |> seat_player_at(seat.player_id, seat.player_name, i)
     end)
+  end
+
+  @doc """
+  Declare a draw game
+  """
+  def draw(%__MODULE__{} = game) do
+    seats =
+      game.seats
+      |> Enum.map(fn seat ->
+        %{seat | concealed: [], exposed: [], hidden_gongs: [], wintile: nil}
+      end)
+
+    %{
+      game
+      | deck: shuffled_deck(),
+        discards: [],
+        turn_state: :rolling,
+        turn_seatno: game.dealer_seatno,
+        seats: seats
+    }
   end
 
   @doc """

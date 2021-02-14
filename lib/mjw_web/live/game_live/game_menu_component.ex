@@ -31,4 +31,25 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
 
     {:noreply, socket}
   end
+
+  @impl true
+  def handle_event("draw", _params, socket) do
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+
+    socket.assigns.game
+    |> Mjw.Game.draw()
+    |> MjwWeb.GameStore.update(:draw, %{seat: player_seat})
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("dq", _params, socket) do
+    socket =
+      socket
+      |> put_flash(:error, "debug2")
+      |> assign(:show_game_menu, false)
+
+    {:noreply, socket}
+  end
 end
