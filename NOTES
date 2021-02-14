@@ -1,11 +1,11 @@
 TODO:
-- End conditions: win/draw/dq
+- Win condition
 - CSS animations:
   - Discards fly from different directions
   - Exposing a tile?
 - Defensive backend code to protect against JS errors
 - Indicator for "2nd time being dealer", etc.
-- Enforce that the winning tile is the last one picked up
+- Enforce that the winning tile was the last one picked up
 
 console:
 iex -S mix
