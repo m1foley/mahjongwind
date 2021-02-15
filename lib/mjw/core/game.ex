@@ -396,6 +396,17 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Update the given player's wintile when they pick from discards
+  """
+  def update_wintile_from_discards(%__MODULE__{} = game, seatno, wintile) do
+    new_discards = game.discards |> Enum.slice(1..-1)
+
+    game
+    |> update_wintile(seatno, wintile)
+    |> Map.merge(%{discards: new_discards})
+  end
+
+  @doc """
   A player draws from the discards OR pongs (the difference being if it was the
   player's turn). Remove from the discards, update the player's concealed tiles
   (already calculated on frontend), update turn_state, and change turn_seatno

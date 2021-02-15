@@ -22,7 +22,7 @@ export default {
             },
             pull: function (to, from) {
               if (dropzone.classList.contains('enable-pull-from-discards')) {
-                return ['exposed-0'];
+                return ['exposed-0', 'wintile-0'];
               } else {
                 return false;
               }
@@ -36,7 +36,18 @@ export default {
           animation: 0,
           emptyInsertThreshold: 0,
           delay: 50,
-          delayOnTouchOnly: true
+          delayOnTouchOnly: true,
+          onStart: function (evt) {
+            const hlSelector = '#wintile-0';
+            document.querySelectorAll(hlSelector).forEach((hlZone) => {
+              hlZone.classList.add('with-description');
+            });
+          },
+          onEnd: function (evt) {
+            document.querySelectorAll('.dropzone.with-description').forEach((hlZone) => {
+              hlZone.classList.remove('with-description');
+            });
+          },
         });
         break;
       case '#concealed-0':
@@ -243,7 +254,7 @@ export default {
         Sortable.create(dropzone, {
           group: {
             name: 'wintile-0',
-            put: ['concealed-0', 'exposed-0'],
+            put: ['discards', 'concealed-0', 'exposed-0'],
             pull: ['concealed-0', 'exposed-0'] // for accidents
           },
           direction: 'horizontal',
@@ -253,7 +264,21 @@ export default {
           animation: 100,
           emptyInsertThreshold: 0,
           delay: 50,
-          delayOnTouchOnly: true
+          delayOnTouchOnly: true,
+          onSort: function (evt) {
+            // Interactions with concealed or exposed tiles are handled in
+            // their respective onSort hooks. That should leave just discards.
+            if (['concealed-0', 'exposed-0'].includes(evt.from.id) ||
+              ['concealed-0', 'exposed-0'].includes(evt.to.id)) {
+              return;
+            }
+
+            hook.pushEventTo(dropzoneSelector, 'dropped', {
+              draggedFromId: evt.from.id,
+              draggedToId: evt.to.id,
+              draggedId: evt.item.id
+            });
+          }
         });
         break;
     }

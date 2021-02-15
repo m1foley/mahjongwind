@@ -402,6 +402,27 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # discards -> wintile: declaring a win from a discard
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "discards",
+          "draggedToId" => "wintile-0",
+          "draggedId" => tile
+        },
+        socket
+      ) do
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_wintile_from_discards(current_user_sitting_at, tile)
+    |> MjwWeb.GameStore.update(:declared_win, %{seat: player_seat})
+
+    {:noreply, socket}
+  end
+
   # exposed -> wintile: declaring a win clumsily
   @impl true
   def handle_event(
