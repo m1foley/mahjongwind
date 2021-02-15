@@ -12,7 +12,7 @@
   <% end %>
 
   <%= if @win_declared_seatno do %>
-    <canvas id="confetticanvas" phx-hook="Confetti"></canvas>
+    <canvas id="confetticanvas" phx-hook="Confetti" data-winner="<%= @win_declared_seatno == @current_user_sitting_at %>"></canvas>
   <% end %>
 
   <%# displaying seats based on z-index order: 2 has important game content, 0 has user's tiles %>

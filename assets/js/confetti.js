@@ -42,7 +42,7 @@ export default {
       "clock": "30",
       "rotate": false,
       "start_from_edge": true,
-      "respawn": true
+      "respawn": this.el.dataset.winner == "true"
     });
     confetti.render();
   }
