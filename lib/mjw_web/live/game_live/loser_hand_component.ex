@@ -1,4 +1,4 @@
-defmodule MjwWeb.GameLive.LosingHandComponent do
+defmodule MjwWeb.GameLive.LoserHandComponent do
   use MjwWeb, :live_component
 
   @impl true
@@ -14,6 +14,17 @@ defmodule MjwWeb.GameLive.LosingHandComponent do
     socket.assigns.game
     |> Mjw.Game.dq(seatno)
     |> MjwWeb.GameStore.update(:dq, %{seat: seat})
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("expose", _params, socket) do
+    seatno = socket.assigns.player_seat.seatno
+
+    socket.assigns.game
+    |> Mjw.Game.update_winreaction(seatno, :expose)
+    |> MjwWeb.GameStore.update(:winreaction_expose)
 
     {:noreply, socket}
   end

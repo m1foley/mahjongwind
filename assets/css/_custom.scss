@@ -150,6 +150,11 @@
   .tile {
     opacity: 0.5;
   }
+  &.exposed-loser-hand {
+    .tile {
+      opacity: 1;
+    }
+  }
 }
 
 #wintile-0 {
@@ -508,11 +513,11 @@
   height: 100%;
 }
 
-.concealed-losing-hand {
+.concealed-loser-hand {
   opacity: 0.5;
 }
 
-#losinghandcomponent {
+#loserhandcomponent {
   position: absolute;
   width: 100%;
 }
