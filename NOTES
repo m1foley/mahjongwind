@@ -1,5 +1,7 @@
 TODO:
+- Undeclaring a win
 - Win condition
+- Hover text for correction tile & menu
 - CSS animations:
   - Discards fly from different directions
   - Exposing a tile?

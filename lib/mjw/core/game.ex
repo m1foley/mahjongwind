@@ -526,6 +526,14 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  The seat number of the declared winner. Assumes the caller already checked
+  that game state/1 is :win_declared
+  """
+  def win_declared_seatno(%__MODULE__{seats: seats}) do
+    seats |> Enum.find_index(& &1.wintile)
+  end
+
+  @doc """
   Calculate the state of a game
   """
   def state(%__MODULE__{} = game) do
@@ -534,9 +542,9 @@ defmodule Mjw.Game do
     |> state_picking_winds
     |> state_rolling_for_first_dealer
     |> state_rolling_for_deal
-    |> state_drawing
+    |> state_win_declared
     |> state_discarding
-    # |> state_win
+    |> state_drawing
     |> state_invalid
   end
 
@@ -580,15 +588,15 @@ defmodule Mjw.Game do
 
   defp state_rolling_for_deal({game, state}), do: {game, state}
 
-  defp state_drawing({game, :tbd}) do
-    if game.turn_state == :drawing do
-      {game, :drawing}
+  defp state_win_declared({game, :tbd}) do
+    if game |> win_declared_seatno() do
+      {game, :win_declared}
     else
       {game, :tbd}
     end
   end
 
-  defp state_drawing({game, state}), do: {game, state}
+  defp state_win_declared({game, state}), do: {game, state}
 
   defp state_discarding({game, :tbd}) do
     if game.turn_state == :discarding do
@@ -599,6 +607,16 @@ defmodule Mjw.Game do
   end
 
   defp state_discarding({game, state}), do: {game, state}
+
+  defp state_drawing({game, :tbd}) do
+    if game.turn_state == :drawing do
+      {game, :drawing}
+    else
+      {game, :tbd}
+    end
+  end
+
+  defp state_drawing({game, state}), do: {game, state}
 
   defp state_invalid({_game, :tbd}), do: :invalid
   defp state_invalid({_game, state}), do: state

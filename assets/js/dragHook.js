@@ -239,6 +239,23 @@ export default {
           delayOnTouchOnly: true
         });
         break;
+      case '#wintile-0':
+        Sortable.create(dropzone, {
+          group: {
+            name: 'wintile-0',
+            put: ['concealed-0', 'exposed-0'],
+            pull: ['concealed-0', 'exposed-0'] // for accidents
+          },
+          direction: 'horizontal',
+          draggable: '.draggable',
+          ghostClass: 'sortable-ghost',
+          swapThreshold: 0.2,
+          animation: 100,
+          emptyInsertThreshold: 0,
+          delay: 50,
+          delayOnTouchOnly: true
+        });
+        break;
     }
   }
 };

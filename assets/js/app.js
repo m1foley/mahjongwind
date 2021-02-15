@@ -19,14 +19,19 @@ import {Socket} from "phoenix";
 import NProgress from "nprogress";
 import {LiveSocket} from "phoenix_live_view";
 
-// sortablejs
+// sortablejs for tile drag & drop
 import Drag from './dragHook';
 
-// various JS hooks
 import CopyToClipboard from './copyToClipboard';
 import DeclareDq from './declareDq';
+import Confetti from './confetti';
 
-const Hooks = { Drag: Drag, CopyToClipboard: CopyToClipboard, DeclareDq: DeclareDq };
+const Hooks = {
+  Drag: Drag,
+  CopyToClipboard: CopyToClipboard,
+  DeclareDq: DeclareDq,
+  Confetti: Confetti
+};
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
