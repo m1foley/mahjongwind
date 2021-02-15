@@ -4,6 +4,9 @@ import ConfettiGenerator from 'confetti-js';
 
 export default {
   mounted() {
+    this.el.width  = window.innerWidth;
+    this.el.height = window.innerHeight;
+
     const confetti = new ConfettiGenerator({
       "target": this.el,
       "max": "140",
@@ -45,5 +48,12 @@ export default {
       "respawn": this.el.dataset.winner == "true"
     });
     confetti.render();
+  },
+  updated() {
+    // if this doesn't get resized here, the canvas gets stretched on all
+    // liveview updates. I think it's because canvas is weird and you can't use
+    // CSS like other elements.
+    this.el.width  = window.innerWidth;
+    this.el.height = window.innerHeight;
   }
 };
