@@ -473,8 +473,8 @@
       top: -2.5rem;
       transform: rotate(30deg);
     }
-    // not sure why but space-y-32 makes the first child appear way off to
-    // the upper left
+    // not sure why but space-y-32 (which provides good spacing when new rows
+    // are created) makes the first child appear way off to the upper left
     &:first-child {
       top: 7rem;
       left: 0;
@@ -517,7 +517,13 @@
   opacity: 0.5;
 }
 
-#loserhandcomponent {
+#loserhandmenu {
   position: absolute;
   width: 100%;
+  .tile {
+    height: 3.1rem;
+  }
+  .menucontainer {
+    max-width: 80%;
+  }
 }

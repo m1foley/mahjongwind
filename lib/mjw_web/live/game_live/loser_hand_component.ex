@@ -3,7 +3,11 @@ defmodule MjwWeb.GameLive.LoserHandComponent do
 
   @impl true
   def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
+    socket =
+      assign(socket, assigns)
+      |> assign(:showdeck, socket.assigns[:showdeck])
+
+    {:ok, socket}
   end
 
   @impl true
@@ -25,6 +29,20 @@ defmodule MjwWeb.GameLive.LoserHandComponent do
     socket.assigns.game
     |> Mjw.Game.update_winreaction(seatno, :expose)
     |> MjwWeb.GameStore.update(:winreaction_expose)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("showdeck", _params, socket) do
+    socket = socket |> assign(:showdeck, true)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("hidedeck", _params, socket) do
+    socket = socket |> assign(:showdeck, false)
 
     {:noreply, socket}
   end
