@@ -387,7 +387,8 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  When undoing an accidental wintile, clear all win fields in all seats
+  Update the given player's wintile. If it's nil, it undoes their accidental
+  win. In that case it clears the win related fields in all seats.
   """
   def update_wintile(%__MODULE__{} = game, _seatno, nil) do
     seats =
@@ -399,9 +400,6 @@ defmodule Mjw.Game do
     %{game | seats: seats}
   end
 
-  @doc """
-  Update the given player's wintile
-  """
   def update_wintile(%__MODULE__{} = game, seatno, wintile) do
     update_seat(game, seatno, fn seat ->
       %{seat | wintile: wintile, winreaction: :ok}
