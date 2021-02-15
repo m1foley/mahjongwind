@@ -507,3 +507,12 @@
   width: 100%;
   height: 100%;
 }
+
+.concealed-losing-hand {
+  opacity: 0.5;
+}
+
+#losinghandcomponent {
+  position: absolute;
+  width: 100%;
+}

@@ -44,18 +44,18 @@ export default {
           group: {
             name: 'concealed-0',
             put: function (to, from) {
+              let ids = ['exposed-0', 'hiddengongs-0', 'correctiontiles', 'wintile-0'];
               if (dropzone.classList.contains('enable-pull-from-discards')) {
-                return ['discards', 'exposed-0', 'hiddengongs-0', 'correctiontiles', 'deckoffer'];
-              } else {
-                return ['exposed-0', 'hiddengongs-0', 'correctiontiles'];
+                ids.push('discards', 'deckoffer');
               }
+              return ids;
             },
             pull: function (to, from) {
+              let ids = ['exposed-0', 'hiddengongs-0', 'wintile-0'];
               if (dropzone.classList.contains('current-user-discarding')) {
-                return ['discards', 'exposed-0', 'hiddengongs-0', 'wintile-0'];
-              } else {
-                return ['exposed-0', 'hiddengongs-0', 'wintile-0'];
+                ids.push('discards');
               }
+              return ids;
             },
           },
           direction: 'horizontal',
@@ -116,7 +116,7 @@ export default {
         Sortable.create(dropzone, {
           group: {
             name: 'exposed-0',
-            put: ['concealed-0', 'hiddengongs-0', 'discards'],
+            put: ['concealed-0', 'hiddengongs-0', 'discards', 'wintile-0'],
             pull: ['concealed-0', 'hiddengongs-0', 'wintile-0']
           },
           direction: 'horizontal',
