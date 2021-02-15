@@ -41,6 +41,7 @@
                 Hidden gongs
               </div>
             </div>
+
             <div id="exposed-0" phx-hook="Drag" class="exposed-tiles dropzone<%= if Enum.empty?(seat.exposed), do: " empty" %>">
               <%= for tile <- seat.exposed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
@@ -48,16 +49,20 @@
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
               <% end %>
             </div>
-            <div id="wintile-0" phx-hook="Drag" class="wintile-tiles dropzone<%= if @crowded_exposed_row, do: " bottomrow" %>">
+
+            <div id="wintile-0" phx-hook="Drag" class="wintile-tiles<%= if !@win_declared_seatno || @win_declared_seatno == @current_user_sitting_at, do: " dropzone" %><%= if @crowded_exposed_row, do: " bottomrow" %>">
               <%= if seat.wintile do %>
                 <% tile_code = seat.wintile |> String.slice(0..1) %>
                 <img id="<%= seat.wintile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable" />
               <% end %>
-              <div class="dropzone-description">
-                Winning tile
-              </div>
+              <%= if !@win_declared_seatno || @win_declared_seatno == @current_user_sitting_at do %>
+                <div class="dropzone-description">
+                  Winning tile
+                </div>
+              <% end %>
             </div>
             <div class="line-break"></div>
+
             <% concealed_loser_hand = @win_declared_seatno && @win_declared_seatno != @current_user_sitting_at && seat.winreaction not in [:expose, :expose_ok] %>
             <div id="concealed-0" phx-hook="Drag" class="concealed-tiles dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %><%= if concealed_loser_hand, do: " concealed-loser-hand" %>">
               <%= for tile <- seat.concealed do %>
@@ -162,6 +167,10 @@
             <% :dq -> %>
               <div class="state-description">
                 <%= @event_details[:seat].player_name %> has been disqualified. 🙅‍♀️
+              </div>
+            <% :undid_win -> %>
+              <div class="state-description">
+                <%= @event_details[:seat].player_name %> undid their win.
               </div>
             <% _event -> %>
           <% end %>

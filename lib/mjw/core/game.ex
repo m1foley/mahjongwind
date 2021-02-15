@@ -387,6 +387,19 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  When undoing an accidental wintile, clear all win fields in all seats
+  """
+  def update_wintile(%__MODULE__{} = game, _seatno, nil) do
+    seats =
+      game.seats
+      |> Enum.map(fn seat ->
+        %{seat | wintile: nil, winreaction: nil}
+      end)
+
+    %{game | seats: seats}
+  end
+
+  @doc """
   Update the given player's wintile
   """
   def update_wintile(%__MODULE__{} = game, seatno, wintile) do

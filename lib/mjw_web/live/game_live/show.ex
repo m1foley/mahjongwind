@@ -397,7 +397,7 @@ defmodule MjwWeb.GameLive.Show do
     socket.assigns.game
     |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
     |> Mjw.Game.update_wintile(current_user_sitting_at, tile)
-    |> MjwWeb.GameStore.update(:win, %{seat: player_seat})
+    |> MjwWeb.GameStore.update(:declared_win, %{seat: player_seat})
 
     {:noreply, socket}
   end
@@ -442,6 +442,50 @@ defmodule MjwWeb.GameLive.Show do
     |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
     |> Mjw.Game.update_wintile(current_user_sitting_at, tile)
     |> MjwWeb.GameStore.update(:declared_win, %{seat: player_seat})
+
+    {:noreply, socket}
+  end
+
+  # wintile -> concealed: undoing a win
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "wintile-0",
+          "draggedToId" => "concealed-0",
+          "draggedToList" => new_concealed
+        },
+        socket
+      ) do
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
+    |> Mjw.Game.update_wintile(current_user_sitting_at, nil)
+    |> MjwWeb.GameStore.update(:undid_win, %{seat: player_seat})
+
+    {:noreply, socket}
+  end
+
+  # wintile -> exposed: undoing a win
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "wintile-0",
+          "draggedToId" => "exposed-0",
+          "draggedToList" => new_exposed
+        },
+        socket
+      ) do
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_exposed(current_user_sitting_at, new_exposed)
+    |> Mjw.Game.update_wintile(current_user_sitting_at, nil)
+    |> MjwWeb.GameStore.update(:undid_win, %{seat: player_seat})
 
     {:noreply, socket}
   end
@@ -516,18 +560,24 @@ defmodule MjwWeb.GameLive.Show do
     player_seats_finalized =
       game_state not in [:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
 
-    current_user_drawing = game_state == :drawing && game.turn_seatno == current_user_sitting_at
+    current_user_drawing =
+      !win_declared_seatno && game_state == :drawing &&
+        game.turn_seatno == current_user_sitting_at
 
     # not limited to turn_seatno because of pongs
     enable_pull_from_discards =
-      game_state == :drawing && game.prev_turn_seatno != current_user_sitting_at
+      !win_declared_seatno &&
+        game_state == :drawing && game.prev_turn_seatno != current_user_sitting_at
 
     current_user_discarding =
-      game_state == :discarding && game.turn_seatno == current_user_sitting_at
+      !win_declared_seatno &&
+        game_state == :discarding && game.turn_seatno == current_user_sitting_at
 
     player_seat = relative_game_seats |> Enum.at(0)
     crowded_exposed_row = crowded_exposed_row?(player_seat)
-    show_correction_tile = !current_user_drawing && might_have_gongs?(player_seat)
+
+    show_correction_tile =
+      !win_declared_seatno && !current_user_drawing && might_have_gongs?(player_seat)
 
     socket
     |> assign(:show_game_menu, false)
