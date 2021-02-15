@@ -6,7 +6,7 @@ export default {
   mounted() {
     const confetti = new ConfettiGenerator({
       "target": this.el,
-      "max": "80",
+      "max": "140",
       "size": "1",
       "animate": true,
       "props": [
@@ -18,19 +18,19 @@ export default {
           "type":"svg",
           "src":"/images/confetti/c1.svg",
           "size": 30,
-          "weight": 0.1
+          "weight": 0.06
         },
         {
           "type":"svg",
           "src":"/images/confetti/df.svg",
           "size": 30,
-          "weight": 0.1
+          "weight": 0.06
         },
         {
           "type":"svg",
           "src":"/images/confetti/dz.svg",
           "size": 30,
-          "weight": 0.1
+          "weight": 0.06
         }
       ],
       "colors": [

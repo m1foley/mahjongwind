@@ -1,0 +1,20 @@
+<div id="<%= @id %>">
+  <div class="inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-10 mt-2 mx-auto shadow-md content-center text-center">
+
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="ok">
+      Okay, let's start shuffling... ✋
+    </div>
+
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="expose">
+      Expose hand
+    </div>
+
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="viewdeck">
+      View remaining deck
+    </div>
+
+    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="dq">
+      Declare DQ 🙅‍♀️
+    </div>
+  </div>
+</div>
