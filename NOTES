@@ -1,11 +1,12 @@
 TODO:
-- Win condition
+- Player wind indicator
+- Indicate current dealer
+- Indicator for "2nd time being dealer", etc.
 - Hover text for correction tile & menu
 - CSS animations:
   - Discards fly from different directions
   - Exposing a tile?
 - Defensive backend code to protect against JS errors
-- Indicator for "2nd time being dealer", etc.
 - Enforce that the winning tile was the last one picked up
 
 console:

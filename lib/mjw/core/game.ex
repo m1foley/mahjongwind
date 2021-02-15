@@ -378,12 +378,28 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  Update the given player's reaction to a declared win
+  Confirm another player's declared win
   """
-  def update_winreaction(%__MODULE__{} = game, seatno, winreaction) do
-    update_seat(game, seatno, fn seat ->
-      %{seat | winreaction: winreaction}
-    end)
+  def confirm_win(%__MODULE__{} = game, seatno) do
+    game = game |> update_seat(seatno, &Mjw.Seat.confirm_win/1)
+
+    # advance the game if all players have confirmed the win
+    if confirmed_win?(game) do
+      if win_declared_seatno(game) == game.dealer_seatno do
+        game |> advance_game(:same_dealer)
+      else
+        game |> advance_game(:advance_dealer)
+      end
+    else
+      game
+    end
+  end
+
+  @doc """
+  Expose the player's hand to other players after a loss
+  """
+  def expose_loser_hand(%__MODULE__{} = game, seatno) do
+    game |> update_seat(seatno, &Mjw.Seat.expose_loser_hand/1)
   end
 
   @doc """
@@ -523,32 +539,35 @@ defmodule Mjw.Game do
   Declare a draw game
   """
   def draw(%__MODULE__{} = game) do
-    game
-    |> clear_seat_tiles()
-    |> Map.merge(%{
-      deck: shuffled_deck(),
-      discards: [],
-      turn_state: :rolling,
-      turn_seatno: game.dealer_seatno
-    })
+    game |> advance_game(:same_dealer)
   end
 
   @doc """
-  DQ the player in the given seat. DQing a non-dealer is the same as a draw,
-  and DQing the dealer advances the dealer.
+  DQ the player in the given seat. Only advance the dealer if the disqualified
+  player is the dealer.
   """
-  def dq(%__MODULE__{} = game, seatno) when seatno != game.dealer_seatno, do: draw(game)
-
   def dq(%__MODULE__{} = game, seatno)
       when seatno == game.dealer_seatno do
+    game |> advance_game(:advance_dealer)
+  end
+
+  def dq(%__MODULE__{} = game, _non_dealer_seatno) do
+    game |> advance_game(:same_dealer)
+  end
+
+  # TODO: advance a dealer counter (2nd time being dealer, etc.)
+  defp advance_game(%__MODULE__{} = game, :same_dealer) do
+    game
+    |> set_turn_seatno(game.dealer_seatno)
+    |> clear_seat_tiles()
+    |> Map.merge(%{deck: shuffled_deck(), discards: [], turn_state: :rolling})
+  end
+
+  defp advance_game(%__MODULE__{} = game, :advance_dealer) do
     game
     |> advance_dealer()
     |> clear_seat_tiles()
-    |> Map.merge(%{
-      deck: shuffled_deck(),
-      discards: [],
-      turn_state: :rolling
-    })
+    |> Map.merge(%{deck: shuffled_deck(), discards: [], turn_state: :rolling})
   end
 
   defp clear_seat_tiles(%__MODULE__{} = game) do
@@ -562,6 +581,13 @@ defmodule Mjw.Game do
   """
   def win_declared_seatno(%__MODULE__{seats: seats}) do
     seats |> Enum.find_index(& &1.wintile)
+  end
+
+  @doc """
+  Return true if all players confirmed someone's declared win
+  """
+  def confirmed_win?(%__MODULE__{seats: seats}) do
+    seats |> Enum.all?(&Mjw.Seat.confirmed_win?/1)
   end
 
   @doc """
@@ -620,7 +646,7 @@ defmodule Mjw.Game do
   defp state_rolling_for_deal({game, state}), do: {game, state}
 
   defp state_win_declared({game, :tbd}) do
-    if game |> win_declared_seatno() do
+    if win_declared_seatno(game) do
       {game, :win_declared}
     else
       {game, :tbd}

@@ -1,4 +1,8 @@
-<%= if @player_seat.winreaction not in [:ok, :expose_ok] do %>
+<%= if @player_seat.winreaction in [:ok, :expose_ok] do %>
+  <div class="state-description">
+    Waiting for the other players to proceed...
+  </div>
+<% else %>
   <div id="<%= @id %>">
     <div class="menucontainer inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-10 mt-2 mx-auto shadow-md content-center text-center">
 
