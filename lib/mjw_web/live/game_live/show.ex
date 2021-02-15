@@ -369,12 +369,35 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       ) do
-    current_user_sitting_at = socket.assigns.current_user_sitting_at
     game = socket.assigns.game
     player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
 
     {game, tile} = game |> Mjw.Game.draw_correction_tile(current_user_sitting_at, new_concealed)
     game |> MjwWeb.GameStore.update(:drew_correction_tile, %{tile: tile, seat: player_seat})
+
+    {:noreply, socket}
+  end
+
+  # concealed -> wintile: declaring a win
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "concealed-0",
+          "draggedToId" => "wintile-0",
+          "draggedFromList" => new_concealed,
+          "draggedId" => tile
+        },
+        socket
+      ) do
+    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
+    current_user_sitting_at = socket.assigns.current_user_sitting_at
+
+    socket.assigns.game
+    |> Mjw.Game.update_concealed(current_user_sitting_at, new_concealed)
+    |> Mjw.Game.update_wintile(current_user_sitting_at, tile)
+    |> MjwWeb.GameStore.update(:win, %{seat: player_seat})
 
     {:noreply, socket}
   end
@@ -412,8 +435,10 @@ defmodule MjwWeb.GameLive.Show do
     current_user_sitting_at = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
     turn_player_name = Mjw.Game.turn_player_name(game)
+    win_declared_seatno = game_state == :win_declared && game |> Mjw.Game.win_declared_seatno()
 
-    # seats ordered by their position to the current player (0 = self, etc.)
+    # seats ordered by their position to the current player (0 = self, etc.).
+    # A seatno attribute is added as a convenience to get the original index.
     relative_game_seats =
       if empty_seats_count > 0 || !current_user_sitting_at do
         []
@@ -478,6 +503,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_discarding, current_user_discarding)
     |> assign(:crowded_exposed_row, crowded_exposed_row)
     |> assign(:show_correction_tile, show_correction_tile)
+    |> assign(:win_declared_seatno, win_declared_seatno)
   end
 
   defp ensure_game_joinable(socket) do

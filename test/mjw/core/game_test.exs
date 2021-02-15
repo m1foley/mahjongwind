@@ -149,6 +149,65 @@ defmodule Mjw.GameTest do
 
       assert Mjw.Game.state(game) == :rolling_for_deal
     end
+
+    test "discarding" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind("id0", 0)
+        |> Mjw.Game.pick_random_available_wind("id1", 0)
+        |> Mjw.Game.pick_random_available_wind("id2", 0)
+        |> Mjw.Game.pick_random_available_wind("id3", 0)
+        |> Mjw.Game.roll_dice()
+        |> Mjw.Game.reseat_players()
+        |> Mjw.Game.roll_dice()
+        |> Mjw.Game.deal()
+
+      assert Mjw.Game.state(game) == :discarding
+    end
+
+    test "drawing" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind("id0", 0)
+        |> Mjw.Game.pick_random_available_wind("id1", 0)
+        |> Mjw.Game.pick_random_available_wind("id2", 0)
+        |> Mjw.Game.pick_random_available_wind("id3", 0)
+        |> Mjw.Game.roll_dice()
+        |> Mjw.Game.reseat_players()
+        |> Mjw.Game.roll_dice()
+        |> Mjw.Game.deal()
+        |> Mjw.Game.discard(0, "n1-1")
+
+      assert Mjw.Game.state(game) == :drawing
+    end
+
+    test "win_declared" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind("id0", 0)
+        |> Mjw.Game.pick_random_available_wind("id1", 0)
+        |> Mjw.Game.pick_random_available_wind("id2", 0)
+        |> Mjw.Game.pick_random_available_wind("id3", 0)
+        |> Mjw.Game.roll_dice()
+        |> Mjw.Game.reseat_players()
+        |> Mjw.Game.roll_dice()
+        |> Mjw.Game.deal()
+        |> Mjw.Game.update_wintile(0, "n1-0")
+
+      assert Mjw.Game.state(game) == :win_declared
+    end
   end
 
   describe "pick_random_available_wind" do
@@ -751,6 +810,33 @@ defmodule Mjw.GameTest do
       assert Enum.map(game.seats, & &1.hidden_gongs) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.wintile) == [nil, nil, nil, nil]
       assert Mjw.Game.state(game) == :rolling_for_deal
+    end
+  end
+
+  describe "win_declared_seatno" do
+    test "returns the seatno of the declared winner" do
+      seatno =
+        %Mjw.Game{
+          seats: [
+            %Mjw.Seat{},
+            %Mjw.Seat{},
+            %Mjw.Seat{wintile: "n1-1"},
+            %Mjw.Seat{}
+          ]
+        }
+        |> Mjw.Game.win_declared_seatno()
+
+      assert seatno == 2
+    end
+
+    test "returns nil if no declared winner" do
+      seatno =
+        %Mjw.Game{
+          seats: 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
+        }
+        |> Mjw.Game.win_declared_seatno()
+
+      assert seatno == nil
     end
   end
 end
