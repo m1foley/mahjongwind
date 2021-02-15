@@ -528,9 +528,7 @@ defmodule MjwWeb.GameLive.Show do
     # seats ordered by their position to the current player (0 = self, etc.).
     # A seatno attribute is added as a convenience to get the original index.
     relative_game_seats =
-      if empty_seats_count > 0 || !current_user_sitting_at do
-        []
-      else
+      if current_user_sitting_at do
         0..3
         |> Enum.map(fn i ->
           Mjw.Game.seat_with_relative_position(game, i, current_user_sitting_at)
@@ -538,6 +536,8 @@ defmodule MjwWeb.GameLive.Show do
         |> Enum.with_index()
         |> Enum.sort_by(fn {{_seat, relative_position}, _i} -> relative_position end)
         |> Enum.map(fn {{seat, _relative_position}, i} -> Map.merge(seat, %{seatno: i}) end)
+      else
+        []
       end
 
     show_stick = game_state in [:waiting_for_players, :picking_winds]

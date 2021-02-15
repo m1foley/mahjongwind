@@ -23,12 +23,23 @@ defmodule MjwWeb.GameLive.LoserHandComponent do
   end
 
   @impl true
+  def handle_event("ok", _params, socket) do
+    seatno = socket.assigns.player_seat.seatno
+
+    socket.assigns.game
+    |> Mjw.Game.confirm_win(seatno)
+    |> MjwWeb.GameStore.update(:confirmed_win)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("expose", _params, socket) do
     seatno = socket.assigns.player_seat.seatno
 
     socket.assigns.game
-    |> Mjw.Game.update_winreaction(seatno, :expose)
-    |> MjwWeb.GameStore.update(:winreaction_expose)
+    |> Mjw.Game.expose_loser_hand(seatno)
+    |> MjwWeb.GameStore.update(:exposed_loser_hand)
 
     {:noreply, socket}
   end

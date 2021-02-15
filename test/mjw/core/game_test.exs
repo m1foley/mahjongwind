@@ -727,7 +727,7 @@ defmodule Mjw.GameTest do
       assert game.turn_state == :rolling
       assert game.dealer_seatno == 1
       assert game.turn_seatno == 1
-      assert game.prev_turn_seatno == 2
+      assert game.prev_turn_seatno == 3
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
       assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
@@ -776,7 +776,7 @@ defmodule Mjw.GameTest do
       assert game.turn_state == :rolling
       assert game.dealer_seatno == 1
       assert game.turn_seatno == 1
-      assert game.prev_turn_seatno == 2
+      assert game.prev_turn_seatno == 3
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
       assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
@@ -860,6 +860,136 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.win_declared_seatno()
 
       assert seatno == nil
+    end
+  end
+
+  describe "confirm_win" do
+    test "confirms another player's declared win" do
+      game =
+        %Mjw.Game{
+          deck: ["dp-1"],
+          discards: ["dp-0"],
+          turn_state: :discarding,
+          turn_seatno: 2,
+          dealer_seatno: 0,
+          seats: [
+            %Mjw.Seat{winreaction: nil},
+            %Mjw.Seat{winreaction: nil},
+            %Mjw.Seat{wintile: "n1-1", winreaction: :ok},
+            %Mjw.Seat{winreaction: :expose}
+          ]
+        }
+        |> Mjw.Game.confirm_win(3)
+
+      assert game.seats |> Enum.map(& &1.winreaction) == [nil, nil, :ok, :expose_ok]
+      assert game.deck == ["dp-1"]
+      assert game.discards == ["dp-0"]
+      assert game.turn_state == :discarding
+      assert game.turn_seatno == 2
+      assert game.dealer_seatno == 0
+    end
+
+    test "advances the game if all players confirmed the win (non-dealer winner)" do
+      game =
+        %Mjw.Game{
+          deck: ["dp-1"],
+          discards: ["dp-0"],
+          turn_state: :discarding,
+          turn_seatno: 1,
+          dealer_seatno: 3,
+          wind: "we",
+          seats: [
+            %Mjw.Seat{winreaction: :ok},
+            %Mjw.Seat{winreaction: :expose_ok},
+            %Mjw.Seat{wintile: "n1-1", winreaction: :ok},
+            %Mjw.Seat{winreaction: :expose}
+          ]
+        }
+        |> Mjw.Game.confirm_win(3)
+
+      assert game.seats |> Enum.map(& &1.winreaction) == [nil, nil, nil, nil]
+      assert game.seats |> Enum.map(& &1.wintile) == [nil, nil, nil, nil]
+      assert length(game.deck) == 136
+      assert game.discards == []
+      assert game.turn_state == :rolling
+      assert game.prev_turn_seatno == 1
+      assert game.turn_seatno == 0
+      assert game.dealer_seatno == 0
+      assert game.wind == "ws"
+    end
+
+    test "advances the game if all players confirmed the win (dealer wins)" do
+      game =
+        %Mjw.Game{
+          deck: ["dp-1"],
+          discards: ["dp-0"],
+          turn_state: :discarding,
+          turn_seatno: 1,
+          dealer_seatno: 3,
+          wind: "we",
+          seats: [
+            %Mjw.Seat{winreaction: :ok},
+            %Mjw.Seat{winreaction: :expose_ok},
+            %Mjw.Seat{winreaction: :expose},
+            %Mjw.Seat{wintile: "n1-1", winreaction: :ok}
+          ]
+        }
+        |> Mjw.Game.confirm_win(2)
+
+      assert game.seats |> Enum.map(& &1.winreaction) == [nil, nil, nil, nil]
+      assert game.seats |> Enum.map(& &1.wintile) == [nil, nil, nil, nil]
+      assert length(game.deck) == 136
+      assert game.discards == []
+      assert game.turn_state == :rolling
+      assert game.turn_seatno == 3
+      assert game.prev_turn_seatno == 1
+      assert game.dealer_seatno == 3
+      assert game.wind == "we"
+    end
+  end
+
+  describe "expose_loser_hand" do
+    test "confirms another player's declared win" do
+      game =
+        %Mjw.Game{
+          seats: [
+            %Mjw.Seat{winreaction: nil},
+            %Mjw.Seat{winreaction: nil},
+            %Mjw.Seat{wintile: "n1-1", winreaction: :ok},
+            %Mjw.Seat{winreaction: :ok}
+          ]
+        }
+        |> Mjw.Game.expose_loser_hand(3)
+
+      assert game.seats |> Enum.map(& &1.winreaction) == [nil, nil, :ok, :expose_ok]
+    end
+  end
+
+  describe "confirmed_win?" do
+    test "false if not all seats confirmed the declared win" do
+      game = %Mjw.Game{
+        seats: [
+          %Mjw.Seat{winreaction: :ok},
+          %Mjw.Seat{winreaction: :expose_ok},
+          %Mjw.Seat{wintile: "n1-1", winreaction: :ok},
+          %Mjw.Seat{winreaction: :ok}
+        ]
+      }
+
+      assert game |> Mjw.Game.confirmed_win?()
+    end
+
+    test "true if all seats confirmed the declared win" do
+      game = %Mjw.Game{
+        seats: [
+          %Mjw.Seat{winreaction: :ok},
+          %Mjw.Seat{winreaction: :expose},
+          %Mjw.Seat{wintile: "n1-1", winreaction: :ok},
+          %Mjw.Seat{winreaction: :ok}
+        ]
+      }
+
+      refute game |> Mjw.Game.confirmed_win?()
     end
   end
 end

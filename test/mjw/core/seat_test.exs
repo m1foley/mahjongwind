@@ -96,4 +96,95 @@ defmodule Mjw.SeatTest do
       assert seat.winreaction == nil
     end
   end
+
+  describe "confirmed_win?" do
+    test "false when winreaction is nil" do
+      seat = %Mjw.Seat{
+        wintile: nil,
+        winreaction: nil
+      }
+
+      refute seat |> Mjw.Seat.confirmed_win?()
+    end
+
+    test "false when winreaction is :expose" do
+      seat = %Mjw.Seat{
+        wintile: nil,
+        winreaction: :expose
+      }
+
+      refute seat |> Mjw.Seat.confirmed_win?()
+    end
+
+    test "true when winreaction is :ok" do
+      seat = %Mjw.Seat{
+        wintile: nil,
+        winreaction: :ok
+      }
+
+      assert seat |> Mjw.Seat.confirmed_win?()
+    end
+
+    test "true when winreaction is :ok and wintile is present" do
+      seat = %Mjw.Seat{
+        wintile: "b1-1",
+        winreaction: :ok
+      }
+
+      assert seat |> Mjw.Seat.confirmed_win?()
+    end
+
+    test "true when winreaction is :expose_ok" do
+      seat = %Mjw.Seat{
+        wintile: nil,
+        winreaction: :expose_ok
+      }
+
+      assert seat |> Mjw.Seat.confirmed_win?()
+    end
+  end
+
+  describe "confirm_win" do
+    test "changes winreaction from nil -> :ok" do
+      seat = %Mjw.Seat{winreaction: nil} |> Mjw.Seat.confirm_win()
+      assert seat.winreaction == :ok
+    end
+
+    test "doesn't change winreaction from :ok" do
+      seat = %Mjw.Seat{winreaction: :ok} |> Mjw.Seat.confirm_win()
+      assert seat.winreaction == :ok
+    end
+
+    test "changes winreaction from :expose -> :expose_ok" do
+      seat = %Mjw.Seat{winreaction: :expose} |> Mjw.Seat.confirm_win()
+      assert seat.winreaction == :expose_ok
+    end
+
+    test "doesn't change winreaction from :expose_ok" do
+      seat = %Mjw.Seat{winreaction: :expose_ok} |> Mjw.Seat.confirm_win()
+      assert seat.winreaction == :expose_ok
+    end
+  end
+
+  describe "expose_loser_hand" do
+    test "changes winreaction from nil -> :expose" do
+      seat = %Mjw.Seat{winreaction: nil} |> Mjw.Seat.expose_loser_hand()
+      assert seat.winreaction == :expose
+    end
+
+    test "changes winreaction from :ok -> :expose_ok" do
+      seat = %Mjw.Seat{winreaction: :ok} |> Mjw.Seat.expose_loser_hand()
+      assert seat.winreaction == :expose_ok
+    end
+
+    test "doesn't change winreaction from :expose" do
+      seat = %Mjw.Seat{winreaction: :expose} |> Mjw.Seat.expose_loser_hand()
+      assert seat.winreaction == :expose
+    end
+
+    test "doesn't change winreaction from :expose_ok" do
+      seat = %Mjw.Seat{winreaction: :expose_ok} |> Mjw.Seat.expose_loser_hand()
+      assert seat.winreaction == :expose_ok
+    end
+  end
 end

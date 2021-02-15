@@ -8,8 +8,8 @@ defmodule Mjw.Seat do
             picked_wind_idx: nil,
             wintile: nil,
             # Reaction to a declared win:
-            # - :ok = confirmed
             # - nil = not confirmed
+            # - :ok = confirmed
             # - :expose = exposed hand, not confirmed
             # - :expose_ok = exposed hand, confirmed
             winreaction: nil
@@ -34,5 +34,36 @@ defmodule Mjw.Seat do
   """
   def clear_tiles(%__MODULE__{} = seat) do
     %{seat | concealed: [], exposed: [], hidden_gongs: [], wintile: nil, winreaction: nil}
+  end
+
+  @doc """
+  True if the given player confirmed the declared win
+  """
+  def confirmed_win?(%__MODULE__{winreaction: winreaction}) do
+    winreaction in [:ok, :expose_ok]
+  end
+
+  @doc """
+  Confirm another player's declared win
+  """
+  def confirm_win(%__MODULE__{} = seat)
+      when seat.winreaction in [:expose, :expose_ok] do
+    %{seat | winreaction: :expose_ok}
+  end
+
+  def confirm_win(%__MODULE__{} = seat) do
+    %{seat | winreaction: :ok}
+  end
+
+  @doc """
+  Expose the player's hand to other players after a loss
+  """
+  def expose_loser_hand(%__MODULE__{} = seat)
+      when seat.winreaction in [:ok, :expose_ok] do
+    %{seat | winreaction: :expose_ok}
+  end
+
+  def expose_loser_hand(%__MODULE__{} = seat) do
+    %{seat | winreaction: :expose}
   end
 end

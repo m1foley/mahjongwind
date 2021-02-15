@@ -12,7 +12,7 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
 
     socket.assigns.game
     |> Mjw.Game.evacuate_seat(seat.seatno)
-    |> MjwWeb.GameStore.update(:left_game, %{seat: seat})
+    |> MjwWeb.GameStore.update_with_lobby_change(:left_game, %{seat: seat})
 
     socket =
       socket
