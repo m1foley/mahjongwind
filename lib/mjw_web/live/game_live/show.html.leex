@@ -236,7 +236,7 @@
                 <div class="state-description">
                   <%= win_declared_seat.player_name %> went out!
                 </div>
-                <%= live_component @socket, MjwWeb.GameLive.LoserHandComponent, id: "loserhandcomponent", game: @game, win_declared_seatno: @win_declared_seatno, player_seat: @relative_game_seats |> Enum.at(0) %>
+                <%= live_component @socket, MjwWeb.GameLive.LoserHandComponent, id: "loserhandmenu", game: @game, win_declared_seatno: @win_declared_seatno, player_seat: @relative_game_seats |> Enum.at(0) %>
               <% end %>
             <% _ -> %>
           <% end %>
