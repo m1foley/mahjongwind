@@ -82,7 +82,8 @@ defmodule Mjw.SeatTest do
           concealed: ["n1-0"],
           exposed: ["n2-0"],
           hidden_gongs: ["n3-0"],
-          wintile: "n4-0"
+          wintile: "n4-0",
+          winreaction: :ok
         }
         |> Mjw.Seat.clear_tiles()
 
@@ -92,6 +93,7 @@ defmodule Mjw.SeatTest do
       assert seat.exposed == []
       assert seat.hidden_gongs == []
       assert seat.wintile == nil
+      assert seat.winreaction == nil
     end
   end
 end

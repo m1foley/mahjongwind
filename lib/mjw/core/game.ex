@@ -378,11 +378,20 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Update the given player's reaction to a declared win
+  """
+  def update_winreaction(%__MODULE__{} = game, seatno, winreaction) do
+    update_seat(game, seatno, fn seat ->
+      %{seat | winreaction: winreaction}
+    end)
+  end
+
+  @doc """
   Update the given player's wintile
   """
   def update_wintile(%__MODULE__{} = game, seatno, wintile) do
     update_seat(game, seatno, fn seat ->
-      %{seat | wintile: wintile}
+      %{seat | wintile: wintile, winreaction: :ok}
     end)
   end
 
