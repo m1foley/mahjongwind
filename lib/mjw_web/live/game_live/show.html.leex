@@ -232,8 +232,17 @@
           <%= if @game_state != :rolling_for_deal && seat.seatno == @game.dealpick_seatno do %>
             <img src="/images/staircase.png" alt="deal pick staircase" class="dealpickstaircase tile block mx-auto relative bottom-1<%= if i != 2, do: " opacity-70" %>" />
           <% end %>
-          <div class="player-name<%= if seat.seatno == @game.turn_seatno, do: " underline" %>">
-            <%= seat.player_name %>
+          <div class="player-name">
+            <span class="<%= if seat.seatno == @game.turn_seatno, do: "underline" %>"><%= seat.player_name %></span>
+            <%= if seat.seatno == @game.dealer_seatno do %>
+              <div class="dealer-indicator inline-block text-gray-100 text-lg pl-1">
+                <%= if @game.dealer_win_count > 0 do %>
+                  D<sup><%= @game.dealer_win_count + 1 %></sup>
+                <% else %>
+                  D
+                <% end %>
+              </div>
+            <% end %>
           </div>
         </div>
       <% end %>

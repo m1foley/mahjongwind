@@ -29,7 +29,9 @@ defmodule Mjw.Game do
             turn_seatno: 0,
             prev_turn_seatno: 0,
             # Where the deal picking started from. Might be used to count points.
-            dealpick_seatno: 0
+            dealpick_seatno: 0,
+            # the number of times the player has been dealer (wins, draws, DQs all count)
+            dealer_win_count: 0
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -286,8 +288,10 @@ defmodule Mjw.Game do
     game |> find_picked_wind_seatno("we")
   end
 
-  defp roller_seatno(%__MODULE__{turn_seatno: turn_seatno}, _game_state) do
-    turn_seatno
+  # dealer_seatno should always equal turn_seatno when rolling for deal, so
+  # it's arbitrary which one gets used
+  defp roller_seatno(%__MODULE__{dealer_seatno: dealer_seatno}, _game_state) do
+    dealer_seatno
   end
 
   @doc """
@@ -346,7 +350,7 @@ defmodule Mjw.Game do
 
     game
     |> set_turn_seatno(dealer_seatno)
-    |> Map.merge(%{dealer_seatno: dealer_seatno, wind: wind})
+    |> Map.merge(%{dealer_seatno: dealer_seatno, dealer_win_count: 0, wind: wind})
   end
 
   defp set_turn_seatno(%__MODULE__{} = game, turn_seatno) do
@@ -558,19 +562,28 @@ defmodule Mjw.Game do
     game |> advance_game(:same_dealer)
   end
 
-  # TODO: advance a dealer counter (2nd time being dealer, etc.)
   defp advance_game(%__MODULE__{} = game, :same_dealer) do
     game
     |> set_turn_seatno(game.dealer_seatno)
     |> clear_seat_tiles()
-    |> Map.merge(%{deck: shuffled_deck(), discards: [], turn_state: :rolling})
+    |> Map.merge(%{
+      deck: shuffled_deck(),
+      discards: [],
+      turn_state: :rolling,
+      # dealer_win_count gets incremented even on draws and DQs
+      dealer_win_count: game.dealer_win_count + 1
+    })
   end
 
   defp advance_game(%__MODULE__{} = game, :advance_dealer) do
     game
     |> advance_dealer()
     |> clear_seat_tiles()
-    |> Map.merge(%{deck: shuffled_deck(), discards: [], turn_state: :rolling})
+    |> Map.merge(%{
+      deck: shuffled_deck(),
+      discards: [],
+      turn_state: :rolling
+    })
   end
 
   defp clear_seat_tiles(%__MODULE__{} = game) do

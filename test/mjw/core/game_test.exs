@@ -388,6 +388,7 @@ defmodule Mjw.GameTest do
     test "uses the player who picked the East wind when rolling for first dealer" do
       game = %Mjw.Game{
         turn_seatno: 0,
+        dealer_seatno: 0,
         seats:
           ~w(ww we ws wn)
           |> Enum.with_index()
@@ -403,9 +404,10 @@ defmodule Mjw.GameTest do
       assert relative_position == 2
     end
 
-    test "uses turn_seatno when rolling for deal" do
+    test "uses dealer_seatno when rolling for deal" do
       game = %Mjw.Game{
         turn_seatno: 0,
+        dealer_seatno: 0,
         seats:
           ~w(ww we ws wn)
           |> Enum.with_index()
@@ -649,6 +651,7 @@ defmodule Mjw.GameTest do
       orig_game = %Mjw.Game{
         id: "6c1d42d8-28db-4b3b-a3f2-976d854e0394",
         dealer_seatno: 1,
+        dealer_win_count: 1,
         turn_seatno: 3,
         prev_turn_seatno: 2,
         turn_state: :discarding,
@@ -681,6 +684,7 @@ defmodule Mjw.GameTest do
       assert game.wind == "we"
       assert game.turn_state == :rolling
       assert game.dealer_seatno == 0
+      assert game.dealer_win_count == 0
       assert game.turn_seatno == 0
       assert game.prev_turn_seatno == 0
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
@@ -702,6 +706,7 @@ defmodule Mjw.GameTest do
           discards: ["dp-0"],
           dice: [1, 2, 3],
           dealer_seatno: 1,
+          dealer_win_count: 1,
           turn_seatno: 3,
           prev_turn_seatno: 2,
           turn_state: :discarding,
@@ -729,6 +734,7 @@ defmodule Mjw.GameTest do
       assert game.wind == "wn"
       assert game.turn_state == :rolling
       assert game.dealer_seatno == 1
+      assert game.dealer_win_count == 2
       assert game.turn_seatno == 1
       assert game.prev_turn_seatno == 3
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
@@ -751,6 +757,7 @@ defmodule Mjw.GameTest do
           discards: ["dp-0"],
           dice: [1, 2, 3],
           dealer_seatno: 1,
+          dealer_win_count: 1,
           turn_seatno: 3,
           prev_turn_seatno: 2,
           turn_state: :discarding,
@@ -778,6 +785,7 @@ defmodule Mjw.GameTest do
       assert game.wind == "wn"
       assert game.turn_state == :rolling
       assert game.dealer_seatno == 1
+      assert game.dealer_win_count == 2
       assert game.turn_seatno == 1
       assert game.prev_turn_seatno == 3
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
@@ -798,6 +806,7 @@ defmodule Mjw.GameTest do
           discards: ["dp-0"],
           dice: [1, 2, 3],
           dealer_seatno: 3,
+          dealer_win_count: 1,
           turn_seatno: 2,
           prev_turn_seatno: 1,
           turn_state: :discarding,
@@ -825,6 +834,7 @@ defmodule Mjw.GameTest do
       assert game.wind == "we"
       assert game.turn_state == :rolling
       assert game.dealer_seatno == 0
+      assert game.dealer_win_count == 0
       assert game.turn_seatno == 0
       assert game.prev_turn_seatno == 2
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
@@ -867,7 +877,7 @@ defmodule Mjw.GameTest do
   end
 
   describe "confirm_win" do
-    test "confirms another player's declared win" do
+    test "one player confirms another player's declared win" do
       game =
         %Mjw.Game{
           deck: ["dp-1"],
@@ -875,6 +885,7 @@ defmodule Mjw.GameTest do
           turn_state: :discarding,
           turn_seatno: 2,
           dealer_seatno: 0,
+          dealer_win_count: 1,
           seats: [
             %Mjw.Seat{winreaction: nil},
             %Mjw.Seat{winreaction: nil},
@@ -890,6 +901,7 @@ defmodule Mjw.GameTest do
       assert game.turn_state == :discarding
       assert game.turn_seatno == 2
       assert game.dealer_seatno == 0
+      assert game.dealer_win_count == 1
     end
 
     test "advances the game if all players confirmed the win (non-dealer winner)" do
@@ -900,6 +912,7 @@ defmodule Mjw.GameTest do
           turn_state: :discarding,
           turn_seatno: 1,
           dealer_seatno: 3,
+          dealer_win_count: 1,
           wind: "we",
           seats: [
             %Mjw.Seat{winreaction: :ok},
@@ -918,6 +931,7 @@ defmodule Mjw.GameTest do
       assert game.prev_turn_seatno == 1
       assert game.turn_seatno == 0
       assert game.dealer_seatno == 0
+      assert game.dealer_win_count == 0
       assert game.wind == "ws"
     end
 
@@ -929,6 +943,7 @@ defmodule Mjw.GameTest do
           turn_state: :discarding,
           turn_seatno: 1,
           dealer_seatno: 3,
+          dealer_win_count: 1,
           wind: "we",
           seats: [
             %Mjw.Seat{winreaction: :ok},
@@ -947,6 +962,7 @@ defmodule Mjw.GameTest do
       assert game.turn_seatno == 3
       assert game.prev_turn_seatno == 1
       assert game.dealer_seatno == 3
+      assert game.dealer_win_count == 2
       assert game.wind == "we"
     end
   end
