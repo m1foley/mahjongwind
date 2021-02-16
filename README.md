@@ -18,6 +18,7 @@
 `iex -S mix test <file>`
 
 ## TODO
+- Bug: Discards are animating too much. Don't animate when various actions happen after a discard (declaring a win, moving to exposed, etc.)
 - CSS: Is it possible to spread out the discards if only 1 row?
 - CSS animation for exposing a tile?
 - Figure out production deployments ([Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html))
