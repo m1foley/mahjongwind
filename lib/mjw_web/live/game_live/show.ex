@@ -565,6 +565,11 @@ defmodule MjwWeb.GameLive.Show do
       !win_declared_seatno &&
         game_state == :drawing && game.prev_turn_seatno != current_user_sitting_at
 
+    discarded_by_relative_seatno =
+      if enable_pull_from_discards do
+        relative_game_seats |> Enum.find_index(&(&1.seatno == game.prev_turn_seatno))
+      end
+
     current_user_discarding =
       !win_declared_seatno &&
         game_state == :discarding && game.turn_seatno == current_user_sitting_at
@@ -589,6 +594,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:player_seats_finalized, player_seats_finalized)
     |> assign(:current_user_drawing, current_user_drawing)
     |> assign(:enable_pull_from_discards, enable_pull_from_discards)
+    |> assign(:discarded_by_relative_seatno, discarded_by_relative_seatno)
     |> assign(:current_user_discarding, current_user_discarding)
     |> assign(:show_correction_tile, show_correction_tile)
     |> assign(:win_declared_seatno, win_declared_seatno)

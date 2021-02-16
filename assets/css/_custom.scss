@@ -365,57 +365,35 @@
 // each animation has a clone for each additional game state because otherwise
 // it won't reanimate when the game state changes (CSS thinks it's the same
 // element)
-@keyframes dieanimation-0-v1 {
-  0% { transform: translate(20rem, 50rem) rotate(0deg); }
-  50% { transform: translate(2rem, 10rem) rotate(450deg); }
-  90% { transform: translate(0.2rem, 0.5rem) rotate(720deg); }
-  100% { transform: translate(0, 0) rotate(720deg); }
-}
-@keyframes dieanimation-0-v2 {
-  0% { transform: translate(20rem, 50rem) rotate(0deg); }
-  50% { transform: translate(2rem, 10rem) rotate(450deg); }
-  90% { transform: translate(0.2rem, 0.5rem) rotate(720deg); }
-  100% { transform: translate(0, 0) rotate(720deg); }
-}
-
-@keyframes dieanimation-1-v1 {
-  0% { transform: translate(50rem, -25rem) rotate(0deg); }
-  45% { transform: translate(10rem, 0rem) rotate(-450deg); }
-  90% { transform: translate(0.5rem, 0) rotate(-720deg); }
-  100% { transform: translate(0, 0) rotate(-720deg); }
-}
-@keyframes dieanimation-1-v2 {
-  0% { transform: translate(50rem, -25rem) rotate(0deg); }
-  45% { transform: translate(10rem, 0rem) rotate(-450deg); }
-  90% { transform: translate(0.5rem, 0) rotate(-720deg); }
-  100% { transform: translate(0, 0) rotate(-720deg); }
-}
-
-@keyframes dieanimation-2-v1 {
-  0% { transform: translate(-10rem, -40rem) rotate(0deg); }
-  45% { transform: translate(-3rem, -10rem) rotate(450deg); }
-  90% { transform: translate(-0.2rem, -1rem) rotate(720deg); }
-  100% { transform: translate(0, 0) rotate(720deg); }
-}
-@keyframes dieanimation-2-v2 {
-  0% { transform: translate(-10rem, -40rem) rotate(0deg); }
-  45% { transform: translate(-3rem, -10rem) rotate(450deg); }
-  90% { transform: translate(-0.2rem, -1rem) rotate(720deg); }
-  100% { transform: translate(0, 0) rotate(720deg); }
+@for $i from 1 through 2 {
+  @keyframes dieanimation-0-v#{$i} {
+    0% { transform: translate(20rem, 50rem) rotate(0deg); }
+    50% { transform: translate(2rem, 10rem) rotate(450deg); }
+    90% { transform: translate(0.2rem, 0.5rem) rotate(720deg); }
+    100% { transform: translate(0, 0) rotate(720deg); }
+  }
+  @keyframes dieanimation-1-v#{$i} {
+    0% { transform: translate(50rem, -25rem) rotate(0deg); }
+    45% { transform: translate(10rem, 0rem) rotate(-450deg); }
+    90% { transform: translate(0.5rem, 0) rotate(-720deg); }
+    100% { transform: translate(0, 0) rotate(-720deg); }
+  }
+  @keyframes dieanimation-2-v#{$i} {
+    0% { transform: translate(-10rem, -40rem) rotate(0deg); }
+    45% { transform: translate(-3rem, -10rem) rotate(450deg); }
+    90% { transform: translate(-0.2rem, -1rem) rotate(720deg); }
+    100% { transform: translate(0, 0) rotate(720deg); }
+  }
+  @keyframes dieanimation-3-v#{$i} {
+    0% { transform: translate(-30rem, -10rem) rotate(0deg); }
+    45% { transform: translate(-10rem, 0) rotate(450deg); }
+    90% { transform: translate(-0.5rem, 0) rotate(720deg); }
+    100% { transform: translate(0, 0) rotate(720deg); }
+  }
 }
 
-@keyframes dieanimation-3-v1 {
-  0% { transform: translate(-30rem, -10rem) rotate(0deg); }
-  45% { transform: translate(-10rem, 0) rotate(450deg); }
-  90% { transform: translate(-0.5rem, 0) rotate(720deg); }
-  100% { transform: translate(0, 0) rotate(720deg); }
-}
-@keyframes dieanimation-3-v2 {
-  0% { transform: translate(-30rem, -10rem) rotate(0deg); }
-  45% { transform: translate(-10rem, 0) rotate(450deg); }
-  90% { transform: translate(-0.5rem, 0) rotate(720deg); }
-  100% { transform: translate(0, 0) rotate(720deg); }
-}
+// using a variable because these are used by the normal CSS and the animations
+$discard-rotations: ("0": rotate(12deg), "1": rotate(-20deg), "2": rotate(-40deg), "5": rotate(50deg), "6": rotate(-24deg), "7": rotate(73deg), "8": rotate(30deg), "firstchild": rotate(14deg));
 
 #discards {
   position: fixed;
@@ -426,55 +404,121 @@
   .tile {
     height: 3.1rem;
     position: relative;
-    &.lastdiscard {
-      @apply glow;
-    }
-
     // scramble the discarded tiles
     &:nth-child(9n) {
       top: 0.6rem;
-      transform: rotate(12deg);
+      transform: map-get($discard-rotations, "0");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-0 1s ease;
+        }
+      }
     }
     &:nth-child(9n+1) {
       top: -2rem;
       left: 1rem;
-      transform: rotate(-20deg);
+      transform: map-get($discard-rotations, "1");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-1 1s ease;
+        }
+      }
     }
     &:nth-child(9n+2) {
       top: 4rem;
-      transform: rotate(-40deg);
+      transform: map-get($discard-rotations, "2");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-2 1s ease;
+        }
+      }
     }
     &:nth-child(9n+3) {
       top: -2rem;
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i} 1s ease;
+        }
+      }
     }
     &:nth-child(9n+4) {
       top: 4rem;
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i} 1s ease;
+        }
+      }
     }
     &:nth-child(9n+5) {
       top: -1.5rem;
       left: 0.5rem;
-      transform: rotate(50deg);
+      transform: map-get($discard-rotations, "5");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-5 1s ease;
+        }
+      }
     }
     &:nth-child(9n+6) {
       top: 2rem;
-      transform: rotate(-24deg);
+      transform: map-get($discard-rotations, "6");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-6 1s ease;
+        }
+      }
     }
     &:nth-child(9n+7) {
       top: 5.0rem;
       left: 0.5rem;
-      transform: rotate(73deg);
+      transform: map-get($discard-rotations, "7");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-7 1s ease;
+        }
+      }
     }
     &:nth-child(9n+8) {
       top: -2.5rem;
-      transform: rotate(30deg);
+      transform: map-get($discard-rotations, "8");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-8 1s ease;
+        }
+      }
     }
     // not sure why but space-y-32 (which provides good spacing when new rows
     // are created) makes the first child appear way off to the upper left
     &:first-child {
       top: 7rem;
       left: 0;
-      transform: rotate(14deg);
+      transform: map-get($discard-rotations, "firstchild");
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: discardanimation-#{$i}-firstchild 1s ease;
+        }
+      }
     }
+  }
+}
+
+$discard-animation-translates: (
+  "1": translate(80vw, 0),
+  "2": translate(0, -80vh),
+  "3": translate(-80vw, 0)
+);
+
+@each $seatno, $translate in $discard-animation-translates {
+  @each $i, $rotate in $discard-rotations {
+    @keyframes discardanimation-#{$seatno}-#{$i} {
+      0% { transform: #{$translate} rotate(0); }
+      100% { transform: translate(0, 0) #{$rotate}; }
+    }
+  }
+  // animation for tiles with no rotations
+  @keyframes discardanimation-#{$seatno} {
+    0% { transform: #{$translate} rotate(0); }
+    100% { transform: translate(0, 0); }
   }
 }
 
