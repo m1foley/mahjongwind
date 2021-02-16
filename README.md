@@ -18,11 +18,14 @@
 `iex -S mix test <file>`
 
 ## TODO
-- Figure out production deployments. See [deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 - CSS: Is it possible to spread out the discards if only 1 row?
 - CSS animation for exposing a tile?
-- Defensive backend code to protect against JS errors
+- Figure out production deployments ([Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html))
 - Enforce that the winning tile was the last one picked up
+- Defensive backend code to protect against JS errors/cheats
+- Instructions page
+- Support more Mahjong rule sets (flower tiles, no game wind, etc.)
+- Exclude bots (e.g., PresidentCardGames uses phone numbers)
 
 ## Misc. development notes
 
