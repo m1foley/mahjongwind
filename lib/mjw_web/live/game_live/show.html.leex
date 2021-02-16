@@ -160,7 +160,7 @@
               <%= for {tile, tileno} <- @game.discards |> Enum.reverse() |> Enum.with_index() do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% last_discard = @enable_pull_from_discards && tileno == length(@game.discards) - 1 %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if last_discard, do: " lastdiscard draggable", else: " cursor-not-allowed" %>">
+                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if last_discard, do: " glow draggable discardedby-#{@discarded_by_relative_seatno}", else: " cursor-not-allowed" %>">
               <% end %>
             </div>
           <% end %>

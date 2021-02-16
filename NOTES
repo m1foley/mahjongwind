@@ -1,7 +1,6 @@
 TODO:
-- CSS animations:
-  - Discards fly from different directions
-  - Exposing a tile?
+- CSS: Is it possible to spread out the discards if only 1 row?
+- CSS animation for exposing a tile?
 - Defensive backend code to protect against JS errors
 - Enforce that the winning tile was the last one picked up
 
