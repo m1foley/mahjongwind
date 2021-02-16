@@ -63,6 +63,12 @@
   right: 1rem;
 }
 
+.seat-0-icons {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+}
+
 .gamewind {
   height: 3rem;
 }
@@ -94,12 +100,12 @@
 }
 
 .player-name-container {
-  position: absolute;
+  position: fixed;
 }
 
 .player-name-container-1 {
   right: 6rem;
-  padding-top: 4rem;
+  top: 6rem;
 }
 
 .player-name-container-2 {
@@ -110,7 +116,7 @@
 
 .player-name-container-3 {
   left: 6rem;
-  padding-top: 4rem;
+  top: 6rem;
 }
 
 .player-name {
@@ -141,9 +147,6 @@
 #hiddengongs-0 {
   position: absolute;
   left: 0;
-  &.bottomrow {
-    bottom: 0;
-  }
   .tile {
     opacity: 0.5;
   }
@@ -158,9 +161,6 @@
   position: absolute;
   right: 0;
   height: 8rem;
-  &.bottomrow {
-    bottom: 0;
-  }
 }
 
 .dropzone-description {
