@@ -20,7 +20,7 @@
     <div class="seat seat-<%= i %>">
       <div class="tiles">
         <%= if seat.seatno == 0 && @player_seats_finalized && (@rolling_dice || @rolled_dice) do %>
-          <div class="firstdealer">庄</div>
+          <div class="firstdealer" title="Indicates the first dealer. Game wind changes when the deal circles back to them.">庄</div>
         <% end %>
 
         <%= if @show_wall do %>
@@ -228,18 +228,29 @@
       <%= if @player_seats_finalized && i != 0 do %>
         <div class="player-name-container player-name-container-<%= i %> text-center justify-center items-center">
           <%= if @game_state != :rolling_for_deal && seat.seatno == @game.dealpick_seatno do %>
-            <img src="/images/staircase.png" alt="deal pick staircase" class="dealpickstaircase mx-auto relative bottom-1<%= if i != 2, do: " opacity-70" %>" />
+            <img src="/images/staircase.png" alt="This staircase is the end of the deck (used to determine player wind)" title="This staircase is the end of the deck (used to determine player wind)" class="dealpickstaircase mx-auto relative bottom-1<%= if i != 2, do: " opacity-70" %>" />
+          <% else %>
+            <%# Make sure left & right names align %>
+            <%= if @game.dealpick_seatno in [1,3] && i in [1,3] do %>
+              <div class="dealpickstaircase"></div>
+            <% end %>
           <% end %>
           <div class="player-name">
-            <span class="<%= if seat.seatno == @game.turn_seatno, do: "underline" %>"><%= seat.player_name %></span>
+            <%= if seat.seatno == @game.turn_seatno do %>
+              <span class="underline" title="It is this player's turn."><%= seat.player_name %></span>
+            <% else %>
+              <span><%= seat.player_name %></span>
+            <% end %>
             <%= if seat.seatno == @game.dealer_seatno do %>
-              <div class="dealer-indicator inline-block text-gray-100 text-lg pl-1">
-                <%= if @game.dealer_win_count > 0 do %>
+              <%= if @game.dealer_win_count > 0 do %>
+                <div class="dealer-indicator inline-block text-gray-100 text-lg pl-1" title="Dealer <%= @game.dealer_win_count + 1 %> times">
                   D<sup><%= @game.dealer_win_count + 1 %></sup>
-                <% else %>
+                </div>
+              <% else %>
+                <div class="dealer-indicator inline-block text-gray-100 text-lg pl-1" title="Dealer">
                   D
-                <% end %>
-              </div>
+                </div>
+              <% end %>
             <% end %>
           </div>
         </div>
@@ -250,24 +261,26 @@
   <div class="icons flex flex-row flex-wrap text-center justify-center items-center space-x-6">
     <%= if @show_correction_tile do %>
       <div id="correctiontiles" phx-hook="Drag" class="dropzone">
-        <img id="decktile" src="/images/tiles/concealed.png" alt="correction tile" class="tile draggable" />
+        <img id="decktile" alt="Gong correction tile" title="Gong correction tile" src="/images/tiles/concealed.png" class="tile draggable" />
       </div>
     <% end %>
-    <img src="/images/gamewind/<%= @game.wind %>.png" alt="game wind" class="gamewind" phx-click="opengamemenu" phx-target="#game" />
+    <img src="/images/gamewind/<%= @game.wind %>.png" alt="Game wind (click for menu)" title="Game wind (click for menu)" class="gamewind" phx-click="opengamemenu" phx-target="#game" />
   </div>
 
   <div class="seat-0-icons flex flex-row flex-wrap text-center justify-center items-center space-x-2">
     <%= if @game.dealer_seatno == @current_user_sitting_at do %>
-      <div class="dealer-indicator text-gray-100 text-lg pl-1 opacity-60">
-        <%= if @game.dealer_win_count > 0 do %>
+      <%= if @game.dealer_win_count > 0 do %>
+        <div class="dealer-indicator text-gray-100 text-lg pl-1 opacity-60" title="Dealer <%= @game.dealer_win_count + 1 %> times">
           D<sup><%= @game.dealer_win_count + 1 %></sup>
-        <% else %>
+        </div>
+      <% else %>
+        <div class="dealer-indicator text-gray-100 text-lg pl-1 opacity-60" title="Dealer">
           D
-        <% end %>
-      </div>
+        </div>
+      <% end %>
     <% end %>
     <%= if @game_state != :rolling_for_deal && @game.dealpick_seatno == @current_user_sitting_at do %>
-      <img src="/images/staircase.png" alt="deal pick staircase" class="dealpickstaircase opacity-70" />
+      <img src="/images/staircase.png" alt="This staircase is the end of the deck (used to determine player wind)" title="This staircase is the end of the deck (used to determine player wind)" class="dealpickstaircase opacity-70" />
     <% end %>
   </div>
 </div>
