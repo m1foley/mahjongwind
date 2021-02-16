@@ -570,7 +570,6 @@ defmodule MjwWeb.GameLive.Show do
         game_state == :discarding && game.turn_seatno == current_user_sitting_at
 
     player_seat = relative_game_seats |> Enum.at(0)
-    crowded_exposed_row = crowded_exposed_row?(player_seat)
 
     show_correction_tile =
       !win_declared_seatno && !current_user_drawing && might_have_gongs?(player_seat)
@@ -591,7 +590,6 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_drawing, current_user_drawing)
     |> assign(:enable_pull_from_discards, enable_pull_from_discards)
     |> assign(:current_user_discarding, current_user_discarding)
-    |> assign(:crowded_exposed_row, crowded_exposed_row)
     |> assign(:show_correction_tile, show_correction_tile)
     |> assign(:win_declared_seatno, win_declared_seatno)
   end
@@ -628,13 +626,6 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:raw_event, event)
     |> assign(:event, event)
     |> assign(:event_details, event_details)
-  end
-
-  defp crowded_exposed_row?(nil = _seat), do: false
-
-  # No room for hidden gongs & wintile areas if there are too many exposed
-  defp crowded_exposed_row?(%Mjw.Seat{} = seat) do
-    length(seat.exposed) + length(seat.hidden_gongs) > 10
   end
 
   defp might_have_gongs?(nil = _seat), do: false
