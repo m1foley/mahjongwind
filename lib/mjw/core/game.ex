@@ -122,14 +122,14 @@ defmodule Mjw.Game do
   @doc """
   Pick a random available wind tile and assign it to the player's seat
   """
-  def pick_random_available_wind(game, player_id, picked_wind_idx) do
+  def pick_random_available_wind(%__MODULE__{} = game, player_id, picked_wind_idx) do
     remaining_winds = game |> remaining_winds_to_pick()
     pick_random_wind(game, player_id, picked_wind_idx, remaining_winds)
   end
 
-  defp pick_random_wind(game, _player_id, _picked_wind_idx, []), do: game
+  defp pick_random_wind(%__MODULE__{} = game, _player_id, _picked_wind_idx, []), do: game
 
-  defp pick_random_wind(game, player_id, picked_wind_idx, winds) do
+  defp pick_random_wind(%__MODULE__{} = game, player_id, picked_wind_idx, winds) do
     wind = winds |> Enum.random()
     seatno = game |> sitting_at(player_id)
 
@@ -139,7 +139,7 @@ defmodule Mjw.Game do
     end)
   end
 
-  defp update_seat(game, seatno, update_function) do
+  defp update_seat(%__MODULE__{} = game, seatno, update_function) do
     Map.update!(game, :seats, fn seats ->
       seats
       |> List.update_at(seatno, update_function)
@@ -150,8 +150,8 @@ defmodule Mjw.Game do
   Return the wind tile picked by the player. nil if player not found or their
   wind was not picked yet.
   """
-  def picked_wind(game, player_id) do
-    game.seats
+  def picked_wind(%__MODULE__{seats: seats}, player_id) do
+    seats
     |> Enum.find_value(fn seat ->
       if seat.player_id == player_id, do: seat.picked_wind
     end)
@@ -161,20 +161,15 @@ defmodule Mjw.Game do
   The picked wind index for the player, which represents the placement of the
   tiles when they were picked. It's only used trivially for display purposes.
   """
-  def picked_wind_idx(game, player_id) do
-    game.seats
+  def picked_wind_idx(%__MODULE__{seats: seats}, player_id) do
+    seats
     |> Enum.find_value(fn seat ->
       if seat.player_id == player_id, do: seat.picked_wind_idx
     end)
   end
 
-  def roll_dice(game) do
-    # 1..3
-    # |> Enum.map(fn _ -> 1..6 |> Enum.random() end)
-
-    # TODO temporarily hardcoded
-    dice = [[3, 6, 4], [6, 3, 4], [3, 3, 3], [1, 2, 2]] |> Enum.random()
-
+  def roll_dice(%__MODULE__{} = game) do
+    dice = 1..3 |> Enum.map(fn _ -> 1..6 |> Enum.random() end)
     %{game | dice: dice}
   end
 
@@ -182,7 +177,7 @@ defmodule Mjw.Game do
   Reseat the players according to the first dealer roll and the picked winds.
   Sets the first dealer (possessor of the special stick) as seat index 0.
   """
-  def reseat_players(game) do
+  def reseat_players(%__MODULE__{} = game) do
     first_dealer_picked_wind =
       game
       |> dice_total()
