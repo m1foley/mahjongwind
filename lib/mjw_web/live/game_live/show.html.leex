@@ -19,6 +19,10 @@
   <%= for {seat, i} <- [1,3,0,2] |> Enum.map(fn j -> {Enum.at(@relative_game_seats, j), j} end) do %>
     <div class="seat seat-<%= i %>">
       <div class="tiles">
+        <%= if seat.seatno == 0 && @player_seats_finalized && (@rolling_dice || @rolled_dice) do %>
+          <div class="firstdealer">庄</div>
+        <% end %>
+
         <%= if @show_wall do %>
           <div class="wall-tiles">
             <%= for _ <- 0..15 do %>
@@ -113,37 +117,6 @@
       <%# to simplify the CSS, table-center is displayed beneath the tiles in the top of the screen %>
       <%= if i == 2 do %>
         <div class="table-center">
-          <div class="debug text-gray-900 text-sm opacity-30 z-0 hidden">
-            <div>event: <%= @event %></div>
-            <div>event_details: <%= inspect(@event_details) %></div>
-            <div>live_action: <%= @live_action %></div>
-            <div>current_user_id: <%= @current_user_id %></div>
-            <div>Game state: <%= @game_state %></div>
-            <div>empty seats count: <%= @empty_seats_count %></div>
-            <div>current_user_sitting_at: <%= @current_user_sitting_at %></div>
-            <div>turn_player_name: <%= @turn_player_name %></div>
-            <br />
-            <div>Game ID: <%= @game.id %></div>
-            <div>Deck:</div>
-            <div class="mahjongtilesmall"><%= @game.deck %></div>
-            <div>Discards:<span span class="mahjongtilesmall"><%= @game.discards %></span></div>
-            <div>Wind: <span class="mahjongtilesmall"><%= @game.wind %></span></div>
-            <div>Dice: <span span class="mahjongtilesmall"><%= @game.dice %></span></div>
-            <div>turn_state: <%= @game.turn_state %></div>
-            <div>turn_seatno: <%= @game.turn_seatno %></div>
-            <div>dealer_seatno: <%= @game.dealer_seatno %></div>
-            <%= for {seat, i} <- Enum.with_index(@game.seats) do %>
-              <br />
-              <div>
-                <strong>Seat <%= i %>:</strong>
-                <div>Concealed: <%= seat.concealed %></div>
-                <div>Exposed: <%= seat.exposed %></div>
-                <div>Player ID: <%= seat.player_id %></div>
-                <div>Player name: <%= seat.player_name %></div>
-                <div>Picked wind: <%= seat.picked_wind %></div>
-              </div>
-            <% end %>
-          </div>
           <%= case @event do %>
             <% :drew_correction_tile -> %>
               <div class="state-description">
@@ -162,11 +135,11 @@
               </div>
             <% :draw -> %>
               <div class="state-description">
-                <%= @event_details[:seat].player_name %> declared a draw.
+                <%= @event_details[:seat].player_name %> declared a draw. <span class="no-text-shadow text-5xl">🤝</span>
               </div>
             <% :dq -> %>
               <div class="state-description">
-                <%= @event_details[:seat].player_name %> has been disqualified. 🙅‍♀️
+                <%= @event_details[:seat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl">🙅‍♀️</span>
               </div>
             <% :undid_win -> %>
               <div class="state-description">
@@ -179,7 +152,7 @@
             <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
           <% end %>
           <%= if @rolling_dice || @rolled_dice do %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event, rolled_dice: @rolled_dice %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice %>
           <% end %>
 
           <%= unless @show_wall do %>
