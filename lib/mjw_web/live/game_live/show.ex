@@ -528,17 +528,13 @@ defmodule MjwWeb.GameLive.Show do
     # seats ordered by their position to the current player (0 = self, etc.).
     # A seatno attribute is added as a convenience to get the original index.
     relative_game_seats =
-      if current_user_sitting_at do
-        0..3
-        |> Enum.map(fn i ->
-          Mjw.Game.seat_with_relative_position(game, i, current_user_sitting_at)
-        end)
-        |> Enum.with_index()
-        |> Enum.sort_by(fn {{_seat, relative_position}, _i} -> relative_position end)
-        |> Enum.map(fn {{seat, _relative_position}, i} -> Map.merge(seat, %{seatno: i}) end)
-      else
-        []
-      end
+      0..3
+      |> Enum.map(fn i ->
+        Mjw.Game.seat_with_relative_position(game, i, current_user_sitting_at || 0)
+      end)
+      |> Enum.with_index()
+      |> Enum.sort_by(fn {{_seat, relative_position}, _i} -> relative_position end)
+      |> Enum.map(fn {{seat, _relative_position}, i} -> Map.merge(seat, %{seatno: i}) end)
 
     show_stick = game_state in [:waiting_for_players, :picking_winds]
 
@@ -615,10 +611,12 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   # A player sorting their own hand is not considered a significant event to
-  # other players, so restore the previous event for business logic (it's still
-  # assigned to raw_event if needed)
+  # other players, so restore the previous event for business logic (it's
+  # still assigned to raw_event if needed).
+  @ignored_events [:concealed_sorted, :exposed_sorted, :hiddengongs_sorted]
+
   defp assign_event(socket, event, _event_details)
-       when event in [:concealed_sorted, :exposed_sorted, :hiddengongs_sorted] do
+       when event in @ignored_events do
     socket
     |> assign(:raw_event, event)
     |> assign(:event, socket.assigns[:event])

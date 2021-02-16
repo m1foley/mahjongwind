@@ -4,24 +4,24 @@
   </div>
 <% else %>
   <div id="<%= @id %>">
-    <div class="menucontainer inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-10 mt-2 mx-auto shadow-md content-center text-center">
+    <div class="menucontainer inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-8 mt-2 mx-auto shadow-md content-center text-center">
 
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="ok">
-        Okay, let's start shuffling... ✋
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="ok">
+        Okay, let's start shuffling... 👋
       </div>
 
       <%= if @player_seat.winreaction == :expose do %>
-        <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-default my-4">
+        <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4">
           Expose hand
         </div>
       <% else %>
-        <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="expose">
+        <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="expose">
           Expose hand
         </div>
       <% end %>
 
       <%= if @showdeck do %>
-        <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="hidedeck">
+        <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="hidedeck">
           Hide remaining deck
         </div>
 
@@ -33,12 +33,12 @@
           <% end %>
         </div>
       <% else %>
-        <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="showdeck">
+        <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="showdeck">
           View remaining deck
         </div>
       <% end %>
 
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="dq">
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="dq">
         Declare DQ 🙅‍♀️
       </div>
     </div>

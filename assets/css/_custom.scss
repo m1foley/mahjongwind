@@ -274,8 +274,7 @@
     margin-left: 0.7rem;
   }
   #invite-link-center {
-    text-shadow: none;
-    @apply mt-12;
+    @apply no-text-shadow mt-12;
   }
 }
 
@@ -308,7 +307,6 @@
 }
 
 .hand-3 {
-  left: 5rem;
   top: 8rem;
 }
 
@@ -524,4 +522,19 @@
   .menucontainer {
     max-width: 80%;
   }
+}
+
+.firstdealer {
+  position: absolute;
+  bottom: 8rem;
+  width: 100%;
+  font-weight: normal;
+  font-size: 5rem;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #000;
+  color: #047857;
+  opacity: 0.1;
+}
+
+.no-text-shadow {
+  text-shadow: none;
 }

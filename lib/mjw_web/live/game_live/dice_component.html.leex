@@ -18,7 +18,7 @@
     <%= if @roller_relative_position == 0 do %>
       Roll to deal the tiles:
     <% else %>
-      Waiting for <%= @roller_name %> to roll dice...
+      Waiting for <%= @roller_name %> to roll dice &amp; start the deal...
     <% end %>
   <% _discarding -> %>
     Tiles dealt. Waiting for
@@ -27,12 +27,10 @@
   <% end %>
 </div>
 
-<%= if @game_state != :rolling_for_first_dealer || @roller_relative_position == 0 do %>
+<%= if @rolling_dice && (@game_state != :rolling_for_first_dealer || @roller_relative_position == 0) do %>
   <%= case @roller_relative_position do %>
   <% 0 -> %>
-    <%= if @game_state != :discarding do %>
-      <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll", class: "hand hand-0") %>
-    <% end %>
+    <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll", class: "hand hand-0") %>
   <% 1 -> %>
     <%= content_tag(:div, "🤛", class: "hand hand-1") %>
   <% 2 -> %>
@@ -45,7 +43,7 @@
 <%= if @rolled_dice do %>
   <div id="<%= @id %>" class="dice-<%= @roller_relative_position %>">
     <%= for {die, i} <- @dice |> Enum.with_index() do %>
-      <%# game_state class added to distinguish animations for the 2 types of rolls %>
+      <%# game_state class added to distinguish the identical animations for the 2 types of rolls %>
       <img src="/images/dice/d<%= die %>.png" alt="die" class="die die-<%= i %> <%= @game_state %>-<%= @roller_relative_position %>" />
     <% end %>
   </div>
