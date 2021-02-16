@@ -42,7 +42,7 @@
                 <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable" />
               <% end %>
               <div class="dropzone-description">
-                Hidden gongs
+                Hidden gong
               </div>
             </div>
 
@@ -94,6 +94,7 @@
               <% end %>
             </div>
             <div class="line-break"></div>
+
             <div class="concealed-tiles">
               <%= for tile <- seat.concealed do %>
                 <%= if @win_declared_seatno == seat.seatno || seat.winreaction in [:expose, :expose_ok] do %>
@@ -227,8 +228,11 @@
       <% end %>
 
       <%= if @player_seats_finalized && i != 0 do %>
-        <div class="player-name-container player-name-container-<%= i %>">
-          <div class="player-name<%= if seat.seatno == @game.turn_seatno, do: " player-turn" %>">
+        <div class="player-name-container player-name-container-<%= i %> text-center justify-center items-center">
+          <%= if @game_state != :rolling_for_deal && seat.seatno == @game.dealpick_seatno do %>
+            <img src="/images/staircase.png" alt="deal pick staircase" class="dealpickstaircase tile block mx-auto relative bottom-1<%= if i != 2, do: " opacity-70" %>" />
+          <% end %>
+          <div class="player-name<%= if seat.seatno == @game.turn_seatno, do: " underline" %>">
             <%= seat.player_name %>
           </div>
         </div>

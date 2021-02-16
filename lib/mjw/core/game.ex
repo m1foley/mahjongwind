@@ -27,7 +27,9 @@ defmodule Mjw.Game do
             turn_state: :rolling,
             dealer_seatno: 0,
             turn_seatno: 0,
-            prev_turn_seatno: 0
+            prev_turn_seatno: 0,
+            # Where the deal picking started from. Might be used to count points.
+            dealpick_seatno: 0
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -203,8 +205,12 @@ defmodule Mjw.Game do
   # first dealer seat (index 0) and this roll determines who will be in the
   # "real" first dealer seat once the players are reseated.
   defp dealer_roll_cardinal_destination(roll_total) do
-    @wind_tiles
-    |> Enum.at(rem(roll_total - 1, 4))
+    idx = roll_seatno(0, roll_total)
+    @wind_tiles |> Enum.at(idx)
+  end
+
+  defp roll_seatno(roller_seatno, roll_total) do
+    rem(roller_seatno + roll_total - 1, 4)
   end
 
   @doc """
@@ -239,7 +245,7 @@ defmodule Mjw.Game do
 
   @doc """
   Deal the deck. The dealer will have 14 tiles and others will have 13.
-  Change turn_state to discarding.
+  Set dealpick_seatno and change turn_state to discarding.
   """
   def deal(%__MODULE__{} = game) do
     new_seats =
@@ -261,12 +267,14 @@ defmodule Mjw.Game do
       end)
 
     new_deck = game.deck |> Enum.slice(53..-1)
+    dealpick_seatno = roll_seatno(game.dealer_seatno, dice_total(game))
 
     %{
       game
       | seats: new_seats,
         deck: new_deck,
-        turn_state: :discarding
+        turn_state: :discarding,
+        dealpick_seatno: dealpick_seatno
     }
   end
 

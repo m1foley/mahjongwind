@@ -45,7 +45,8 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
 
   @impl true
   def handle_event("dq", %{"seatno" => seatno}, socket) do
-    seat = socket.assigns.game.seats |> Enum.at(String.to_integer(seatno))
+    seatno = String.to_integer(seatno)
+    seat = socket.assigns.game.seats |> Enum.at(seatno)
 
     socket.assigns.game
     |> Mjw.Game.dq(seatno)

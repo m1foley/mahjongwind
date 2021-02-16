@@ -366,11 +366,13 @@ defmodule Mjw.GameTest do
   end
 
   describe "deal" do
-    test "deals the deck and changes turn_state to discarding" do
+    test "deals the deck, sets dealpick_seatno, changes turn_state to discarding" do
       game =
         %{
           Mjw.Game.new()
-          | turn_seatno: 1,
+          | dealer_seatno: 1,
+            turn_seatno: 1,
+            dice: [1, 2, 3],
             seats: 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
         }
         |> Mjw.Game.deal()
@@ -378,6 +380,7 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.map(&length(&1.concealed)) == [13, 14, 13, 13]
       assert length(game.deck) == 83
       assert game.turn_state == :discarding
+      assert game.dealpick_seatno == 2
     end
   end
 
