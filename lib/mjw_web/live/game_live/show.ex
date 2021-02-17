@@ -42,8 +42,7 @@ defmodule MjwWeb.GameLive.Show do
   def handle_event("opengamemenu", _params, socket) do
     socket =
       socket
-      |> assign(:show_game_menu, true)
-      |> assign(:event, :opened_game_menu)
+      |> assign_event(:opened_game_menu, nil)
 
     {:noreply, socket}
   end
@@ -52,8 +51,7 @@ defmodule MjwWeb.GameLive.Show do
   def handle_event("closegamemenu", _params, socket) do
     socket =
       socket
-      |> assign(:show_game_menu, false)
-      |> assign(:event, :closed_game_menu)
+      |> assign_event(:closed_game_menu, nil)
 
     {:noreply, socket}
   end
@@ -539,7 +537,6 @@ defmodule MjwWeb.GameLive.Show do
       !win_declared_seatno && !current_user_drawing && might_have_gongs?(player_seat)
 
     socket
-    |> assign(:show_game_menu, false)
     |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_sitting_at, current_user_sitting_at)
     |> assign(:game_state, game_state)
@@ -573,12 +570,19 @@ defmodule MjwWeb.GameLive.Show do
     socket.assigns.empty_seats_count > 0 || socket.assigns.current_user_sitting_at
   end
 
-  # A player sorting their own hand is not considered a significant event to
-  # other players, so restore the previous event for business logic (it's
-  # still assigned to raw_event if needed).
-  # opened_game_menu/closed_game_menu don't need to be here because they're not
-  # game update based events that get sent to other players.
-  @ignored_events [:concealed_sorted, :exposed_sorted, :hiddengongs_sorted]
+  @ignored_events [
+    # A player sorting their own hand is not considered a significant event to
+    # other players, so restore the previous event for business logic (it's
+    # still assigned to raw_event if needed).
+    :concealed_sorted,
+    :exposed_sorted,
+    :hiddengongs_sorted,
+    # opened_game_menu/closed_game_menu don't get sent to other players, but
+    # they are nonetheless ignored by business logic; without these here, CSS
+    # animations get replayed when opening/closing the game menu.
+    :opened_game_menu,
+    :closed_game_menu
+  ]
 
   defp assign_event(socket, event, _event_details)
        when event in @ignored_events do
