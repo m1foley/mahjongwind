@@ -4,8 +4,8 @@ defmodule Mjw.MixProject do
   def project do
     [
       app: :mjw,
-      version: "0.1.0",
-      elixir: "~> 1.7",
+      version: "1.0.0",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -34,16 +34,16 @@ defmodule Mjw.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.5.7"},
-      {:phoenix_live_view, "~> 0.15.1"},
+      {:phoenix_live_view, "~> 0.15.4"},
       {:floki, ">= 0.27.0", only: :test},
-      {:phoenix_html, "~> 2.11"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_html, "~> 2.14"},
+      {:phoenix_live_reload, "~> 1.3", only: :dev},
       {:phoenix_live_dashboard, "~> 0.4"},
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 0.4"},
-      {:gettext, "~> 0.11"},
-      {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
+      {:gettext, "~> 0.18"},
+      {:jason, "~> 1.2"},
+      {:plug_cowboy, "~> 2.4"},
       # needed because no ecto
       {:elixir_uuid, "~> 1.2"}
     ]

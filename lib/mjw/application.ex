@@ -9,7 +9,7 @@ defmodule Mjw.Application do
     children = [
       # Start the Telemetry supervisor
       MjwWeb.Telemetry,
-      # Start the PubSub system
+      # Start the PubSub system, used by GameStore for persistence
       {Phoenix.PubSub, name: Mjw.PubSub},
       # Start the Endpoint (http/https)
       MjwWeb.Endpoint,
