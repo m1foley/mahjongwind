@@ -2,7 +2,7 @@
   <%= live_component @socket, MjwWeb.GameLive.SeatOfferingComponent, id: "seat_offering_modal", game: @game, current_user_id: @current_user_id %>
 <% end %>
 
-<%= if @show_game_menu do %>
+<%= if @raw_event == :opened_game_menu do %>
   <%= live_component @socket, MjwWeb.GameLive.GameMenuComponent, id: "gamemenu", game: @game, relative_game_seats: @relative_game_seats, player_seats_finalized: @player_seats_finalized %>
 <% end %>
 
@@ -152,7 +152,7 @@
             <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
           <% end %>
           <%= if @rolling_dice || @rolled_dice do %>
-            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice %>
+            <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_sitting_at: @current_user_sitting_at, event: @event, raw_event: @raw_event, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice %>
           <% end %>
 
           <%= unless @show_wall do %>
@@ -160,7 +160,7 @@
               <%= for {tile, tileno} <- @game.discards |> Enum.reverse() |> Enum.with_index() do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% last_discard = @enable_pull_from_discards && tileno == length(@game.discards) - 1 %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if last_discard, do: " glow draggable", else: " cursor-not-allowed" %><%= if last_discard && @event == :discarded, do: " discardedby-#{@discarded_by_relative_seatno}" %>">
+                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if last_discard, do: " glow draggable", else: " cursor-not-allowed" %><%= if last_discard && @raw_event == :discarded, do: " discardedby-#{@discarded_by_relative_seatno}" %>">
               <% end %>
             </div>
           <% end %>
