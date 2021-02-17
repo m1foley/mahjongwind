@@ -160,7 +160,7 @@
               <%= for {tile, tileno} <- @game.discards |> Enum.reverse() |> Enum.with_index() do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% last_discard = @enable_pull_from_discards && tileno == length(@game.discards) - 1 %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if last_discard, do: " glow draggable discardedby-#{@discarded_by_relative_seatno}", else: " cursor-not-allowed" %>">
+                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if last_discard, do: " glow draggable", else: " cursor-not-allowed" %><%= if last_discard && @event == :discarded, do: " discardedby-#{@discarded_by_relative_seatno}" %>">
               <% end %>
             </div>
           <% end %>
@@ -270,11 +270,11 @@
   <div class="seat-0-icons flex flex-row flex-wrap text-center justify-center items-center space-x-2">
     <%= if @game.dealer_seatno == @current_user_sitting_at do %>
       <%= if @game.dealer_win_count > 0 do %>
-        <div class="dealer-indicator text-gray-100 text-lg pl-1 opacity-60" title="Dealer <%= @game.dealer_win_count + 1 %> times">
+        <div class="dealer-indicator text-gray-100 text-lg pl-1 opacity-60" title="You are the dealer <%= @game.dealer_win_count + 1 %> times">
           D<sup><%= @game.dealer_win_count + 1 %></sup>
         </div>
       <% else %>
-        <div class="dealer-indicator text-gray-100 text-lg pl-1 opacity-60" title="Dealer">
+        <div class="dealer-indicator text-gray-100 text-lg pl-1 opacity-60" title="You are the dealer">
           D
         </div>
       <% end %>

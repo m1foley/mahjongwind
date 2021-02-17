@@ -40,61 +40,20 @@ defmodule MjwWeb.GameLive.Show do
 
   @impl true
   def handle_event("opengamemenu", _params, socket) do
-    socket = socket |> assign(:show_game_menu, true)
+    socket =
+      socket
+      |> assign(:show_game_menu, true)
+      |> assign(:event, :opened_game_menu)
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("closegamemenu", _params, socket) do
-    socket = socket |> assign(:show_game_menu, false)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("quit", _params, socket) do
-    seat = socket.assigns.relative_game_seats |> Enum.at(0)
-
-    socket.assigns.game
-    |> Mjw.Game.evacuate_seat(seat.seatno)
-    |> MjwWeb.GameStore.update(:left_game, %{seat: seat})
-
     socket =
       socket
-      |> push_redirect(to: Routes.game_index_path(socket, :index))
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("reset", _params, socket) do
-    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
-
-    socket.assigns.game
-    |> Mjw.Game.reset()
-    |> MjwWeb.GameStore.update(:reset, %{seat: player_seat})
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("draw", _params, socket) do
-    player_seat = socket.assigns.relative_game_seats |> Enum.at(0)
-
-    socket.assigns.game
-    |> Mjw.Game.draw()
-    |> MjwWeb.GameStore.update(:draw, %{seat: player_seat})
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("dq", _params, socket) do
-    socket =
-      socket
-      |> put_flash(:error, "debug2")
       |> assign(:show_game_menu, false)
+      |> assign(:event, :closed_game_menu)
 
     {:noreply, socket}
   end
@@ -617,6 +576,8 @@ defmodule MjwWeb.GameLive.Show do
   # A player sorting their own hand is not considered a significant event to
   # other players, so restore the previous event for business logic (it's
   # still assigned to raw_event if needed).
+  # opened_game_menu/closed_game_menu don't need to be here because they're not
+  # game update based events that get sent to other players.
   @ignored_events [:concealed_sorted, :exposed_sorted, :hiddengongs_sorted]
 
   defp assign_event(socket, event, _event_details)

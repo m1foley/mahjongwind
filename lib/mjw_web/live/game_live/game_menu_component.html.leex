@@ -3,7 +3,7 @@
 
     <%= if @player_seats_finalized do %>
       <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
-        <div phx-target="#<%= @id %>, #game" phx-click="draw">
+        <div phx-target="#<%= @id %>" phx-click="draw">
           Declare draw 🤝
         </div>
       </div>
