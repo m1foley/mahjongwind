@@ -10,6 +10,9 @@ Play mahjong with your friends online!
 - Start Phoenix endpoint with `mix phx.server`
 - Visit [`localhost:4000`](http://localhost:4000)
 
+### Deploy to Heroku
+git push heroku main:main
+
 ### Console
 `iex -S mix`
 
