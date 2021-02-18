@@ -25,6 +25,7 @@ git push heroku main:main
 ## TODO
 - CSS: Is it possible to spread out the discards if only 1 row?
 - CSS animation for exposing a tile?
+- Automatically expire games
 - Figure out production deployments ([Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html))
 - Enforce that the winning tile was the last one picked up
 - Defensive backend code to protect against JS errors/cheats
