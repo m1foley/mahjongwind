@@ -23,15 +23,20 @@ git push heroku main:main
 `iex -S mix test <file>`
 
 ## TODO
-- CSS: Is it possible to spread out the discards if only 1 row?
-- CSS animation for exposing a tile?
-- Automatically expire games
-- Figure out production deployments ([Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html))
+- CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
+- Consider CSS animation for exposing a tile
+- Test Safari browser
 - Enforce that the winning tile was the last one picked up
 - Defensive backend code to protect against JS errors/cheats
-- Instructions page
-- Support more Mahjong rule sets (flower tiles, no game wind, etc.)
+
+## Long-term TODOs for public release
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)
+- Instructions page
+- User record
+- Change storage to SQL
+- Support more Mahjong rule sets (flower tiles, no game wind, etc.)
+- Consider mobile support
+- Automatically expire games (Heroku restarts every 24 hours which works for now)
 
 ## Misc. development notes
 
