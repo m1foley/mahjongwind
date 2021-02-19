@@ -23,12 +23,15 @@ git push heroku main:main
 `iex -S mix test <file>`
 
 ## TODO
+- Bug: drag from discards to winning tile, then undoing the win. should update turn to that player?
+- Firefox performance issues. Top bar always blue
+- Dice from seat 3 covered Mei's tiles
+- Hide seat-0 icons during windpick
 - Preload images in production
 - Defensive backend code to protect against JS/network errors (bug: I ended up with an extra tile, maybe from Firefox performance and/or network latency)
 - Inform the player if browser window is too small
 - Slightly off-center exposed/hiddengong from concealed
 - Allow drag or hide the loser menu to view all discards from last game
-- Firefox performance issues
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
 - Put hidden gong next to exposed if not empty, so it doesn't cover seat-3?
 - Stress-test concurrent events, simulated latency, etc.
