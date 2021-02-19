@@ -24,11 +24,19 @@ git push heroku main:main
 
 ## TODO
 - Preload images in production
+- Defensive backend code to protect against JS/network errors (bug: I ended up with an extra tile, maybe from Firefox performance and/or network latency)
+- Inform the player if browser window is too small
+- Slightly off-center exposed/hiddengong from concealed
+- Allow drag or hide the loser menu to view all discards from last game
+- Firefox performance issues
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
+- Put hidden gong next to exposed if not empty, so it doesn't cover seat-3?
+- Stress-test concurrent events, simulated latency, etc.
+- 1&3 player names aren't aligned if player icons are present (update the existing workaround for this)
+- Show "loser menu" to winner too
 - Consider CSS animation for exposing a tile
 - Test Safari browser
 - Enforce that the winning tile was the last one picked up
-- Defensive backend code to protect against JS errors/cheats
 
 ## Long-term TODOs for public release
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)
