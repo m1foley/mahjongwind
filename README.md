@@ -23,6 +23,7 @@ git push heroku main:main
 `iex -S mix test <file>`
 
 ## TODO
+- Preload images in production
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
 - Consider CSS animation for exposing a tile
 - Test Safari browser
