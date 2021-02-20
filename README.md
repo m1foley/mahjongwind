@@ -25,7 +25,6 @@ git push heroku main:main
 ## TODO
 - Bug: drag from discards to winning tile, then undoing the win. should update turn to that player?
 - Firefox performance issues. Top bar always blue
-- Dice from seat 3 covered Mei's tiles
 - Hide seat-0 icons during windpick
 - Preload images in production
 - Defensive backend code to protect against JS/network errors (bug: I ended up with an extra tile, maybe from Firefox performance and/or network latency)
@@ -42,10 +41,10 @@ git push heroku main:main
 - Enforce that the winning tile was the last one picked up
 
 ## Long-term TODOs for public release
+- Real user accounts instead of just web sessions
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)
 - Instructions page
-- User record
-- Change storage to SQL
+- Protect games from being erased during deploys
 - Support more Mahjong rule sets (flower tiles, no game wind, etc.)
 - Consider mobile support
 - Automatically expire games (Heroku restarts every 24 hours which works for now)
