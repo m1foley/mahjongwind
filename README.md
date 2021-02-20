@@ -37,8 +37,8 @@ git push heroku main:main
 - Stress-test concurrent events, simulated latency, etc.
 - 1&3 player names aren't aligned if player icons are present (update the existing workaround for this)
 - Show "loser menu" to winner too
+- Look into reducing liveview updates: can sorting one's own hand not get sent to other players?
 - Consider CSS animation for exposing a tile
-- Test Safari browser
 - Enforce that the winning tile was the last one picked up
 
 ## Long-term TODOs for public release
