@@ -105,18 +105,17 @@
 
 .player-name-container-1 {
   right: 6rem;
-  top: 11.8rem;
+  top: 11.1rem;
 }
 
 .player-name-container-2 {
-  left: 0;
-  top: 1rem;
+  top: 0;
   width: 100%;
 }
 
 .player-name-container-3 {
   left: 6rem;
-  top: 11.8rem;
+  top: 11.1rem;
 }
 
 .player-name {
@@ -570,6 +569,11 @@ $discard-animation-translates: (
 
 .no-text-shadow {
   text-shadow: none;
+}
+
+.playericons {
+  height: 1.5rem;
+  @apply mt-2;
 }
 
 .dealpickstaircase {
