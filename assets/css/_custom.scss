@@ -310,15 +310,7 @@
 #dicecomponent {
   display: block;
   width: 100%;
-  &.dice-0 {
-    margin-top: 5%;
-  }
-  &.dice-1, &.dice-3 {
-    margin-top: 15%;
-  }
-  &.dice-2 {
-    margin-top: 10%;
-  }
+  margin-top: 5rem;
 }
 
 .die {
