@@ -46,7 +46,7 @@
               </div>
             </div>
 
-            <div id="exposed-0" phx-hook="Drag" class="exposed-tiles dropzone<%= if Enum.empty?(seat.exposed), do: " empty" %>">
+            <div id="exposed-0" phx-hook="Drag" class="exposed-tiles dropzone">
               <%= for tile <- seat.exposed do %>
                 <% tile_code = tile |> String.slice(0..1) %>
                 <% newly_ponged = @event == :ponged && @event_details[:tile] == tile %>
@@ -259,14 +259,16 @@
     <img src="/images/gamewind/<%= @game.wind %>.png" alt="Game wind (click for menu)" title="Game wind (click for menu)" class="gamewind" phx-click="opengamemenu" phx-target="#game" />
   </div>
 
-  <div class="seat-0-icons flex flex-row flex-wrap text-center justify-center items-center space-x-2">
-    <%= if @game.dealer_seatno == @current_user_sitting_at do %>
-      <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="You are the dealer<%= if @game.dealer_win_count > 0, do: " #{@game.dealer_win_count + 1} times" %>">
-        D<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
-      </div>
-    <% end %>
-    <%= if @game_state != :rolling_for_deal && @game.dealpick_seatno == @current_user_sitting_at do %>
-      <img src="/images/staircase.png" alt="This staircase is the end of the deck (used to determine player wind)" title="This staircase is the end of the deck (used to determine player wind)" class="dealpickstaircase inline-block mx-auto opacity-80<%= if @game.dealer_seatno == @current_user_sitting_at, do: " pl-1" %>" />
-    <% end %>
-  </div>
+  <%= if @player_seats_finalized do %>
+    <div class="seat-0-icons flex flex-row flex-wrap text-center justify-center items-center space-x-2">
+      <%= if @game.dealer_seatno == @current_user_sitting_at do %>
+        <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="You are the dealer<%= if @game.dealer_win_count > 0, do: " #{@game.dealer_win_count + 1} times" %>">
+          D<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
+        </div>
+      <% end %>
+      <%= if @game_state != :rolling_for_deal && @game.dealpick_seatno == @current_user_sitting_at do %>
+        <img src="/images/staircase.png" alt="This staircase is the end of the deck (used to determine player wind)" title="This staircase is the end of the deck (used to determine player wind)" class="dealpickstaircase inline-block mx-auto opacity-80<%= if @game.dealer_seatno == @current_user_sitting_at, do: " pl-1" %>" />
+      <% end %>
+    </div>
+  <% end %>
 </div>
