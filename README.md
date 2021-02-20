@@ -34,7 +34,6 @@ git push heroku main:main
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
 - Put hidden gong next to exposed if not empty, so it doesn't cover seat-3?
 - Stress-test concurrent events, simulated latency, etc.
-- 1&3 player names aren't aligned if player icons are present (update the existing workaround for this)
 - Show "loser menu" to winner too
 - Look into reducing liveview updates: can sorting one's own hand not get sent to other players?
 - Consider CSS animation for exposing a tile
