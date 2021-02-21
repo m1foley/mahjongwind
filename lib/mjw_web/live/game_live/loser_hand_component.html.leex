@@ -1,4 +1,4 @@
-<%= if @player_seat.winreaction in [:ok, :expose_ok] do %>
+<%= if @current_user_seat.winreaction in [:ok, :expose_ok] do %>
   <div class="state-description">
     Waiting for the other players to proceed...
   </div>
@@ -10,7 +10,7 @@
         Okay, let's start shuffling... 👋
       </div>
 
-      <%= if @player_seat.winreaction == :expose do %>
+      <%= if @current_user_seat.winreaction == :expose do %>
         <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4">
           Expose hand
         </div>

@@ -14,10 +14,10 @@ defmodule MjwWeb.GameLive.DiceComponent do
   defp assign_game_info(socket) do
     game = socket.assigns.game
     game_state = socket.assigns.game_state
-    current_user_sitting_at = socket.assigns.current_user_sitting_at
+    current_user_seatno = socket.assigns.current_user_seatno
 
     {roller_seat, roller_relative_position} =
-      Mjw.Game.roller_seat_with_relative_position(game, game_state, current_user_sitting_at)
+      Mjw.Game.roller_seat_with_relative_position(game, game_state, current_user_seatno)
 
     roller_name = roller_seat.player_name
     dice = game.dice
