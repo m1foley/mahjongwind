@@ -23,7 +23,6 @@ git push heroku main:main
 `iex -S mix test <file>`
 
 ## TODO
-- Simplify code by replacing `current_user_sitting_at` with `player_seat`
 - Firefox performance issues
 - Allow drag/hide the loser menu so players can view all discards
 - Defensive backend code to protect against JS/network errors (bug: I ended up with an extra concealed tile, maybe from Firefox performance and/or network latency)
