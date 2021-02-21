@@ -11,7 +11,7 @@ export default {
     if (this.el.dataset.dq == "true") {
       confettiOptions = {
         "target": this.el,
-        "max": "100",
+        "max": "70",
         "size": "1",
         "animate": true,
         "props": [
