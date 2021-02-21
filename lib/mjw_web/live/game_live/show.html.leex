@@ -11,8 +11,8 @@
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
 
-  <%= if @win_declared_seatno do %>
-    <canvas id="confetticanvas" phx-hook="Confetti" data-winner="<%= @win_declared_seatno == @current_user_sitting_at %>"></canvas>
+  <%= if @win_declared_seatno || @event == :dq do %>
+    <canvas id="confetticanvas" phx-hook="Confetti" data-winner="<%= @win_declared_seatno == @current_user_sitting_at %>" data-dq="<%= @event == :dq %>"></canvas>
   <% end %>
 
   <%# displaying seats based on z-index order: 2 has important game content, 0 has user's tiles %>
@@ -139,7 +139,7 @@
               </div>
             <% :dq -> %>
               <div class="state-description">
-                <%= @event_details[:seat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl">🙅‍♀️</span>
+                <%= @event_details[:seat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl">🙅🏻‍♀️</span>
               </div>
             <% :undid_win -> %>
               <div class="state-description">
