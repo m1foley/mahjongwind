@@ -11,17 +11,6 @@ defmodule MjwWeb.GameLive.WindPickComponent do
     {:ok, socket}
   end
 
-  @impl true
-  def handle_event("windpick", %{"picked-wind-idx" => picked_wind_idx}, socket) do
-    picked_wind_idx = String.to_integer(picked_wind_idx)
-
-    socket =
-      socket
-      |> persist_wind_choice(picked_wind_idx)
-
-    {:noreply, socket}
-  end
-
   defp assign_game_info(socket) do
     game = socket.assigns.game
     current_user_id = socket.assigns.current_user_id
@@ -56,15 +45,5 @@ defmodule MjwWeb.GameLive.WindPickComponent do
     socket
     |> assign(:picked_wind, picked_wind)
     |> assign(:picked_winds, picked_winds)
-  end
-
-  defp persist_wind_choice(socket, picked_wind_idx) do
-    current_user_id = socket.assigns.current_user_id
-
-    socket.assigns.game
-    |> Mjw.Game.pick_random_available_wind(current_user_id, picked_wind_idx)
-    |> MjwWeb.GameStore.update(:picked_wind)
-
-    socket
   end
 end

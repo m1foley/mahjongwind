@@ -1011,4 +1011,17 @@ defmodule Mjw.GameTest do
       refute game |> Mjw.Game.confirmed_win?()
     end
   end
+
+  describe "replace_seat" do
+    test "Completely replaces the given seatno" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "Name0")
+        |> Mjw.Game.seat_player("id1", "Name1")
+        |> Mjw.Game.replace_seat(0, %Mjw.Seat{player_id: "id2", player_name: "Name2"})
+
+      assert game.seats |> Enum.map(& &1.player_id) == ["id2", "id1", nil, nil]
+      assert game.seats |> Enum.map(& &1.player_name) == ["Name2", "Name1", nil, nil]
+    end
+  end
 end
