@@ -11,35 +11,6 @@ defmodule MjwWeb.GameLive.DiceComponent do
     {:ok, socket}
   end
 
-  @impl true
-  def handle_event("roll", _params, socket) do
-    game_state = socket.assigns.game_state
-
-    socket =
-      socket
-      |> persist_roll(game_state)
-
-    {:noreply, socket}
-  end
-
-  defp persist_roll(socket, :rolling_for_first_dealer) do
-    socket.assigns.game
-    |> Mjw.Game.roll_dice()
-    |> Mjw.Game.reseat_players()
-    |> MjwWeb.GameStore.update(:rolled_for_first_dealer)
-
-    socket
-  end
-
-  defp persist_roll(socket, :rolling_for_deal) do
-    socket.assigns.game
-    |> Mjw.Game.roll_dice()
-    |> Mjw.Game.deal()
-    |> MjwWeb.GameStore.update(:rolled_for_deal)
-
-    socket
-  end
-
   defp assign_game_info(socket) do
     game = socket.assigns.game
     game_state = socket.assigns.game_state

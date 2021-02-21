@@ -23,6 +23,7 @@ git push heroku main:main
 `iex -S mix test <file>`
 
 ## TODO
+- Simplify code by replacing `current_user_sitting_at` with `player_seat`
 - Firefox performance issues
 - Allow drag/hide the loser menu so players can view all discards
 - Defensive backend code to protect against JS/network errors (bug: I ended up with an extra concealed tile, maybe from Firefox performance and/or network latency)
@@ -32,7 +33,6 @@ git push heroku main:main
 - Put hidden gong next to exposed if not empty, so it doesn't cover seat-3?
 - Stress-test concurrent events, simulated latency, etc.
 - Show LoserHandComponent to winner too
-- Look into reducing number of liveview updates: can sorting one's own hand not get sent to other players?
 - Consider more CSS animations: exposing a tile, taking from discards, etc.
 - Enforce that the winning tile was the last one picked up
 
@@ -42,8 +42,8 @@ git push heroku main:main
 - Instructions page
 - Protect games from being erased during deploys
 - Support more Mahjong rule sets (flower tiles, no game wind, etc.)
-- Consider mobile support
-- Automatically expire games (Heroku restarts every 24 hours which works for now)
+- Mobile support
+- Automatically expire games
 
 ## Misc. development notes
 

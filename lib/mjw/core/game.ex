@@ -607,6 +607,13 @@ defmodule Mjw.Game do
   end
 
   @doc """
+  Completely replace the given seatno
+  """
+  def replace_seat(%__MODULE__{} = game, seatno, %Mjw.Seat{} = seat) do
+    update_seat(game, seatno, fn _seat_being_replaced -> seat end)
+  end
+
+  @doc """
   Calculate the state of a game
   """
   def state(%__MODULE__{} = game) do

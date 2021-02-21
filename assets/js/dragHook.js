@@ -107,12 +107,6 @@ export default {
             }
 
             const draggedId = evt.item.id;
-            // The deck tile gets replaced on the backend, but not in the DOM
-            // unless we do it manually like this
-            if (draggedId == 'decktile') {
-              evt.item.remove();
-            }
-
             hook.pushEventTo(dropzoneSelector, 'dropped', {
               draggedFromId: evt.from.id,
               draggedToId: evt.to.id,
@@ -120,6 +114,12 @@ export default {
               draggedToList: draggedToList,
               draggedId: draggedId
             });
+            // The deck tile gets replaced on the backend and when the HTML
+            // gets updated, but it still persists in the DOM unless we
+            // remove it manually like this
+            if (draggedId == 'decktile') {
+              evt.item.remove();
+            }
           }
         });
         break;

@@ -30,13 +30,13 @@
 <%= if @rolling_dice && (@game_state != :rolling_for_first_dealer || @roller_relative_position == 0) do %>
   <%= case @roller_relative_position do %>
   <% 0 -> %>
-    <%= content_tag(:div, "🤛", phx_target: @myself, phx_click: "roll", class: "hand hand-0") %>
+    <div class="hand hand-0" phx-target="#game" phx-click="roll">🤛</div>
   <% 1 -> %>
-    <%= content_tag(:div, "🤛", class: "hand hand-1") %>
+    <div class="hand hand-1">🤛</div>
   <% 2 -> %>
-    <%= content_tag(:div, "👊", class: "hand hand-2") %>
+    <div class="hand hand-2">👊</div>
   <% 3 -> %>
-    <%= content_tag(:div, "🤜", class: "hand hand-3") %>
+    <div class="hand hand-3">🤜</div>
   <% end %>
 <% end %>
 

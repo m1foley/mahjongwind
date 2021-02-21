@@ -2,8 +2,8 @@
   <div class="phx-modal-content seat-offering-modal-content">
     <%= f = form_for :seat_offering, "#",
       id: "seat-offering-form",
-      phx_target: @myself,
-      phx_submit: "save" %>
+      phx_target: "#game",
+      phx_submit: "accept_seat_offering" %>
 
       <div class="text-4xl">
         <h2>Please have a seat! 🪑</h2>
