@@ -2,6 +2,25 @@
 
 Play mahjong with your friends online!
 
+## TODO
+- Allow drag/hide the loser menu so players can view all discards
+- Defensive backend code to protect against frontend bugs/latency (bug: I ended up with an extra concealed tile, maybe from Firefox performance/latency)
+- Figure out why Firefox hangs
+- CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
+- Inform the player if their browser window is too small
+- Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
+- Experiment with more CSS animations: exposing a tile, taking from discards, etc.
+- Enforce that the winning tile was the last one picked up
+
+## Long-term TODOs for public release
+- Real user accounts instead of just web sessions
+- Exclude bots (e.g., PresidentCardGames uses phone numbers)
+- Instructions page
+- Protect games from being erased during deploys
+- Support more Mahjong rule sets (flower tiles, no game wind, etc.)
+- Mobile support
+- Automatically expire games
+
 ## Instructions
 
 ### Server
@@ -21,26 +40,6 @@ git push heroku main:main
 
 ### pry tests
 `iex -S mix test <file>`
-
-## TODO
-- CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
-- Allow drag/hide the loser menu so players can view all discards
-- Defensive backend code to protect against JS/network errors (bug: I ended up with an extra concealed tile, maybe from Firefox performance and/or network latency)
-- Inform the player if browser window is too small
-- Firefox performance issues
-- Put hidden gong next to exposed if not empty, so it doesn't cover seat-3?
-- Stress-test concurrent events, simulated latency, etc.
-- Consider more CSS animations: exposing a tile, taking from discards, etc.
-- Enforce that the winning tile was the last one picked up
-
-## Long-term TODOs for public release
-- Real user accounts instead of just web sessions
-- Exclude bots (e.g., PresidentCardGames uses phone numbers)
-- Instructions page
-- Protect games from being erased during deploys
-- Support more Mahjong rule sets (flower tiles, no game wind, etc.)
-- Mobile support
-- Automatically expire games
 
 ## Misc. development notes
 
