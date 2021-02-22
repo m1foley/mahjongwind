@@ -78,6 +78,10 @@ defmodule Mjw.Seat do
     %{seat | wintile: wintile, winreaction: :expose}
   end
 
-  def declared_win?(%__MODULE{wintile: nil}), do: false
-  def declared_win?(%__MODULE{}), do: true
+  def declared_win?(%__MODULE__{wintile: nil}), do: false
+  def declared_win?(%__MODULE__{} = _seat), do: true
+
+  def win_expose?(%__MODULE__{winreaction: winreaction}) do
+    winreaction in [:expose, :expose_ok]
+  end
 end
