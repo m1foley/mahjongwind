@@ -78,13 +78,15 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       ) do
-    current_user_seatno = socket.assigns.current_user_seatno
+    current_user_seat = socket.assigns.current_user_seat
+    game_state = socket.assigns.game_state
 
     game =
       socket.assigns.game
-      |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
+      |> Mjw.Game.update_concealed(current_user_seat.seatno, new_concealed)
 
-    socket = socket |> update_game(game, :concealed_sorted, %{local_only: true})
+    local_only = game_state != :win_declared || !Mjw.Seat.win_expose?(current_user_seat)
+    socket = socket |> update_game(game, :concealed_sorted, %{local_only: local_only})
 
     {:noreply, socket}
   end
@@ -262,13 +264,15 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       ) do
-    current_user_seatno = socket.assigns.current_user_seatno
+    current_user_seat = socket.assigns.current_user_seat
+    game_state = socket.assigns.game_state
 
     game =
       socket.assigns.game
-      |> Mjw.Game.update_hiddengongs(current_user_seatno, new_hiddengongs)
+      |> Mjw.Game.update_hiddengongs(current_user_seat.seatno, new_hiddengongs)
 
-    socket = socket |> update_game(game, :hiddengongs_sorted, %{local_only: true})
+    local_only = game_state != :win_declared || !Mjw.Seat.win_expose?(current_user_seat)
+    socket = socket |> update_game(game, :hiddengongs_sorted, %{local_only: local_only})
 
     {:noreply, socket}
   end
@@ -774,12 +778,12 @@ defmodule MjwWeb.GameLive.Show do
   # game. This avoids sending private events like sorting one's own concealed
   # tiles to other players, which reduces network traffic and avoids race
   # conditions when everyone is sorting their tiles at the same time.
-  defp update_game(socket, game, event, extra_event_details \\ %{}) do
-    local_only = extra_event_details |> Map.get(:local_only)
+  defp update_game(socket, game, event, event_details \\ %{}) do
     current_user_seat = socket.assigns.current_user_seat
+    local_only = event_details |> Map.get(:local_only)
 
     event_details =
-      extra_event_details
+      event_details
       |> Map.delete(:local_only)
       |> Map.merge(%{seat: current_user_seat})
 

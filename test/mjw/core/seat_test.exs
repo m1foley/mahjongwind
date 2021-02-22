@@ -234,4 +234,16 @@ defmodule Mjw.SeatTest do
       refute seat |> Mjw.Seat.declared_win?()
     end
   end
+
+  describe "win_expose?" do
+    test "true if expose or expose_ok" do
+      assert %Mjw.Seat{winreaction: :expose} |> Mjw.Seat.win_expose?()
+      assert %Mjw.Seat{winreaction: :expose_ok} |> Mjw.Seat.win_expose?()
+    end
+
+    test "false if not exposed" do
+      refute %Mjw.Seat{winreaction: nil} |> Mjw.Seat.win_expose?()
+      refute %Mjw.Seat{winreaction: :ok} |> Mjw.Seat.win_expose?()
+    end
+  end
 end
