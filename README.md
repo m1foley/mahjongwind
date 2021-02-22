@@ -24,6 +24,7 @@ git push heroku main:main
 
 ## TODO
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
+- Broadcast concealed sort to other players if the game is over & seat is exposed
 - Allow drag/hide the loser menu so players can view all discards
 - Defensive backend code to protect against JS/network errors (bug: I ended up with an extra concealed tile, maybe from Firefox performance and/or network latency)
 - Inform the player if browser window is too small
