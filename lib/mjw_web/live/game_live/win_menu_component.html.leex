@@ -38,9 +38,11 @@
         </div>
       <% end %>
 
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="#game" phx-click="dqdeclared">
-        Declare DQ 🙅‍♀️
-      </div>
+      <%= unless Mjw.Seat.declared_win?(@current_user_seat) do %>
+        <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="#game" phx-click="dqdeclared">
+          Declare DQ 🙅‍♀️
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>
