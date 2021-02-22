@@ -1,4 +1,4 @@
-<%= if @current_user_seat.winreaction in [:ok, :expose_ok] do %>
+<%= if Mjw.Seat.confirmed_win?(@current_user_seat) do %>
   <div class="state-description">
     Waiting for the other players to proceed...
   </div>
