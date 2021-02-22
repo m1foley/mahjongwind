@@ -484,22 +484,48 @@ defmodule Mjw.GameTest do
   end
 
   describe "update_wintile" do
-    test "updates the winning tile for the given seat number" do
+    test "declare win" do
       game =
-        %Mjw.Game{}
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :drawing
+        }
         |> Mjw.Game.seat_player("id0", "name0")
         |> Mjw.Game.seat_player("id1", "name1")
         |> Mjw.Game.update_wintile(1, "n9-1")
 
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n9-1", nil, nil]
-      assert game.seats |> Enum.map(& &1.winreaction) == [nil, :expose, nil, nil]
+      assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, true, false, false]
+      assert game.turn_seatno == 1
+      assert game.turn_state == :discarding
+    end
+
+    test "undo win" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 1,
+          turn_state: :discarding
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.update_wintile(1, "n9-1")
+        |> Mjw.Game.update_wintile(1, nil)
+
+      assert game.seats |> Enum.map(& &1.wintile) == [nil, nil, nil, nil]
+      assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, false, false, false]
+      assert game.turn_seatno == 1
+      assert game.turn_state == :discarding
     end
   end
 
   describe "update_wintile_from_discards" do
     test "updates the winning tile for the given seat number and removes it from discards" do
       game =
-        %Mjw.Game{discards: ["n1-0", "n2-0", "n3-0"]}
+        %Mjw.Game{
+          discards: ["n1-0", "n2-0", "n3-0"],
+          turn_seatno: 3,
+          turn_state: :drawing
+        }
         |> Mjw.Game.seat_player("id0", "name0")
         |> Mjw.Game.seat_player("id1", "name1")
         |> Mjw.Game.update_wintile_from_discards(1, "n1-0")
@@ -507,6 +533,8 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n1-0", nil, nil]
       assert game.seats |> Enum.map(& &1.winreaction) == [nil, :expose, nil, nil]
       assert game.discards == ["n2-0", "n3-0"]
+      assert game.turn_seatno == 1
+      assert game.turn_state == :discarding
     end
   end
 

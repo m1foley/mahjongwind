@@ -410,8 +410,7 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  Update the given player's wintile. If it's nil, it undoes their accidental
-  win. In that case it clears the win related fields in all seats.
+  Update the given player's wintile. If nil, it undoes their accidental win.
   """
   def update_wintile(%__MODULE__{} = game, _seatno, nil) do
     seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
@@ -419,8 +418,14 @@ defmodule Mjw.Game do
     %{game | seats: seats}
   end
 
+  # Sets turn_seatno & turn_state just in case they undo their win. This can
+  # lead to buggy behavior depending on the circumstance, but it doesn't seem
+  # worth adding all the required complexity just for that edge case.
   def update_wintile(%__MODULE__{} = game, seatno, wintile) do
-    update_seat(game, seatno, fn seat ->
+    game
+    |> set_turn_seatno(seatno)
+    |> Map.merge(%{turn_state: :discarding})
+    |> update_seat(seatno, fn seat ->
       seat |> Mjw.Seat.declare_win(wintile)
     end)
   end

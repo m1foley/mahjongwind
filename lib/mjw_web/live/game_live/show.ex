@@ -648,7 +648,9 @@ defmodule MjwWeb.GameLive.Show do
     current_user_seatno = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
     turn_player_name = Mjw.Game.turn_player_name(game)
-    win_declared_seatno = game_state == :win_declared && game |> Mjw.Game.win_declared_seatno()
+
+    win_declared_seatno =
+      if game_state == :win_declared, do: game |> Mjw.Game.win_declared_seatno()
 
     # seats ordered by their position to the current player (0 = self, etc.).
     # A seatno attribute is added as a convenience to get the original index.

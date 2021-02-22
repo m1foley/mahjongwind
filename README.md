@@ -28,7 +28,6 @@ git push heroku main:main
 - Defensive backend code to protect against JS/network errors (bug: I ended up with an extra concealed tile, maybe from Firefox performance and/or network latency)
 - Inform the player if browser window is too small
 - Firefox performance issues
-- Edge case bug: drag from discards to winning tile, then undoing the win. should update turn to that player?
 - Put hidden gong next to exposed if not empty, so it doesn't cover seat-3?
 - Stress-test concurrent events, simulated latency, etc.
 - Consider more CSS animations: exposing a tile, taking from discards, etc.
