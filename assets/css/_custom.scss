@@ -136,7 +136,7 @@
 }
 
 .tiles, .concealed-tiles, .exposed-tiles, .hiddengong-tiles, .wintile-tiles {
-  @apply flex flex-row flex-wrap text-center justify-center;
+  @apply flex flex-row flex-nowrap text-center justify-center;
 }
 
 .wall-tiles {
