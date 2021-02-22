@@ -66,4 +66,18 @@ defmodule Mjw.Seat do
   def expose_loser_hand(%__MODULE__{} = seat) do
     %{seat | winreaction: :expose}
   end
+
+  @doc """
+  Clear attributes related to declaring/confirming a win
+  """
+  def clear_win_attributes(%__MODULE__{} = seat) do
+    %{seat | wintile: nil, winreaction: nil}
+  end
+
+  def declare_win(%__MODULE__{} = seat, wintile) do
+    %{seat | wintile: wintile, winreaction: :expose}
+  end
+
+  def declared_win?(%__MODULE{wintile: nil}), do: false
+  def declared_win?(%__MODULE{}), do: true
 end

@@ -796,6 +796,7 @@ defmodule MjwWeb.GameLive.Show do
     :rolled_for_first_dealer,
     :rolled_for_deal,
     :confirmed_win,
+    :undid_win,
     :draw,
     :dq
   ]

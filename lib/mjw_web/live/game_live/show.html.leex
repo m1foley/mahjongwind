@@ -210,20 +210,14 @@
                 <% end %>
               <% end %>
             <% :win_declared -> %>
-              <%= if @win_declared_seatno == @current_user_seatno do %>
-                <div class="state-description">
+              <div class="state-description">
+                <%= if @win_declared_seatno == @current_user_seatno do %>
                   Congratulations!
-                </div>
-                <div class="state-description">
-                  Waiting for the other players to proceed...
-                </div>
-              <% else %>
-                <% win_declared_seat = @relative_game_seats |> Enum.find(& &1.seatno == @win_declared_seatno) %>
-                <div class="state-description">
-                  <%= win_declared_seat.player_name %> went out!
-                </div>
-                <%= live_component @socket, MjwWeb.GameLive.LoserHandComponent, id: "loserhandmenu", game: @game, win_declared_seatno: @win_declared_seatno, current_user_seat: @current_user_seat %>
-              <% end %>
+                <% else %>
+                  <%= @relative_game_seats |> Enum.find(& &1.seatno == @win_declared_seatno) |> Map.get(:player_name) %> went out!
+                <% end %>
+              </div>
+              <%= live_component @socket, MjwWeb.GameLive.WinMenuComponent, id: "winmenu", game: @game, win_declared_seatno: @win_declared_seatno, current_user_seat: @current_user_seat %>
             <% _ -> %>
           <% end %>
         </div>

@@ -187,4 +187,51 @@ defmodule Mjw.SeatTest do
       assert seat.winreaction == :expose_ok
     end
   end
+
+  describe "clear_win_attributes" do
+    test "removes the attributes related to declaring/confirming a win" do
+      seat =
+        %Mjw.Seat{
+          player_id: "id1",
+          player_name: "Name1",
+          concealed: ["n1-0"],
+          exposed: ["n2-0"],
+          hidden_gongs: ["n3-0"],
+          wintile: "n4-0",
+          winreaction: :ok
+        }
+        |> Mjw.Seat.clear_win_attributes()
+
+      assert seat.player_id == "id1"
+      assert seat.player_name == "Name1"
+      assert seat.concealed == ["n1-0"]
+      assert seat.exposed == ["n2-0"]
+      assert seat.hidden_gongs == ["n3-0"]
+      assert seat.wintile == nil
+      assert seat.winreaction == nil
+    end
+  end
+
+  describe "declare_win" do
+    test "sets wintile and winreaction attributes" do
+      seat =
+        %Mjw.Seat{wintile: nil, winreaction: nil}
+        |> Mjw.Seat.declare_win("b4-1")
+
+      assert seat.wintile == "b4-1"
+      assert seat.winreaction == :expose
+    end
+  end
+
+  describe "declared_win?" do
+    test "true if declared win" do
+      seat = %Mjw.Seat{wintile: "n4-0", winreaction: :expose}
+      assert seat |> Mjw.Seat.declared_win?()
+    end
+
+    test "false if not declared win" do
+      seat = %Mjw.Seat{wintile: nil, winreaction: :ok}
+      refute seat |> Mjw.Seat.declared_win?()
+    end
+  end
 end

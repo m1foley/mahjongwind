@@ -414,18 +414,14 @@ defmodule Mjw.Game do
   win. In that case it clears the win related fields in all seats.
   """
   def update_wintile(%__MODULE__{} = game, _seatno, nil) do
-    seats =
-      game.seats
-      |> Enum.map(fn seat ->
-        %{seat | wintile: nil, winreaction: nil}
-      end)
+    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
 
     %{game | seats: seats}
   end
 
   def update_wintile(%__MODULE__{} = game, seatno, wintile) do
     update_seat(game, seatno, fn seat ->
-      %{seat | wintile: wintile, winreaction: :ok}
+      seat |> Mjw.Seat.declare_win(wintile)
     end)
   end
 
@@ -596,7 +592,7 @@ defmodule Mjw.Game do
   that game state/1 is :win_declared
   """
   def win_declared_seatno(%__MODULE__{seats: seats}) do
-    seats |> Enum.find_index(& &1.wintile)
+    seats |> Enum.find_index(&Mjw.Seat.declared_win?/1)
   end
 
   @doc """

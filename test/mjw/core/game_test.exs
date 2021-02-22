@@ -492,7 +492,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.update_wintile(1, "n9-1")
 
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n9-1", nil, nil]
-      assert game.seats |> Enum.map(& &1.winreaction) == [nil, :ok, nil, nil]
+      assert game.seats |> Enum.map(& &1.winreaction) == [nil, :expose, nil, nil]
     end
   end
 
@@ -505,7 +505,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.update_wintile_from_discards(1, "n1-0")
 
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n1-0", nil, nil]
-      assert game.seats |> Enum.map(& &1.winreaction) == [nil, :ok, nil, nil]
+      assert game.seats |> Enum.map(& &1.winreaction) == [nil, :expose, nil, nil]
       assert game.discards == ["n2-0", "n3-0"]
     end
   end
