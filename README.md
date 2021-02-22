@@ -23,15 +23,14 @@ git push heroku main:main
 `iex -S mix test <file>`
 
 ## TODO
-- Firefox performance issues
+- CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
 - Allow drag/hide the loser menu so players can view all discards
 - Defensive backend code to protect against JS/network errors (bug: I ended up with an extra concealed tile, maybe from Firefox performance and/or network latency)
 - Inform the player if browser window is too small
-- CSS: Is it possible to vertically spread the discards if only 1 flexbox row?
+- Firefox performance issues
 - Edge case bug: drag from discards to winning tile, then undoing the win. should update turn to that player?
 - Put hidden gong next to exposed if not empty, so it doesn't cover seat-3?
 - Stress-test concurrent events, simulated latency, etc.
-- Show LoserHandComponent to winner too
 - Consider more CSS animations: exposing a tile, taking from discards, etc.
 - Enforce that the winning tile was the last one picked up
 

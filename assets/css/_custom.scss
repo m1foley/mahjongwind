@@ -490,6 +490,13 @@ $discard-rotations: ("0": rotate(12deg), "1": rotate(-20deg), "2": rotate(-40deg
         }
       }
     }
+    &.sortable-ghost {
+      @for $i from 1 through 3 {
+        &.discardedby-#{$i} {
+          animation: none;
+        }
+      }
+    }
   }
 }
 
@@ -545,7 +552,7 @@ $discard-animation-translates: (
   opacity: 0.5;
 }
 
-#loserhandmenu {
+#winmenu {
   position: absolute;
   width: 100%;
   .tile {

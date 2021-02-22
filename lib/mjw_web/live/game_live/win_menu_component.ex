@@ -1,4 +1,4 @@
-defmodule MjwWeb.GameLive.LoserHandComponent do
+defmodule MjwWeb.GameLive.WinMenuComponent do
   use MjwWeb, :live_component
 
   @impl true
