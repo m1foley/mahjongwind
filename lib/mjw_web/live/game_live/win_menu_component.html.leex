@@ -4,13 +4,13 @@
   </div>
 <% else %>
   <div id="<%= @id %>">
-    <div class="menucontainer inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-8 mt-2 mx-auto shadow-md content-center text-center">
+    <div id="winmenu-inner" class="inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-8 mt-2 mx-auto shadow-md content-center text-center cursor-move" phx-hook="Simpledrag">
 
       <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="#game" phx-click="confirm_win">
         Okay, let's start shuffling... 👋
       </div>
 
-      <%= if @current_user_seat.winreaction == :expose do %>
+      <%= if Mjw.Seat.win_expose?(@current_user_seat) do %>
         <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4">
           Expose hand
         </div>

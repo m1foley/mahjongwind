@@ -3,7 +3,6 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Allow drag/hide the loser menu so players can view all discards
 - Defensive backend code to protect against frontend bugs/latency (bug: I ended up with an extra concealed tile, maybe from Firefox performance/latency)
 - Figure out why Firefox hangs
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
