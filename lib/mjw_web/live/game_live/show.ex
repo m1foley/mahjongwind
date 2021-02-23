@@ -773,7 +773,7 @@ defmodule MjwWeb.GameLive.Show do
 
   # Show the gong correction tile if it's possible the user has a gong
   defp might_have_gongs?(%Mjw.Seat{} = seat) do
-    length(seat.exposed) + length(seat.hidden_gongs) > 3
+    length(seat.exposed) + length(seat.hiddengongs) > 3
   end
 
   # :local_only is used to update the local assigns without persisting the
