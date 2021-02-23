@@ -77,7 +77,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_concealed
         },
         socket
-      ) do
+      )
+      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) do
     current_user_seat = socket.assigns.current_user_seat
     game_state = socket.assigns.game_state
 
@@ -101,7 +102,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_exposed
         },
         socket
-      ) do
+      )
+      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -146,7 +148,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_exposed
         },
         socket
-      ) do
+      )
+      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
     game = socket.assigns.game
 
@@ -170,7 +173,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_concealed
         },
         socket
-      ) do
+      )
+      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
     game = socket.assigns.game
 
@@ -192,7 +196,9 @@ defmodule MjwWeb.GameLive.Show do
           "draggedId" => tile
         },
         socket
-      ) do
+      )
+      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 and
+             length(new_concealed) == length(socket.assigns.current_user_seat.concealed) - 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -216,7 +222,9 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_concealed
         },
         socket
-      ) do
+      )
+      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) - 1 and
+             length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -240,7 +248,9 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_hiddengongs
         },
         socket
-      ) do
+      )
+      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) - 1 and
+             length(new_hiddengongs) == length(socket.assigns.current_user_seat.hiddengongs) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -263,7 +273,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_hiddengongs
         },
         socket
-      ) do
+      )
+      when length(new_hiddengongs) == length(socket.assigns.current_user_seat.hiddengongs) do
     current_user_seat = socket.assigns.current_user_seat
     game_state = socket.assigns.game_state
 
@@ -288,7 +299,9 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_concealed
         },
         socket
-      ) do
+      )
+      when length(new_hiddengongs) == length(socket.assigns.current_user_seat.hiddengongs) - 1 and
+             length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -312,7 +325,9 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_exposed
         },
         socket
-      ) do
+      )
+      when length(new_hiddengongs) == length(socket.assigns.current_user_seat.hiddengongs) - 1 and
+             length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -336,7 +351,9 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_hiddengongs
         },
         socket
-      ) do
+      )
+      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) - 1 and
+             length(new_hiddengongs) == length(socket.assigns.current_user_seat.hiddengongs) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -359,7 +376,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_concealed
         },
         socket
-      ) do
+      )
+      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
     game = socket.assigns.game
     current_user_seatno = socket.assigns.current_user_seatno
 
@@ -381,7 +399,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedId" => tile
         },
         socket
-      ) do
+      )
+      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) - 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -427,7 +446,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedId" => tile
         },
         socket
-      ) do
+      )
+      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) - 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -450,7 +470,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_concealed
         },
         socket
-      ) do
+      )
+      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -473,7 +494,8 @@ defmodule MjwWeb.GameLive.Show do
           "draggedToList" => new_exposed
         },
         socket
-      ) do
+      )
+      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -482,6 +504,20 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_wintile(current_user_seatno, nil)
 
     socket = socket |> update_game(game, :undid_win)
+
+    {:noreply, socket}
+  end
+
+  # If a drag & drop event doesn't pattern match the above, it probably hit a
+  # "length" sanity check in a method guard. Reload the page to get the
+  # frontend back in sync and let the user try the action again.
+  # Game reload is done via HTTP redirect: it would be preferable to just
+  # reload the game from persistence and re-render, but that doesn't fix the
+  # JavaScript if it got out of sync.
+  @impl true
+  def handle_event("dropped", _params, socket) do
+    game_id = socket.assigns.game.id
+    socket = socket |> push_redirect(to: Routes.game_show_path(socket, :show, game_id))
 
     {:noreply, socket}
   end
