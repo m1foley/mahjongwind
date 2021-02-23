@@ -24,13 +24,15 @@ import Drag from './dragHook';
 
 import CopyToClipboard from './copyToClipboard';
 import DeclareDq from './declareDq';
+import Simpledrag from './simpledrag';
 import Confetti from './confetti';
 
 const Hooks = {
   Drag: Drag,
   CopyToClipboard: CopyToClipboard,
   DeclareDq: DeclareDq,
-  Confetti: Confetti
+  Confetti: Confetti,
+  Simpledrag: Simpledrag
 };
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
