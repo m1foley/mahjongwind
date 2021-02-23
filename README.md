@@ -3,12 +3,14 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Add website name to landing page
 - Figure out why Firefox hangs
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
 - Inform the player if their browser window is too small
 - Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
 - Experiment with more CSS animations: exposing a tile, taking from discards, etc.
 - Enforce that the winning tile was the last one picked up
+- Think of a better domain name
 
 ## Long-term TODOs for public release
 - Real user accounts instead of just web sessions
