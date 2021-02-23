@@ -1,7 +1,7 @@
 defmodule Mjw.Seat do
   defstruct concealed: [],
             exposed: [],
-            hidden_gongs: [],
+            hiddengongs: [],
             player_id: nil,
             player_name: nil,
             picked_wind: nil,
@@ -33,7 +33,7 @@ defmodule Mjw.Seat do
   Clear tile attributes between games
   """
   def clear_tiles(%__MODULE__{} = seat) do
-    %{seat | concealed: [], exposed: [], hidden_gongs: [], wintile: nil, winreaction: nil}
+    %{seat | concealed: [], exposed: [], hiddengongs: [], wintile: nil, winreaction: nil}
   end
 
   @doc """

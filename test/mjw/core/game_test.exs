@@ -479,7 +479,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id1", "name1")
         |> Mjw.Game.update_hiddengongs(1, ["dp-0", "c1-3"])
 
-      assert game.seats |> Enum.map(& &1.hidden_gongs) == [[], ["dp-0", "c1-3"], [], []]
+      assert game.seats |> Enum.map(& &1.hiddengongs) == [[], ["dp-0", "c1-3"], [], []]
     end
   end
 
@@ -696,7 +696,7 @@ defmodule Mjw.GameTest do
               picked_wind: "ww",
               concealed: ["n1-#{i}"],
               exposed: ["n2-#{i}"],
-              hidden_gongs: ["n3-#{i}"],
+              hiddengongs: ["n3-#{i}"],
               wintile: "n4-#{i}",
               winreaction: :ok
             }
@@ -720,7 +720,7 @@ defmodule Mjw.GameTest do
       assert Enum.map(game.seats, & &1.picked_wind) == [nil, nil, nil, nil]
       assert Enum.map(game.seats, & &1.concealed) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.exposed) == [[], [], [], []]
-      assert Enum.map(game.seats, & &1.hidden_gongs) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.hiddengongs) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.wintile) == [nil, nil, nil, nil]
       assert Enum.map(game.seats, & &1.winreaction) == [nil, nil, nil, nil]
     end
@@ -749,7 +749,7 @@ defmodule Mjw.GameTest do
                 picked_wind: w,
                 concealed: ["n1-#{i}"],
                 exposed: ["n2-#{i}"],
-                hidden_gongs: ["n3-#{i}"],
+                hiddengongs: ["n3-#{i}"],
                 wintile: "n4-#{i}",
                 winreaction: :ok
               }
@@ -770,7 +770,7 @@ defmodule Mjw.GameTest do
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
       assert Enum.map(game.seats, & &1.concealed) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.exposed) == [[], [], [], []]
-      assert Enum.map(game.seats, & &1.hidden_gongs) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.hiddengongs) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.wintile) == [nil, nil, nil, nil]
       assert Enum.map(game.seats, & &1.winreaction) == [nil, nil, nil, nil]
       assert Mjw.Game.state(game) == :rolling_for_deal
@@ -800,7 +800,7 @@ defmodule Mjw.GameTest do
                 picked_wind: w,
                 concealed: ["n1-#{i}"],
                 exposed: ["n2-#{i}"],
-                hidden_gongs: ["n3-#{i}"],
+                hiddengongs: ["n3-#{i}"],
                 wintile: "n4-#{i}",
                 winreaction: :ok
               }
@@ -821,7 +821,7 @@ defmodule Mjw.GameTest do
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
       assert Enum.map(game.seats, & &1.concealed) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.exposed) == [[], [], [], []]
-      assert Enum.map(game.seats, & &1.hidden_gongs) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.hiddengongs) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.wintile) == [nil, nil, nil, nil]
       assert Enum.map(game.seats, & &1.winreaction) == [nil, nil, nil, nil]
       assert Mjw.Game.state(game) == :rolling_for_deal
@@ -849,7 +849,7 @@ defmodule Mjw.GameTest do
                 picked_wind: w,
                 concealed: ["n1-#{i}"],
                 exposed: ["n2-#{i}"],
-                hidden_gongs: ["n3-#{i}"],
+                hiddengongs: ["n3-#{i}"],
                 wintile: "n4-#{i}",
                 winreaction: :ok
               }
@@ -870,7 +870,7 @@ defmodule Mjw.GameTest do
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
       assert Enum.map(game.seats, & &1.concealed) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.exposed) == [[], [], [], []]
-      assert Enum.map(game.seats, & &1.hidden_gongs) == [[], [], [], []]
+      assert Enum.map(game.seats, & &1.hiddengongs) == [[], [], [], []]
       assert Enum.map(game.seats, & &1.wintile) == [nil, nil, nil, nil]
       assert Enum.map(game.seats, & &1.winreaction) == [nil, nil, nil, nil]
       assert Mjw.Game.state(game) == :rolling_for_deal

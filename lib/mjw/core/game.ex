@@ -378,9 +378,9 @@ defmodule Mjw.Game do
   @doc """
   Update the given player's hidden gongs
   """
-  def update_hiddengongs(%__MODULE__{} = game, seatno, hidden_gongs) do
+  def update_hiddengongs(%__MODULE__{} = game, seatno, hiddengongs) do
     update_seat(game, seatno, fn seat ->
-      %{seat | hidden_gongs: hidden_gongs}
+      %{seat | hiddengongs: hiddengongs}
     end)
   end
 
