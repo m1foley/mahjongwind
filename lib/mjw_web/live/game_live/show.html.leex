@@ -237,7 +237,7 @@
           <div class="playericons">
             <%= if seat.seatno == @game.dealer_seatno do %>
               <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="Dealer<%= if @game.dealer_win_count > 0, do: " #{@game.dealer_win_count + 1} times" %>">
-                D<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
+                Dealer<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
               </div>
             <% end %>
             <%= if @game_state != :rolling_for_deal && seat.seatno == @game.dealpick_seatno do %>
@@ -270,7 +270,7 @@
     <div class="seat-0-icons flex flex-row flex-wrap text-center justify-center items-center space-x-2">
       <%= if @game.dealer_seatno == @current_user_seatno do %>
         <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="You are the dealer<%= if @game.dealer_win_count > 0, do: " #{@game.dealer_win_count + 1} times" %>">
-          D<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
+          Dealer<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
         </div>
       <% end %>
       <%= if @game_state != :rolling_for_deal && @game.dealpick_seatno == @current_user_seatno do %>
