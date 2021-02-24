@@ -740,7 +740,8 @@ defmodule MjwWeb.GameLive.Show do
         game_state == :discarding && game.turn_seatno == current_user_seatno
 
     show_correction_tile =
-      !win_declared_seatno && !current_user_drawing && might_have_gongs?(current_user_seat)
+      player_seats_finalized && !win_declared_seatno &&
+        !current_user_drawing && might_have_gongs?(current_user_seat)
 
     socket
     |> assign(:game, game)
