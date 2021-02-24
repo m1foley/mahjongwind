@@ -4,7 +4,7 @@ Play mahjong with your friends online!
 
 ## TODO
 - Undo button
-- Indicating turn: Replace underline with glowing side of table
+- Remove needlessly glowing tiles if the player's tiles are already glowing from turn indication
 - Add website name to landing page
 - Figure out why Firefox hangs
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
