@@ -18,6 +18,7 @@ Play mahjong with your friends online!
 - Instructions page
 - Protect games from being erased during deploys
 - Support more Mahjong rule sets (flower tiles, no game wind, etc.)
+- Test Internet Explorer
 - Mobile support
 - Automatically expire games
 
