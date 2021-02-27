@@ -149,7 +149,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # drew a discard, or ponged
+  # drew from the discards when it's the player's turn
   @impl true
   def handle_event(
         "dropped",
@@ -161,16 +161,38 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       )
-      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
+      when socket.assigns.current_user_drawing and
+             length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
     game = socket.assigns.game
 
-    # event is :drew_discard or :ponged, depending on if it's the player's turn
-    {event, game} =
-      game
-      |> Mjw.Game.draw_discard(current_user_seatno, new_exposed, tile)
+    game = game |> Mjw.Game.draw_discard(current_user_seatno, new_exposed, tile)
 
-    socket = socket |> update_game(game, event, %{tile: tile})
+    socket = socket |> update_game(game, :drew_discard, %{tile: tile})
+
+    {:noreply, socket}
+  end
+
+  # pong
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "discards",
+          "draggedToId" => "exposed-0",
+          "draggedId" => tile,
+          "draggedToList" => new_exposed
+        },
+        socket
+      )
+      when not socket.assigns.current_user_drawing and
+             length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
+    current_user_seatno = socket.assigns.current_user_seatno
+    game = socket.assigns.game
+
+    game = game |> Mjw.Game.pong(current_user_seatno, new_exposed, tile)
+
+    socket = socket |> update_game(game, :ponged, %{tile: tile})
 
     {:noreply, socket}
   end
