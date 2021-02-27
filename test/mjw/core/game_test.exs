@@ -425,7 +425,7 @@ defmodule Mjw.GameTest do
   end
 
   describe "discard" do
-    test "adds tile to discards, removes from player's hand, and changes turn to the next player" do
+    test "moves tile to discards and changes turn to the next player" do
       game =
         %Mjw.Game{
           turn_seatno: 3,
@@ -442,8 +442,8 @@ defmodule Mjw.GameTest do
       assert game.discards == ["c2-3", "dp-0"]
       assert game.turn_state == :drawing
       assert game.turn_seatno == 0
-      assert game.prev_turn_seatno == 3
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-3", "c3-3", "c4-3"]
+      assert game.undo_event == {3, :discarded, "c2-3"}
     end
   end
 
@@ -498,6 +498,7 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, true, false, false]
       assert game.turn_seatno == 1
       assert game.turn_state == :discarding
+      assert game.undo_event == {1, :declared_win, "n9-1", 3, :drawing}
     end
 
     test "undo win" do
@@ -543,7 +544,6 @@ defmodule Mjw.GameTest do
       {event, game} =
         %Mjw.Game{
           turn_seatno: 3,
-          prev_turn_seatno: 2,
           turn_state: :drawing,
           discards: ["dp-0", "df-0", "dp-1"]
         }
@@ -551,21 +551,20 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id1", "name1")
         |> Mjw.Game.seat_player("id2", "name2")
         |> Mjw.Game.seat_player("id3", "name3")
-        |> Mjw.Game.draw_discard(3, ["c1-0", "c1-1", "dp-0", "c2-0"])
+        |> Mjw.Game.draw_discard(3, ["c1-0", "c1-1", "dp-0", "c2-0"], "dp-0")
 
       assert event == :drew_discard
       assert game.discards == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 3
-      assert game.prev_turn_seatno == 2
       assert game.seats |> Enum.at(3) |> Map.get(:exposed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
+      assert game.undo_event == {3, :drew_discard, "dp-0"}
     end
 
     test "when it's a pong, removes the tile from discards and updates the player's exposed, turn state, and turn" do
       {event, game} =
         %Mjw.Game{
           turn_seatno: 3,
-          prev_turn_seatno: 2,
           turn_state: :drawing,
           discards: ["dp-0", "df-0", "dp-1"]
         }
@@ -573,14 +572,14 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id1", "name1")
         |> Mjw.Game.seat_player("id2", "name2")
         |> Mjw.Game.seat_player("id3", "name3")
-        |> Mjw.Game.draw_discard(0, ["c1-0", "c1-1", "dp-0", "c2-0"])
+        |> Mjw.Game.draw_discard(0, ["c1-0", "c1-1", "dp-0", "c2-0"], "dp-0")
 
       assert event == :ponged
       assert game.discards == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 0
-      assert game.prev_turn_seatno == 3
       assert game.seats |> Enum.at(0) |> Map.get(:exposed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
+      assert game.undo_event == {0, :ponged, "dp-0"}
     end
   end
 
@@ -589,7 +588,6 @@ defmodule Mjw.GameTest do
       {game, returned_tile} =
         %Mjw.Game{
           turn_seatno: 3,
-          prev_turn_seatno: 2,
           turn_state: :drawing,
           deck: ["dp-0", "df-0", "dp-1"]
         }
@@ -602,9 +600,9 @@ defmodule Mjw.GameTest do
       assert game.deck == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 3
-      assert game.prev_turn_seatno == 2
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
       assert returned_tile == "dp-0"
+      assert game.undo_event == {3, :drew_from_deck, "dp-0"}
     end
   end
 
@@ -613,7 +611,6 @@ defmodule Mjw.GameTest do
       {game, returned_tile} =
         %Mjw.Game{
           turn_seatno: 3,
-          prev_turn_seatno: 2,
           turn_state: :discarding,
           deck: ["dp-0", "df-0", "dp-1"]
         }
@@ -626,9 +623,9 @@ defmodule Mjw.GameTest do
       assert game.deck == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 3
-      assert game.prev_turn_seatno == 2
       assert game.seats |> Enum.at(0) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
       assert returned_tile == "dp-0"
+      assert game.undo_event == {0, :drew_correction_tile, "dp-0"}
     end
   end
 
@@ -681,8 +678,8 @@ defmodule Mjw.GameTest do
         dealer_seatno: 1,
         dealer_win_count: 1,
         turn_seatno: 3,
-        prev_turn_seatno: 2,
         turn_state: :discarding,
+        undo_event: {3, :drew_from_deck, "n2-3"},
         deck: ["dp-1"],
         discards: ["dp-0"],
         dice: [1, 2, 3],
@@ -714,7 +711,7 @@ defmodule Mjw.GameTest do
       assert game.dealer_seatno == 0
       assert game.dealer_win_count == 0
       assert game.turn_seatno == 0
-      assert game.prev_turn_seatno == 0
+      assert game.undo_event == {}
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
       assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
       assert Enum.map(game.seats, & &1.picked_wind) == [nil, nil, nil, nil]
@@ -736,8 +733,8 @@ defmodule Mjw.GameTest do
           dealer_seatno: 1,
           dealer_win_count: 1,
           turn_seatno: 3,
-          prev_turn_seatno: 2,
           turn_state: :discarding,
+          undo_event: {3, :drew_from_deck, "n2-3"},
           wind: "wn",
           seats:
             ~w(ww we ws wn)
@@ -764,7 +761,7 @@ defmodule Mjw.GameTest do
       assert game.dealer_seatno == 1
       assert game.dealer_win_count == 2
       assert game.turn_seatno == 1
-      assert game.prev_turn_seatno == 3
+      assert game.undo_event == {}
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
       assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
@@ -787,8 +784,8 @@ defmodule Mjw.GameTest do
           dealer_seatno: 1,
           dealer_win_count: 1,
           turn_seatno: 3,
-          prev_turn_seatno: 2,
           turn_state: :discarding,
+          undo_event: {3, :drew_from_deck, "n2-3"},
           wind: "wn",
           seats:
             ~w(ww we ws wn)
@@ -815,7 +812,7 @@ defmodule Mjw.GameTest do
       assert game.dealer_seatno == 1
       assert game.dealer_win_count == 2
       assert game.turn_seatno == 1
-      assert game.prev_turn_seatno == 3
+      assert game.undo_event == {}
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
       assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
@@ -836,8 +833,8 @@ defmodule Mjw.GameTest do
           dealer_seatno: 3,
           dealer_win_count: 1,
           turn_seatno: 2,
-          prev_turn_seatno: 1,
           turn_state: :discarding,
+          undo_event: {2, :drew_from_deck, "n2-2"},
           wind: "wn",
           seats:
             ~w(ww we ws wn)
@@ -864,7 +861,7 @@ defmodule Mjw.GameTest do
       assert game.dealer_seatno == 0
       assert game.dealer_win_count == 0
       assert game.turn_seatno == 0
-      assert game.prev_turn_seatno == 2
+      assert game.undo_event == {}
       assert Enum.map(game.seats, & &1.player_id) == ["id0", "id1", "id2", "id3"]
       assert Enum.map(game.seats, & &1.player_name) == ["name0", "name1", "name2", "name3"]
       assert Enum.map(game.seats, & &1.picked_wind) == ~w(ww we ws wn)
@@ -912,6 +909,7 @@ defmodule Mjw.GameTest do
           discards: ["dp-0"],
           turn_state: :discarding,
           turn_seatno: 2,
+          undo_event: {2, :drew_from_deck, "dp-0"},
           dealer_seatno: 0,
           dealer_win_count: 1,
           seats: [
@@ -939,6 +937,7 @@ defmodule Mjw.GameTest do
           discards: ["dp-0"],
           turn_state: :discarding,
           turn_seatno: 1,
+          undo_event: {1, :drew_from_deck, "dp-0"},
           dealer_seatno: 3,
           dealer_win_count: 1,
           wind: "we",
@@ -956,7 +955,7 @@ defmodule Mjw.GameTest do
       assert length(game.deck) == 136
       assert game.discards == []
       assert game.turn_state == :rolling
-      assert game.prev_turn_seatno == 1
+      assert game.undo_event == {}
       assert game.turn_seatno == 0
       assert game.dealer_seatno == 0
       assert game.dealer_win_count == 0
@@ -972,6 +971,7 @@ defmodule Mjw.GameTest do
           turn_seatno: 1,
           dealer_seatno: 3,
           dealer_win_count: 1,
+          undo_event: {1, :drew_from_deck, "dp-0"},
           wind: "we",
           seats: [
             %Mjw.Seat{winreaction: :ok},
@@ -988,7 +988,7 @@ defmodule Mjw.GameTest do
       assert game.discards == []
       assert game.turn_state == :rolling
       assert game.turn_seatno == 3
-      assert game.prev_turn_seatno == 1
+      assert game.undo_event == {}
       assert game.dealer_seatno == 3
       assert game.dealer_win_count == 2
       assert game.wind == "we"
@@ -1041,7 +1041,7 @@ defmodule Mjw.GameTest do
   end
 
   describe "replace_seat" do
-    test "Completely replaces the given seatno" do
+    test "completely replaces the given seatno" do
       game =
         %Mjw.Game{}
         |> Mjw.Game.seat_player("id0", "Name0")
@@ -1050,6 +1050,34 @@ defmodule Mjw.GameTest do
 
       assert game.seats |> Enum.map(& &1.player_id) == ["id2", "id1", nil, nil]
       assert game.seats |> Enum.map(& &1.player_name) == ["Name2", "Name1", nil, nil]
+    end
+  end
+
+  describe "undo_seatno" do
+    test "after a discard" do
+      undo_seatno =
+        %Mjw.Game{
+          undo_event: {3, :discarded, "c2-3"}
+        }
+        |> Mjw.Game.undo_seatno()
+
+      assert undo_seatno == 3
+    end
+
+    test "after a declared win" do
+      undo_seatno =
+        %Mjw.Game{
+          undo_event: {1, :declared_win, "n9-1", 3, :drawing}
+        }
+        |> Mjw.Game.undo_seatno()
+
+      assert undo_seatno == 1
+    end
+
+    test "no undoable event" do
+      undo_seatno = %Mjw.Game{} |> Mjw.Game.undo_seatno()
+
+      assert undo_seatno == nil
     end
   end
 end

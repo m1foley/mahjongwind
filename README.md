@@ -3,10 +3,23 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Bug: released tile, still in hand
+- Allow exposed -> discards
+- Indicate remainder of deck
+- Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
+- DQ confetti not working on Safari
+- Change win DQ to Asian
+- Clicking OK doesn't close win menu
+- Change "You are the dealer 2 times" to "You are the dealer (time #2)" or "You are the dealer 2nd time"
+- Click on deckoffer to reveal before dragging
+- Bug: UR icon alignment on Safari
+- Bug: "Dearler" looks like "r" on Safari (staircase is there too)
+- Consider replacing notification system with log system?
+- CSS: tile turn glowing on Safari 1 pixel too big
 - Undo button
 - Remove needlessly glowing tiles if the player's tiles are already glowing from turn indication
 - Add website name to landing page
-- Figure out why Firefox hangs
+- Firefox confetti performance: https://github.com/Agezao/confetti-js/issues/23
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
 - Inform the player if their browser window is too small
 - Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
