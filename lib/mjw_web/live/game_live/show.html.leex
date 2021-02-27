@@ -238,7 +238,7 @@
         <div class="player-name-container player-name-container-<%= i %> text-center justify-center items-center">
           <div class="playericons">
             <%= if seat.seatno == @game.dealer_seatno do %>
-              <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="Dealer<%= if @game.dealer_win_count > 0, do: " #{@game.dealer_win_count + 1} times" %>">
+              <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="Dealer<%= if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})" %>">
                 Dealer<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
               </div>
             <% end %>
@@ -265,7 +265,7 @@
   <%= if @player_seats_finalized do %>
     <div class="seat-0-icons flex flex-row text-center justify-center items-center space-x-2">
       <%= if @game.dealer_seatno == @current_user_seatno do %>
-        <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="You are the dealer<%= if @game.dealer_win_count > 0, do: " #{@game.dealer_win_count + 1} times" %>">
+        <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="You are the dealer<%= if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})" %>">
           Dealer<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
         </div>
       <% end %>
