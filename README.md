@@ -11,7 +11,6 @@ Play mahjong with your friends online!
 - DQ confetti not working on Safari: probably svg/png issue
 - Firefox confetti performance: https://github.com/Agezao/confetti-js/issues/23
 - Don't close win menu after clicking OK
-- Change "You are the dealer 2 times" to "You are the dealer (time #2)" or "You are the dealer 2nd time"
 - Click on deckoffer to reveal before dragging?
 - Consider replacing notification system with log system?
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
