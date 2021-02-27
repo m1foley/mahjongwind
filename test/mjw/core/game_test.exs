@@ -204,7 +204,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.reseat_players()
         |> Mjw.Game.roll_dice()
         |> Mjw.Game.deal()
-        |> Mjw.Game.update_wintile(0, "n1-0")
+        |> Mjw.Game.declare_win_from_hand(0, "n1-0")
 
       assert Mjw.Game.state(game) == :win_declared
     end
@@ -483,7 +483,7 @@ defmodule Mjw.GameTest do
     end
   end
 
-  describe "update_wintile" do
+  describe "declare_win_from_hand" do
     test "declare win" do
       game =
         %Mjw.Game{
@@ -492,34 +492,17 @@ defmodule Mjw.GameTest do
         }
         |> Mjw.Game.seat_player("id0", "name0")
         |> Mjw.Game.seat_player("id1", "name1")
-        |> Mjw.Game.update_wintile(1, "n9-1")
+        |> Mjw.Game.declare_win_from_hand(1, "n9-1")
 
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n9-1", nil, nil]
       assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, true, false, false]
       assert game.turn_seatno == 1
       assert game.turn_state == :discarding
-      assert game.undo_event == {1, :declared_win, "n9-1", 3, :drawing}
-    end
-
-    test "undo win" do
-      game =
-        %Mjw.Game{
-          turn_seatno: 1,
-          turn_state: :discarding
-        }
-        |> Mjw.Game.seat_player("id0", "name0")
-        |> Mjw.Game.seat_player("id1", "name1")
-        |> Mjw.Game.update_wintile(1, "n9-1")
-        |> Mjw.Game.update_wintile(1, nil)
-
-      assert game.seats |> Enum.map(& &1.wintile) == [nil, nil, nil, nil]
-      assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, false, false, false]
-      assert game.turn_seatno == 1
-      assert game.turn_state == :discarding
+      assert game.undo_event == {1, :declared_win, "n9-1", :hand, 3, :drawing}
     end
   end
 
-  describe "update_wintile_from_discards" do
+  describe "declare_win_from_discards" do
     test "updates the winning tile for the given seat number and removes it from discards" do
       game =
         %Mjw.Game{
@@ -529,13 +512,14 @@ defmodule Mjw.GameTest do
         }
         |> Mjw.Game.seat_player("id0", "name0")
         |> Mjw.Game.seat_player("id1", "name1")
-        |> Mjw.Game.update_wintile_from_discards(1, "n1-0")
+        |> Mjw.Game.declare_win_from_discards(1, "n1-0")
 
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n1-0", nil, nil]
       assert game.seats |> Enum.map(& &1.winreaction) == [nil, :expose, nil, nil]
       assert game.discards == ["n2-0", "n3-0"]
       assert game.turn_seatno == 1
       assert game.turn_state == :discarding
+      assert game.undo_event == {1, :declared_win, "n1-0", :discards, 3, :drawing}
     end
   end
 
@@ -1078,6 +1062,92 @@ defmodule Mjw.GameTest do
       undo_seatno = %Mjw.Game{} |> Mjw.Game.undo_seatno()
 
       assert undo_seatno == nil
+    end
+  end
+
+  describe "undo" do
+    test "undo a discard" do
+      orig_game = %Mjw.Game{
+        turn_seatno: 3,
+        turn_state: :discarding,
+        discards: ["dp-0", "df-0"],
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{
+              player_id: "id#{i}",
+              player_name: "name#{i}",
+              picked_wind: w,
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+            }
+          end)
+      }
+
+      game =
+        orig_game
+        |> Mjw.Game.discard(3, "n3-3")
+        |> Mjw.Game.undo()
+
+      assert game == orig_game
+    end
+
+    test "undo a declared win from discards" do
+      orig_game = %Mjw.Game{
+        turn_seatno: 3,
+        turn_state: :discarding,
+        discards: ["dp-0", "df-0"],
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{
+              player_id: "id#{i}",
+              player_name: "name#{i}",
+              picked_wind: w,
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+            }
+          end)
+      }
+
+      game =
+        orig_game
+        |> Mjw.Game.declare_win_from_discards(1, "dp-0")
+        |> Mjw.Game.undo()
+
+      assert game == orig_game
+    end
+
+    test "undo a declared win from player's hand" do
+      orig_game = %Mjw.Game{
+        turn_seatno: 3,
+        turn_state: :discarding,
+        discards: ["dp-0", "df-0"],
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{
+              player_id: "id#{i}",
+              player_name: "name#{i}",
+              picked_wind: w,
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+            }
+          end)
+      }
+
+      game =
+        orig_game
+        |> Mjw.Game.declare_win_from_hand(1, "n3-1")
+        |> Mjw.Game.undo()
+
+      assert game == orig_game
+    end
+
+    test "undo drawing a discard" do
+    end
+
+    test "undo pong" do
     end
   end
 end
