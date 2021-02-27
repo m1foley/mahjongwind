@@ -809,12 +809,11 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:event_details, event_details)
   end
 
-  defp might_have_gongs?(nil = _seat), do: false
-
-  # Show the gong correction tile if it's possible the user has a gong
-  defp might_have_gongs?(%Mjw.Seat{} = seat) do
-    length(seat.exposed) + length(seat.hiddengongs) > 3
+  defp might_have_gongs?(%Mjw.Seat{exposed: exposed, hiddengongs: hiddengongs}) do
+    length(exposed) > 3 || length(hiddengongs) > 3
   end
+
+  defp might_have_gongs?(_empty_seat), do: false
 
   # :local_only is used to update the local assigns without persisting the
   # game. This avoids sending private events like sorting one's own concealed
