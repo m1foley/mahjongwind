@@ -524,8 +524,8 @@ defmodule Mjw.GameTest do
   end
 
   describe "draw_discard" do
-    test "when it's not a pong, removes the tile from discards and updates the player's exposed & turn state" do
-      {event, game} =
+    test "removes the tile from discards and updates the player's exposed & turn state" do
+      game =
         %Mjw.Game{
           turn_seatno: 3,
           turn_state: :drawing,
@@ -537,16 +537,17 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id3", "name3")
         |> Mjw.Game.draw_discard(3, ["c1-0", "c1-1", "dp-0", "c2-0"], "dp-0")
 
-      assert event == :drew_discard
       assert game.discards == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 3
       assert game.seats |> Enum.at(3) |> Map.get(:exposed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
       assert game.undo_event == {3, :drew_discard, "dp-0"}
     end
+  end
 
-    test "when it's a pong, removes the tile from discards and updates the player's exposed, turn state, and turn" do
-      {event, game} =
+  describe "pong" do
+    test "removes the tile from discards and updates the player's exposed, turn state, and turn" do
+      game =
         %Mjw.Game{
           turn_seatno: 3,
           turn_state: :drawing,
@@ -556,20 +557,19 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.seat_player("id1", "name1")
         |> Mjw.Game.seat_player("id2", "name2")
         |> Mjw.Game.seat_player("id3", "name3")
-        |> Mjw.Game.draw_discard(0, ["c1-0", "c1-1", "dp-0", "c2-0"], "dp-0")
+        |> Mjw.Game.pong(0, ["c1-0", "c1-1", "dp-0", "c2-0"], "dp-0")
 
-      assert event == :ponged
       assert game.discards == ["df-0", "dp-1"]
       assert game.turn_state == :discarding
       assert game.turn_seatno == 0
       assert game.seats |> Enum.at(0) |> Map.get(:exposed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
-      assert game.undo_event == {0, :ponged, "dp-0"}
+      assert game.undo_event == {0, :ponged, "dp-0", 3}
     end
   end
 
   describe "draw_from_deck" do
     test "removes a tile from deck, updates the player's concealed, updates turn state" do
-      {game, returned_tile} =
+      {game, "dp-0"} =
         %Mjw.Game{
           turn_seatno: 3,
           turn_state: :drawing,
@@ -585,7 +585,6 @@ defmodule Mjw.GameTest do
       assert game.turn_state == :discarding
       assert game.turn_seatno == 3
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
-      assert returned_tile == "dp-0"
       assert game.undo_event == {3, :drew_from_deck, "dp-0"}
     end
   end
@@ -1145,9 +1144,107 @@ defmodule Mjw.GameTest do
     end
 
     test "undo drawing a discard" do
+      orig_game = %Mjw.Game{
+        turn_seatno: 3,
+        turn_state: :drawing,
+        discards: ["dp-0", "df-0"],
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{
+              player_id: "id#{i}",
+              player_name: "name#{i}",
+              picked_wind: w,
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+            }
+          end)
+      }
+
+      game =
+        orig_game
+        |> Mjw.Game.draw_discard(3, ["dp-0"], "dp-0")
+        |> Mjw.Game.undo()
+
+      assert game == orig_game
     end
 
     test "undo pong" do
+      orig_game = %Mjw.Game{
+        turn_seatno: 3,
+        turn_state: :drawing,
+        discards: ["dp-0", "df-0"],
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{
+              player_id: "id#{i}",
+              player_name: "name#{i}",
+              picked_wind: w,
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+            }
+          end)
+      }
+
+      game =
+        orig_game
+        |> Mjw.Game.pong(1, ["dp-0"], "dp-0")
+        |> Mjw.Game.undo()
+
+      assert game == orig_game
+    end
+
+    test "undo draw from deck" do
+      orig_game = %Mjw.Game{
+        turn_seatno: 3,
+        turn_state: :drawing,
+        deck: ["b1-0", "b2-0", "b3-0"],
+        discards: ["dp-0", "df-0"],
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{
+              player_id: "id#{i}",
+              player_name: "name#{i}",
+              picked_wind: w,
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+            }
+          end)
+      }
+
+      {game, "b1-0"} =
+        orig_game |> Mjw.Game.draw_from_deck(3, ["n1-3", "n2-3", "n3-3", "decktile"])
+
+      game = game |> Mjw.Game.undo()
+      assert game == orig_game
+    end
+
+    test "undo draw correction tile" do
+      orig_game = %Mjw.Game{
+        turn_seatno: 3,
+        turn_state: :drawing,
+        deck: ["b1-0", "b2-0", "b3-0"],
+        discards: ["dp-0", "df-0"],
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{
+              player_id: "id#{i}",
+              player_name: "name#{i}",
+              picked_wind: w,
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+            }
+          end)
+      }
+
+      {game, "b1-0"} =
+        orig_game |> Mjw.Game.draw_correction_tile(3, ["n1-3", "n2-3", "n3-3", "decktile"])
+
+      game = game |> Mjw.Game.undo()
+      assert game == orig_game
     end
   end
 end

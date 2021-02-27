@@ -246,4 +246,58 @@ defmodule Mjw.SeatTest do
       refute %Mjw.Seat{winreaction: :ok} |> Mjw.Seat.win_expose?()
     end
   end
+
+  describe "remove_from_hand" do
+    test "removes tile from exposed" do
+      seat =
+        %Mjw.Seat{
+          concealed: ["n1-0", "n2-0", "n3-0"],
+          exposed: ["n1-1", "n2-1", "n3-1"],
+          hiddengongs: ["n1-2", "n2-2", "n3-2"]
+        }
+        |> Mjw.Seat.remove_from_hand("n2-1")
+
+      assert seat.concealed == ["n1-0", "n2-0", "n3-0"]
+      assert seat.exposed == ["n1-1", "n3-1"]
+      assert seat.hiddengongs == ["n1-2", "n2-2", "n3-2"]
+    end
+
+    test "removes tile from concealed" do
+      seat =
+        %Mjw.Seat{
+          concealed: ["n1-0", "n2-0", "n3-0"],
+          exposed: ["n1-1", "n2-1", "n3-1"],
+          hiddengongs: ["n1-2", "n2-2", "n3-2"]
+        }
+        |> Mjw.Seat.remove_from_hand("n2-0")
+
+      assert seat.concealed == ["n1-0", "n3-0"]
+      assert seat.exposed == ["n1-1", "n2-1", "n3-1"]
+      assert seat.hiddengongs == ["n1-2", "n2-2", "n3-2"]
+    end
+
+    test "removes tile from hiddengongs" do
+      seat =
+        %Mjw.Seat{
+          concealed: ["n1-0", "n2-0", "n3-0"],
+          exposed: ["n1-1", "n2-1", "n3-1"],
+          hiddengongs: ["n1-2", "n2-2", "n3-2"]
+        }
+        |> Mjw.Seat.remove_from_hand("n2-2")
+
+      assert seat.concealed == ["n1-0", "n2-0", "n3-0"]
+      assert seat.exposed == ["n1-1", "n2-1", "n3-1"]
+      assert seat.hiddengongs == ["n1-2", "n3-2"]
+    end
+
+    test "no change if tile not present" do
+      seat = %Mjw.Seat{
+        concealed: ["n1-0", "n2-0", "n3-0"],
+        exposed: ["n1-1", "n2-1", "n3-1"],
+        hiddengongs: ["n1-2", "n2-2", "n3-2"]
+      }
+
+      assert Mjw.Seat.remove_from_hand(seat, "b9-0") == seat
+    end
+  end
 end

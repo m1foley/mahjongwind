@@ -84,4 +84,14 @@ defmodule Mjw.Seat do
   def win_expose?(%__MODULE__{winreaction: winreaction}) do
     winreaction in [:expose, :expose_ok]
   end
+
+  @doc """
+  Remove a tile from a player's hand, no matter which list it's in
+  """
+  def remove_from_hand(%__MODULE__{} = seat, tile) do
+    seat
+    |> Map.update!(:exposed, &List.delete(&1, tile))
+    |> Map.update!(:concealed, &List.delete(&1, tile))
+    |> Map.update!(:hiddengongs, &List.delete(&1, tile))
+  end
 end

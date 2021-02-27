@@ -30,9 +30,8 @@ defmodule Mjw.Game do
             # Store the last significant event for undos. Only undoable events
             # are stored, which is a small subset of the event/raw_event
             # assigns used in the frontend. Empty if no undoable event.
-            # Format is one of:
-            # - {seatno, event, tile}
-            # - {seatno, event, wintile, wintile_from, turn_seatno, turn_state}
+            # Format is usually {seatno, event, tile} but can have additional
+            # fields per event type.
             undo_event: {},
             # Where the deal picking started from. Might be used to count points.
             dealpick_seatno: 0,
@@ -356,7 +355,7 @@ defmodule Mjw.Game do
     %{game | turn_seatno: turn_seatno}
   end
 
-  defp move_back_turnseat(%__MODULE__{} = game) do
+  defp move_back_turn_seat(%__MODULE__{} = game) do
     turn_seatno = rem(game.turn_seatno + 3, 4)
     %{game | turn_seatno: turn_seatno}
   end
@@ -465,33 +464,36 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  A player draws from the discards OR pongs (the difference being if it was the
-  player's turn). Remove from the discards, update the player's concealed tiles
-  (already calculated on frontend), update turn_state, and change turn_seatno
-  if it was a pong.
+  A player draws from the discards (not a pong because it was their turn)
   """
   def draw_discard(%__MODULE__{turn_state: :drawing} = game, seatno, new_exposed, tile) do
     # Assuming that the frontend did its job so discards 0 == tile
     new_discards = game.discards |> Enum.slice(1..-1)
 
-    {event, game} =
-      if seatno == game.turn_seatno do
-        {:drew_discard, game}
-      else
-        # pongs change the turn seat
-        {:ponged, %{game | turn_seatno: seatno}}
-      end
+    game
+    |> update_exposed(seatno, new_exposed)
+    |> Map.merge(%{
+      discards: new_discards,
+      undo_event: {seatno, :drew_discard, tile},
+      turn_state: :discarding
+    })
+  end
 
-    game =
-      game
-      |> update_exposed(seatno, new_exposed)
-      |> Map.merge(%{
-        discards: new_discards,
-        undo_event: {seatno, event, tile},
-        turn_state: :discarding
-      })
+  @doc """
+  A player draws from the discards when it's not their turn
+  """
+  def pong(%__MODULE__{turn_state: :drawing} = game, seatno, new_exposed, tile) do
+    # Assuming that the frontend did its job so discards 0 == tile
+    new_discards = game.discards |> Enum.slice(1..-1)
 
-    {event, game}
+    game
+    |> update_exposed(seatno, new_exposed)
+    |> Map.merge(%{
+      turn_seatno: seatno,
+      turn_state: :discarding,
+      discards: new_discards,
+      undo_event: {seatno, :ponged, tile, game.turn_seatno}
+    })
   end
 
   @doc """
@@ -516,7 +518,7 @@ defmodule Mjw.Game do
   @doc """
   A player draws a gong correction tile: remove from the deck and update the
   player's concealed tiles (already calculated on frontend).
-  "decktile" in the player's hand is swapped in-place with the next deck tile.
+  "decktile" in the player's hand is swapped in-place with the correction tile.
   """
   def draw_correction_tile(%__MODULE__{} = game, seatno, concealed) do
     {new_deck, new_concealed, tile} = swap_concealed_deck_tile(game, concealed)
@@ -533,6 +535,7 @@ defmodule Mjw.Game do
     decktile_idx = tiles |> Enum.find_index(&(&1 == "decktile"))
 
     if decktile_idx do
+      # in real life this would grab from the other side of the deck
       [next_deck_tile | remaining_deck] = deck
       new_tiles = tiles |> List.replace_at(decktile_idx, next_deck_tile)
       {remaining_deck, new_tiles, next_deck_tile}
@@ -654,6 +657,10 @@ defmodule Mjw.Game do
     seatno
   end
 
+  def undo_seatno(%__MODULE__{undo_event: {seatno, _event, _tile, _turn_seatno}}) do
+    seatno
+  end
+
   def undo_seatno(%__MODULE__{undo_event: {seatno, _event, _tile, _turn_seatno, _turn_state}}) do
     seatno
   end
@@ -667,7 +674,7 @@ defmodule Mjw.Game do
       ) do
     game
     |> update_seat(seatno, fn seat -> %{seat | concealed: seat.concealed ++ [tile]} end)
-    |> move_back_turnseat()
+    |> move_back_turn_seat()
     |> Map.merge(%{
       discards: new_discards,
       turn_state: :discarding,
@@ -708,6 +715,51 @@ defmodule Mjw.Game do
       turn_seatno: turn_seatno,
       turn_state: turn_state,
       seats: seats,
+      undo_event: {}
+    })
+  end
+
+  # undo drawing a discard
+  def undo(%__MODULE__{undo_event: {seatno, :drew_discard, tile}} = game) do
+    game
+    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
+    |> Map.merge(%{
+      discards: [tile | game.discards],
+      turn_state: :drawing,
+      undo_event: {}
+    })
+  end
+
+  # undo pong
+  def undo(%__MODULE__{undo_event: {seatno, :ponged, tile, turn_seatno}} = game) do
+    game
+    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
+    |> Map.merge(%{
+      turn_state: :drawing,
+      turn_seatno: turn_seatno,
+      discards: [tile | game.discards],
+      undo_event: {}
+    })
+  end
+
+  # undo draw from deck
+  def undo(%__MODULE__{undo_event: {seatno, :drew_from_deck, tile}} = game) do
+    game
+    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
+    |> Map.merge(%{
+      turn_state: :drawing,
+      deck: [tile | game.deck],
+      undo_event: {}
+    })
+  end
+
+  # undo draw correction tile
+  def undo(%__MODULE__{undo_event: {seatno, :drew_correction_tile, tile}} = game) do
+    game
+    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
+    |> Map.merge(%{
+      turn_state: :drawing,
+      deck: [tile | game.deck],
       undo_event: {}
     })
   end
