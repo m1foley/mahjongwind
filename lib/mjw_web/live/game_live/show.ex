@@ -156,7 +156,7 @@ defmodule MjwWeb.GameLive.Show do
     # event is :drew_discard or :ponged, depending on if it's the player's turn
     {event, game} =
       game
-      |> Mjw.Game.draw_discard(current_user_seatno, new_exposed)
+      |> Mjw.Game.draw_discard(current_user_seatno, new_exposed, tile)
 
     socket = socket |> update_game(game, event, %{tile: tile})
 
@@ -684,6 +684,8 @@ defmodule MjwWeb.GameLive.Show do
     current_user_seatno = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
     turn_player_name = Mjw.Game.turn_player_name(game)
+    last_discarded_seatno = Mjw.Game.last_discarded_seatno(game)
+    can_undo = Mjw.Game.undo_seatno(game) == current_user_seatno
 
     win_declared_seatno =
       if game_state == :win_declared, do: game |> Mjw.Game.win_declared_seatno()
@@ -727,12 +729,12 @@ defmodule MjwWeb.GameLive.Show do
 
     # not limited to turn_seatno because of pongs
     enable_pull_from_discards =
-      !win_declared_seatno &&
-        game_state == :drawing && game.prev_turn_seatno != current_user_seatno
+      !win_declared_seatno && game_state == :drawing &&
+        last_discarded_seatno != current_user_seatno
 
     discarded_by_relative_seatno =
       if enable_pull_from_discards do
-        relative_game_seats |> Enum.find_index(&(&1.seatno == game.prev_turn_seatno))
+        relative_game_seats |> Enum.find_index(&(&1.seatno == last_discarded_seatno))
       end
 
     current_user_discarding =
@@ -749,6 +751,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_seatno, current_user_seatno)
     |> assign(:game_state, game_state)
     |> assign(:turn_player_name, turn_player_name)
+    |> assign(:can_undo, can_undo)
     |> assign(:relative_game_seats, relative_game_seats)
     |> assign(:current_user_seat, current_user_seat)
     |> assign(:show_stick, show_stick)
