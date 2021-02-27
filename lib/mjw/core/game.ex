@@ -32,7 +32,7 @@ defmodule Mjw.Game do
             # assigns used in the frontend. Empty if no undoable event.
             # Format is one of:
             # - {seatno, event, tile}
-            # - {seatno, event, tile, turn_seatno, turn_state}
+            # - {seatno, event, wintile, wintile_from, turn_seatno, turn_state}
             undo_event: {},
             # Where the deal picking started from. Might be used to count points.
             dealpick_seatno: 0,
@@ -356,6 +356,11 @@ defmodule Mjw.Game do
     %{game | turn_seatno: turn_seatno}
   end
 
+  defp move_back_turnseat(%__MODULE__{} = game) do
+    turn_seatno = rem(game.turn_seatno + 3, 4)
+    %{game | turn_seatno: turn_seatno}
+  end
+
   defp advance_dealer(%__MODULE__{} = game) do
     dealer_seatno = rem(game.dealer_seatno + 1, 4)
 
@@ -429,35 +434,34 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  Update the given player's wintile. If nil, it undoes their accidental win.
+  Declare a win from a player's hand
   """
-  def update_wintile(%__MODULE__{} = game, _seatno, nil) do
-    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
-
-    %{game | seats: seats}
+  def declare_win_from_hand(%__MODULE__{} = game, seatno, wintile) do
+    update_wintile(game, seatno, wintile, :hand)
   end
 
-  def update_wintile(%__MODULE__{} = game, seatno, wintile) do
+  @doc """
+  Declare a win from the discards
+  """
+  def declare_win_from_discards(%__MODULE__{} = game, seatno, wintile) do
+    new_discards = game.discards |> Enum.slice(1..-1)
+
+    game
+    |> update_wintile(seatno, wintile, :discards)
+    |> Map.merge(%{discards: new_discards})
+  end
+
+  defp update_wintile(%__MODULE__{} = game, seatno, wintile, wintile_from) do
     game
     |> Map.merge(%{
-      undo_event: {seatno, :declared_win, wintile, game.turn_seatno, game.turn_state},
+      undo_event:
+        {seatno, :declared_win, wintile, wintile_from, game.turn_seatno, game.turn_state},
       turn_seatno: seatno,
       turn_state: :discarding
     })
     |> update_seat(seatno, fn seat ->
       seat |> Mjw.Seat.declare_win(wintile)
     end)
-  end
-
-  @doc """
-  Update the given player's wintile when they pick from discards
-  """
-  def update_wintile_from_discards(%__MODULE__{} = game, seatno, wintile) do
-    new_discards = game.discards |> Enum.slice(1..-1)
-
-    game
-    |> update_wintile(seatno, wintile)
-    |> Map.merge(%{discards: new_discards})
   end
 
   @doc """
@@ -655,6 +659,61 @@ defmodule Mjw.Game do
   end
 
   def undo_seatno(%__MODULE__{}), do: nil
+
+  # undo a discard
+  def undo(
+        %__MODULE__{undo_event: {seatno, :discarded, tile}, discards: [tile | new_discards]} =
+          game
+      ) do
+    game
+    |> update_seat(seatno, fn seat -> %{seat | concealed: seat.concealed ++ [tile]} end)
+    |> move_back_turnseat()
+    |> Map.merge(%{
+      discards: new_discards,
+      turn_state: :discarding,
+      undo_event: {}
+    })
+  end
+
+  # undo a declared win from discards
+  def undo(
+        %__MODULE__{
+          undo_event: {_seatno, :declared_win, wintile, :discards, turn_seatno, turn_state}
+        } = game
+      ) do
+    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
+    discards = [wintile | game.discards]
+
+    game
+    |> Map.merge(%{
+      discards: discards,
+      turn_seatno: turn_seatno,
+      turn_state: turn_state,
+      seats: seats,
+      undo_event: {}
+    })
+  end
+
+  # undo a declared win from hand
+  def undo(
+        %__MODULE__{
+          undo_event: {seatno, :declared_win, wintile, :hand, turn_seatno, turn_state}
+        } = game
+      ) do
+    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
+
+    game
+    |> update_seat(seatno, fn seat -> %{seat | concealed: seat.concealed ++ [wintile]} end)
+    |> Map.merge(%{
+      turn_seatno: turn_seatno,
+      turn_state: turn_state,
+      seats: seats,
+      undo_event: {}
+    })
+  end
+
+  # something went wrong if it doesn't pattern match above
+  def undo(%__MODULE__{} = game), do: game
 
   @doc """
   Calculate the state of a game

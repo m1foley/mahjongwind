@@ -67,6 +67,18 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("undo", _params, socket)
+      when socket.assigns.can_undo do
+    game =
+      socket.assigns.game
+      |> Mjw.Game.undo()
+
+    socket = socket |> update_game(game, :undo)
+
+    {:noreply, socket}
+  end
+
   # Sorting one's own concealed tiles
   @impl true
   def handle_event(
@@ -406,7 +418,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
-      |> Mjw.Game.update_wintile(current_user_seatno, tile)
+      |> Mjw.Game.declare_win_from_hand(current_user_seatno, tile)
 
     socket = socket |> update_game(game, :declared_win)
 
@@ -428,7 +440,7 @@ defmodule MjwWeb.GameLive.Show do
 
     game =
       socket.assigns.game
-      |> Mjw.Game.update_wintile_from_discards(current_user_seatno, tile)
+      |> Mjw.Game.declare_win_from_discards(current_user_seatno, tile)
 
     socket = socket |> update_game(game, :declared_win)
 
@@ -453,57 +465,9 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
-      |> Mjw.Game.update_wintile(current_user_seatno, tile)
+      |> Mjw.Game.declare_win_from_hand(current_user_seatno, tile)
 
     socket = socket |> update_game(game, :declared_win)
-
-    {:noreply, socket}
-  end
-
-  # wintile -> concealed: undoing a win
-  @impl true
-  def handle_event(
-        "dropped",
-        %{
-          "draggedFromId" => "wintile-0",
-          "draggedToId" => "concealed-0",
-          "draggedToList" => new_concealed
-        },
-        socket
-      )
-      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
-    current_user_seatno = socket.assigns.current_user_seatno
-
-    game =
-      socket.assigns.game
-      |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
-      |> Mjw.Game.update_wintile(current_user_seatno, nil)
-
-    socket = socket |> update_game(game, :undid_win)
-
-    {:noreply, socket}
-  end
-
-  # wintile -> exposed: undoing a win
-  @impl true
-  def handle_event(
-        "dropped",
-        %{
-          "draggedFromId" => "wintile-0",
-          "draggedToId" => "exposed-0",
-          "draggedToList" => new_exposed
-        },
-        socket
-      )
-      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
-    current_user_seatno = socket.assigns.current_user_seatno
-
-    game =
-      socket.assigns.game
-      |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
-      |> Mjw.Game.update_wintile(current_user_seatno, nil)
-
-    socket = socket |> update_game(game, :undid_win)
 
     {:noreply, socket}
   end
@@ -841,7 +805,6 @@ defmodule MjwWeb.GameLive.Show do
     :rolled_for_first_dealer,
     :rolled_for_deal,
     :confirmed_win,
-    :undid_win,
     :draw,
     :dq
   ]
