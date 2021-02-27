@@ -13,7 +13,6 @@ Play mahjong with your friends online!
 - Don't close win menu after clicking OK
 - Change "You are the dealer 2 times" to "You are the dealer (time #2)" or "You are the dealer 2nd time"
 - Click on deckoffer to reveal before dragging?
-- CSS: tile turn glowing on Safari 1 pixel too big
 - Consider replacing notification system with log system?
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
 - Add website name to landing page
