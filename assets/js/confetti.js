@@ -1,6 +1,6 @@
 /* jshint esversion: 6 */
 
-import ConfettiGenerator from 'confetti-js';
+import ConfettiGenerator from './confetti-generator.min';
 
 export default {
   mounted() {

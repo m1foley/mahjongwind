@@ -6,10 +6,8 @@ Play mahjong with your friends online!
 - Bug: released tile, still in hand
 - Allow exposed -> discards
 - Indicate how many tiles remain in deck
-- Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
-- DQ confetti not working on Safari: probably svg/png issue
-- Firefox confetti performance: https://github.com/Agezao/confetti-js/issues/23
 - Don't close win menu after clicking OK
+- Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Click on deckoffer to reveal before dragging?
 - Consider replacing notification system with log system?
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
