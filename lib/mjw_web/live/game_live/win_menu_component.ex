@@ -12,7 +12,6 @@ defmodule MjwWeb.GameLive.WinMenuComponent do
   end
 
   defp assign_game_info(socket) do
-    game = socket.assigns.game
     current_user_seat = socket.assigns.current_user_seat
     showdeck = socket.assigns[:showdeck]
     confirmed_win = Mjw.Seat.confirmed_win?(current_user_seat)
