@@ -650,22 +650,22 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  If there is an undoable event, the seatno of the player who can undo it.
-  If there is not an undoable event, return nil.
+  If there is an undo available, return the seatno of the player who can undo
+  and the event description
   """
-  def undo_seatno(%__MODULE__{undo_event: {seatno, _event, _tile}}) do
-    seatno
+  def undo_availability(%__MODULE__{undo_event: {seatno, event, _tile}}) do
+    {seatno, event}
   end
 
-  def undo_seatno(%__MODULE__{undo_event: {seatno, _event, _tile, _turn_seatno}}) do
-    seatno
+  def undo_availability(%__MODULE__{undo_event: {seatno, event, _tile, _turn_seatno}}) do
+    {seatno, event}
   end
 
-  def undo_seatno(%__MODULE__{undo_event: {seatno, _event, _tile, _turn_seatno, _turn_state}}) do
-    seatno
+  def undo_availability(%__MODULE__{undo_event: {seatno, event, _tile, _turn_seatno, _turn_state}}) do
+    {seatno, event}
   end
 
-  def undo_seatno(%__MODULE__{}), do: nil
+  def undo_availability(%__MODULE__{}), do: {nil, nil}
 
   # undo a discard
   def undo(

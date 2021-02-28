@@ -1036,31 +1036,34 @@ defmodule Mjw.GameTest do
     end
   end
 
-  describe "undo_seatno" do
+  describe "undo_availability" do
     test "after a discard" do
-      undo_seatno =
+      {undo_seatno, event} =
         %Mjw.Game{
           undo_event: {3, :discarded, "c2-3"}
         }
-        |> Mjw.Game.undo_seatno()
+        |> Mjw.Game.undo_availability()
 
       assert undo_seatno == 3
+      assert event == :discarded
     end
 
     test "after a declared win" do
-      undo_seatno =
+      {undo_seatno, event} =
         %Mjw.Game{
           undo_event: {1, :declared_win, "n9-1", 3, :drawing}
         }
-        |> Mjw.Game.undo_seatno()
+        |> Mjw.Game.undo_availability()
 
       assert undo_seatno == 1
+      assert event == :declared_win
     end
 
     test "no undoable event" do
-      undo_seatno = %Mjw.Game{} |> Mjw.Game.undo_seatno()
+      {undo_seatno, event} = %Mjw.Game{} |> Mjw.Game.undo_availability()
 
       assert undo_seatno == nil
+      assert event == nil
     end
   end
 
