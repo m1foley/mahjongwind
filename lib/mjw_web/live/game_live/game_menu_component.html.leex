@@ -10,16 +10,16 @@
 
       <div id="dqs" phx-hook="DeclareDq" phx-click="">
         <div id="declare-dq-btn" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
-          Declare DQ 🙅‍♀️
+          Declare DQ 🙅🏻‍♀️
         </div>
 
         <div class="dqplayer opacity-30 bg-white text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-default my-4 hidden">
-          Declare DQ 🙅‍♀️
+          Declare DQ 🙅🏻‍♀️
         </div>
 
         <%= for seat <- @relative_game_seats |> Enum.slice(1..-1) do %>
           <div class="dqplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden" phx-target="#game" phx-click="dq" phx-value-seatno="<%= seat.seatno %>">
-            <%= seat.player_name %> 🙅‍♀️
+            <%= seat.player_name %>
           </div>
         <% end %>
       </div>
