@@ -488,17 +488,27 @@ defmodule Mjw.GameTest do
       game =
         %Mjw.Game{
           turn_seatno: 3,
-          turn_state: :drawing
+          turn_state: :drawing,
+          seats:
+            ~w(ww we ws wn)
+            |> Enum.with_index()
+            |> Enum.map(fn {w, i} ->
+              %Mjw.Seat{
+                player_id: "id#{i}",
+                player_name: "name#{i}",
+                picked_wind: w,
+                concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+              }
+            end)
         }
-        |> Mjw.Game.seat_player("id0", "name0")
-        |> Mjw.Game.seat_player("id1", "name1")
-        |> Mjw.Game.declare_win_from_hand(1, "n9-1")
+        |> Mjw.Game.declare_win_from_hand(1, "n2-1")
 
-      assert game.seats |> Enum.map(& &1.wintile) == [nil, "n9-1", nil, nil]
+      assert game.seats |> Enum.map(& &1.wintile) == [nil, "n2-1", nil, nil]
       assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, true, false, false]
+      assert game.seats |> Enum.at(1) |> Map.get(:concealed) == ["n1-1", "n3-1"]
       assert game.turn_seatno == 1
       assert game.turn_state == :discarding
-      assert game.undo_event == {1, :declared_win, "n9-1", :hand, 3, :drawing}
+      assert game.undo_event == {1, :declared_win, "n2-1", :hand, 3, :drawing}
     end
   end
 
@@ -1133,7 +1143,7 @@ defmodule Mjw.GameTest do
               player_id: "id#{i}",
               player_name: "name#{i}",
               picked_wind: w,
-              concealed: ["n1-#{i}", "n2-#{i}"]
+              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
             }
           end)
       }
@@ -1143,14 +1153,7 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.declare_win_from_hand(1, "n3-1")
         |> Mjw.Game.undo()
 
-      expected = %{
-        orig_game
-        | seats:
-            game.seats
-            |> List.update_at(1, fn seat -> %{seat | concealed: ["n1-1", "n2-1", "n3-1"]} end)
-      }
-
-      assert game == expected
+      assert game == orig_game
     end
 
     test "undo drawing a discard" do

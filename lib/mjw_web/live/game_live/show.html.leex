@@ -62,7 +62,7 @@
             <div id="wintile-0" phx-hook="Drag" class="wintile-tiles<%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno, do: " dropzone" %>">
               <%= if seat.wintile do %>
                 <% tile_code = seat.wintile |> String.slice(0..1) %>
-                <img id="<%= seat.wintile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable" />
+                <img id="<%= seat.wintile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile cursor-not-allowed" />
               <% end %>
               <%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno do %>
                 <div class="dropzone-description">

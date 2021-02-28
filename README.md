@@ -4,6 +4,7 @@ Play mahjong with your friends online!
 
 ## TODO
 - Bug: released tile, still in hand
+- Bug: seat 0 turnglow doesn't show in Safari
 - Allow exposed -> discards
 - Indicate how many tiles remain in deck
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out

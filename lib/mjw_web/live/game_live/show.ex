@@ -420,25 +420,22 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # concealed -> wintile: declaring a win
+  # concealed/exposed -> wintile: declaring a win
   @impl true
   def handle_event(
         "dropped",
         %{
-          "draggedFromId" => "concealed-0",
+          "draggedFromId" => dragged_from,
           "draggedToId" => "wintile-0",
-          "draggedFromList" => new_concealed,
           "draggedId" => tile
         },
         socket
       )
-      when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) - 1 do
+      when dragged_from in ["concealed-0", "exposed-0"] do
     current_user_seatno = socket.assigns.current_user_seatno
+    game = socket.assigns.game
 
-    game =
-      socket.assigns.game
-      |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
-      |> Mjw.Game.declare_win_from_hand(current_user_seatno, tile)
+    game = game |> Mjw.Game.declare_win_from_hand(current_user_seatno, tile)
 
     socket = socket |> update_game(game, :declared_win)
 
@@ -461,31 +458,6 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.declare_win_from_discards(current_user_seatno, tile)
-
-    socket = socket |> update_game(game, :declared_win)
-
-    {:noreply, socket}
-  end
-
-  # exposed -> wintile: declaring a win clumsily
-  @impl true
-  def handle_event(
-        "dropped",
-        %{
-          "draggedFromId" => "exposed-0",
-          "draggedToId" => "wintile-0",
-          "draggedFromList" => new_exposed,
-          "draggedId" => tile
-        },
-        socket
-      )
-      when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) - 1 do
-    current_user_seatno = socket.assigns.current_user_seatno
-
-    game =
-      socket.assigns.game
-      |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
-      |> Mjw.Game.declare_win_from_hand(current_user_seatno, tile)
 
     socket = socket |> update_game(game, :declared_win)
 

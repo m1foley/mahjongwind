@@ -55,7 +55,7 @@ export default {
           group: {
             name: 'concealed-0',
             put: function (to, from) {
-              let ids = ['exposed-0', 'hiddengongs-0', 'correctiontiles', 'wintile-0'];
+              let ids = ['exposed-0', 'hiddengongs-0', 'correctiontiles'];
               if (dropzone.classList.contains('enable-pull-from-discards')) {
                 ids.push('discards', 'deckoffer');
               }
@@ -127,7 +127,7 @@ export default {
         Sortable.create(dropzone, {
           group: {
             name: 'exposed-0',
-            put: ['concealed-0', 'hiddengongs-0', 'discards', 'wintile-0'],
+            put: ['concealed-0', 'hiddengongs-0', 'discards'],
             pull: ['concealed-0', 'hiddengongs-0', 'wintile-0']
           },
           direction: 'horizontal',
@@ -255,7 +255,7 @@ export default {
           group: {
             name: 'wintile-0',
             put: ['discards', 'concealed-0', 'exposed-0'],
-            pull: ['concealed-0', 'exposed-0'] // for accidents
+            pull: false // can only undo via Undo button
           },
           direction: 'horizontal',
           draggable: '.draggable',
@@ -268,8 +268,7 @@ export default {
           onSort: function (evt) {
             // Interactions with concealed or exposed tiles are handled in
             // their respective onSort hooks. That should leave just discards.
-            if (['concealed-0', 'exposed-0'].includes(evt.from.id) ||
-              ['concealed-0', 'exposed-0'].includes(evt.to.id)) {
+            if (['concealed-0', 'exposed-0'].includes(evt.from.id)) {
               return;
             }
 
