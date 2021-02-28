@@ -153,13 +153,25 @@
                 <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl">🙅🏻‍♀️</span>
               </div>
             <% :undo -> %>
-              <div class="state-description">
-                <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-                  You undid your action.
-                <% else %>
-                  <%= @event_details[:seat].player_name %> undid their action.
-                <% end %>
-              </div>
+              <%= if @event_details[:seat].seatno != @current_user_seatno do %>
+                <div class="state-description">
+                  <%= case @event_details[:event] do %>
+                  <% :discarded -> %>
+                    <%= @event_details[:seat].player_name %> took back their discard.
+                  <% :declared_win -> %>
+                    <%= @event_details[:seat].player_name %> took back their win.
+                  <% :drew_discard -> %>
+                    <%= @event_details[:seat].player_name %> returned the tile to discards.
+                  <% n when n in [:drew_discard, :ponged] -> %>
+                    <%= @event_details[:seat].player_name %> returned the tile to discards.
+                  <% :drew_from_deck -> %>
+                    <%= @event_details[:seat].player_name %> returned the tile to the deck.
+                  <% :drew_correction_tile -> %>
+                    <%= @event_details[:seat].player_name %> returned the correction tile to the deck.
+                  <% _unknown_undo_event -> %>
+                  <% end %>
+                </div>
+              <% end %>
             <% _event -> %>
           <% end %>
 
