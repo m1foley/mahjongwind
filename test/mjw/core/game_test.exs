@@ -1051,7 +1051,7 @@ defmodule Mjw.GameTest do
     test "after a declared win" do
       {undo_seatno, event} =
         %Mjw.Game{
-          undo_event: {1, :declared_win, "n9-1", 3, :drawing}
+          undo_event: {1, :declared_win, "n9-1", 3, 2, :drawing}
         }
         |> Mjw.Game.undo_availability()
 
@@ -1133,7 +1133,7 @@ defmodule Mjw.GameTest do
               player_id: "id#{i}",
               player_name: "name#{i}",
               picked_wind: w,
-              concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"]
+              concealed: ["n1-#{i}", "n2-#{i}"]
             }
           end)
       }
@@ -1143,7 +1143,14 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.declare_win_from_hand(1, "n3-1")
         |> Mjw.Game.undo()
 
-      assert game == orig_game
+      expected = %{
+        orig_game
+        | seats:
+            game.seats
+            |> List.update_at(1, fn seat -> %{seat | concealed: ["n1-1", "n2-1", "n3-1"]} end)
+      }
+
+      assert game == expected
     end
 
     test "undo drawing a discard" do
