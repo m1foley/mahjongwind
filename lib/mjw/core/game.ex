@@ -433,31 +433,33 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  Declare a win from a player's hand. Assumes the wintile was already removed
-  from their hand.
+  Declare a win from a player's hand
   """
   def declare_win_from_hand(%__MODULE__{} = game, seatno, wintile) do
-    update_wintile(game, seatno, wintile, :hand)
+    game
+    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, wintile))
+    |> declare_win(seatno, wintile, :hand)
   end
 
   @doc """
   Declare a win from the discards
   """
   def declare_win_from_discards(%__MODULE__{} = game, seatno, wintile) do
+    # assumes the frontend did its job so discards 0 == tile
     new_discards = game.discards |> Enum.slice(1..-1)
 
     game
-    |> update_wintile(seatno, wintile, :discards)
     |> Map.merge(%{discards: new_discards})
+    |> declare_win(seatno, wintile, :discards)
   end
 
-  defp update_wintile(%__MODULE__{} = game, seatno, wintile, wintile_from) do
+  defp declare_win(%__MODULE__{} = game, seatno, wintile, wintile_from) do
     game
     |> Map.merge(%{
-      undo_event:
-        {seatno, :declared_win, wintile, wintile_from, game.turn_seatno, game.turn_state},
       turn_seatno: seatno,
-      turn_state: :discarding
+      turn_state: :discarding,
+      undo_event:
+        {seatno, :declared_win, wintile, wintile_from, game.turn_seatno, game.turn_state}
     })
     |> update_seat(seatno, fn seat ->
       seat |> Mjw.Seat.declare_win(wintile)
@@ -468,7 +470,7 @@ defmodule Mjw.Game do
   A player draws from the discards (not a pong because it was their turn)
   """
   def draw_discard(%__MODULE__{turn_state: :drawing} = game, seatno, new_exposed, tile) do
-    # Assuming that the frontend did its job so discards 0 == tile
+    # assumes the frontend did its job so discards 0 == tile
     new_discards = game.discards |> Enum.slice(1..-1)
 
     game
