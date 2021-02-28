@@ -3,7 +3,6 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Undo button
 - Bug: released tile, still in hand
 - Allow exposed -> discards
 - Indicate how many tiles remain in deck

@@ -433,7 +433,8 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  Declare a win from a player's hand
+  Declare a win from a player's hand. Assumes the wintile was already removed
+  from their hand.
   """
   def declare_win_from_hand(%__MODULE__{} = game, seatno, wintile) do
     update_wintile(game, seatno, wintile, :hand)
@@ -661,7 +662,9 @@ defmodule Mjw.Game do
     {seatno, event}
   end
 
-  def undo_availability(%__MODULE__{undo_event: {seatno, event, _tile, _turn_seatno, _turn_state}}) do
+  def undo_availability(%__MODULE__{
+        undo_event: {seatno, event, _tile, _from, _turn_seatno, _turn_state}
+      }) do
     {seatno, event}
   end
 
@@ -688,33 +691,30 @@ defmodule Mjw.Game do
           undo_event: {_seatno, :declared_win, wintile, :discards, turn_seatno, turn_state}
         } = game
       ) do
-    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
     discards = [wintile | game.discards]
 
     game
+    |> clear_all_seat_win_attributes()
     |> Map.merge(%{
       discards: discards,
       turn_seatno: turn_seatno,
       turn_state: turn_state,
-      seats: seats,
       undo_event: {}
     })
   end
 
-  # undo a declared win from hand
+  # Undo a declared win from hand. Puts the tile back in their concealed tiles.
   def undo(
         %__MODULE__{
           undo_event: {seatno, :declared_win, wintile, :hand, turn_seatno, turn_state}
         } = game
       ) do
-    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
-
     game
+    |> clear_all_seat_win_attributes()
     |> update_seat(seatno, fn seat -> %{seat | concealed: seat.concealed ++ [wintile]} end)
     |> Map.merge(%{
       turn_seatno: turn_seatno,
       turn_state: turn_state,
-      seats: seats,
       undo_event: {}
     })
   end
@@ -766,6 +766,11 @@ defmodule Mjw.Game do
 
   # something went wrong if it doesn't pattern match above
   def undo(%__MODULE__{} = game), do: game
+
+  defp clear_all_seat_win_attributes(%__MODULE__{} = game) do
+    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
+    %{game | seats: seats}
+  end
 
   @doc """
   Calculate the state of a game
