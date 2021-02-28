@@ -4,7 +4,6 @@ Play mahjong with your friends online!
 
 ## TODO
 - Bug: released tile, still in hand
-- Bug: seat 0 turnglow doesn't show in Safari
 - Indicate how many tiles remain in deck
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Click on deckoffer to reveal before dragging?
@@ -21,9 +20,9 @@ Play mahjong with your friends online!
 ## Long-term TODOs for public release
 - Real user accounts instead of just web sessions
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)
-- Instructions page
-- Protect games from being erased during deploys
 - Support more Mahjong rule sets (flower tiles, no game wind, etc.)
+- Instructions
+- Protect games from being erased during deploys
 - Test Internet Explorer
 - Mobile support
 - Automatically expire games
