@@ -29,8 +29,7 @@
       <div class="flex flex-row flex-wrap text-left justify-start justify-items-start">
         <span class="pr-1">&#8594;</span>
         <%= for tile <- @game.deck do %>
-          <% tile_code = tile |> String.slice(0..1) %>
-          <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile" />
+          <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile" />
         <% end %>
       </div>
     <% else %>

@@ -43,8 +43,7 @@
           <%= if i == 0 do %>
             <div id="hiddengongs-0" phx-hook="Drag" class="hiddengong-tiles dropzone<%= if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && Mjw.Seat.win_expose?(seat), do: " exposed-loser-hand" %>">
               <%= for tile <- seat.hiddengongs do %>
-                <% tile_code = tile |> String.slice(0..1) %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable" />
+                <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile draggable" />
               <% end %>
               <div class="dropzone-description">
                 Hidden gong
@@ -53,16 +52,13 @@
 
             <div id="exposed-0" phx-hook="Drag" class="exposed-tiles dropzone">
               <%= for tile <- seat.exposed do %>
-                <% tile_code = tile |> String.slice(0..1) %>
-                <% newly_ponged = @event == :ponged && @event_details[:tile] == tile %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if newly_ponged, do: " glow" %>" />
+                <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile draggable<%= if @event == :ponged && @event_details[:tile] == tile, do: " glow" %>" />
               <% end %>
             </div>
 
             <div id="wintile-0" phx-hook="Drag" class="wintile-tiles<%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno, do: " dropzone" %>">
               <%= if seat.wintile do %>
-                <% tile_code = seat.wintile |> String.slice(0..1) %>
-                <img id="<%= seat.wintile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile cursor-not-allowed" />
+                <img id="<%= seat.wintile %>" src="/images/tiles/<%= String.slice(seat.wintile, 0..1) %>.png" alt="<%= String.slice(seat.wintile, 0..1) %>" class="tile cursor-not-allowed" />
               <% end %>
               <%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno do %>
                 <div class="dropzone-description">
@@ -72,27 +68,21 @@
             </div>
             <div class="line-break"></div>
 
-            <% concealed_loser_hand = @win_declared_seatno && @win_declared_seatno != @current_user_seatno && !Mjw.Seat.win_expose?(seat) %>
-            <div id="concealed-0" phx-hook="Drag" class="concealed-tiles dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %><%= if concealed_loser_hand, do: " concealed-loser-hand" %>">
+            <div id="concealed-0" phx-hook="Drag" class="concealed-tiles dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %><%= if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && !Mjw.Seat.win_expose?(seat), do: " concealed-loser-hand" %>">
               <%= for tile <- seat.concealed do %>
-                <% tile_code = tile |> String.slice(0..1) %>
-                <% recent_draw = @raw_event in [:drew_from_deck, :drew_discard, :drew_correction_tile] && @event_details[:tile] == tile %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile draggable<%= if recent_draw, do: " glow" %>" />
+                <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile draggable<%= if @raw_event in [:drew_from_deck, :drew_discard, :drew_correction_tile] && @event_details[:tile] == tile, do: " glow" %>" />
               <% end %>
             </div>
           <% else %>
             <div class="exposed-tiles<%= if seat.seatno == @game.turn_seatno, do: " turn-glow" %>">
               <%= for tile <- seat.exposed do %>
-                <% tile_code = tile |> String.slice(0..1) %>
-                <% newly_exposed = @event in [:exposed_tile, :drew_discard, :ponged] && @event_details[:tile] == tile %>
-                <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if newly_exposed, do: " glow" %>" />
+                <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile<%= if @event in [:exposed_tile, :drew_discard, :ponged] && @event_details[:tile] == tile, do: " glow" %>" />
               <% end %>
             </div>
             <div class="hiddengong-tiles<%= if seat.seatno == @game.turn_seatno, do: " turn-glow" %>">
               <%= if Mjw.Seat.win_expose?(seat) do %>
                 <%= for tile <- seat.hiddengongs do %>
-                  <% tile_code = tile |> String.slice(0..1) %>
-                  <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile opacity-50" />
+                  <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile opacity-50" />
                 <% end %>
               <% else %>
                 <%= for _tile <- seat.hiddengongs do %>
@@ -104,8 +94,7 @@
             <%= if Mjw.Seat.win_expose?(seat) do %>
               <div class="concealed-tiles">
                 <%= for tile <- seat.concealed do %>
-                  <% tile_code = tile |> String.slice(0..1) %>
-                  <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile" />
+                  <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile" />
                 <% end %>
               </div>
             <% else %>
@@ -117,8 +106,7 @@
             <% end %>
             <div class="wintile-tiles">
               <%= if seat.wintile do %>
-                <% tile_code = seat.wintile |> String.slice(0..1) %>
-                <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile glow ml-8" />
+                <img src="/images/tiles/<%= String.slice(seat.wintile, 0..1) %>.png" alt="<%= String.slice(seat.wintile, 0..1) %>" class="tile glow ml-8" />
               <% end %>
             </div>
           <% end %>
@@ -185,9 +173,7 @@
           <%= unless @show_wall do %>
             <div id="discards" phx-hook="Drag" class="flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @enable_pull_from_discards, do: " enable-pull-from-discards" %>">
               <%= for {tile, tileno} <- @game.discards |> Enum.reverse() |> Enum.with_index() do %>
-                <% tile_code = tile |> String.slice(0..1) %>
-                <% last_discard = @enable_pull_from_discards && tileno == length(@game.discards) - 1 %>
-                <img id="<%= tile %>" src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile<%= if last_discard, do: " glow draggable", else: " cursor-not-allowed" %><%= if last_discard && @raw_event == :discarded, do: " discardedby-#{@discarded_by_relative_seatno}" %>">
+                <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile<%= if @enable_pull_from_discards && tileno == length(@game.discards) - 1, do: " glow draggable#{if @raw_event == :discarded, do: " discardedby-#{@discarded_by_relative_seatno}"}", else: " cursor-not-allowed" %>">
               <% end %>
             </div>
           <% end %>
@@ -215,14 +201,12 @@
                   <% :drew_discard -> %>
                     <div class="state-description">
                       <%= @turn_player_name %> drew from discards:
-                      <% tile_code = @event_details[:tile] |> String.slice(0..1) %>
-                      <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile" />
+                      <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
                     </div>
                   <% :ponged -> %>
                     <div class="state-description">
                       <%= @turn_player_name %> ponged:
-                      <% tile_code = @event_details[:tile] |> String.slice(0..1) %>
-                      <img src="/images/tiles/<%= tile_code %>.png" alt="<%= tile_code %>" class="tile" />
+                      <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
                     </div>
                   <% :drew_from_deck -> %>
                     <div class="state-description">
