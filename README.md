@@ -6,7 +6,6 @@ Play mahjong with your friends online!
 - Bug: released tile, still in hand
 - Allow exposed -> discards
 - Indicate how many tiles remain in deck
-- Don't close win menu after clicking OK
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Click on deckoffer to reveal before dragging?
 - Consider replacing notification system with log system?
