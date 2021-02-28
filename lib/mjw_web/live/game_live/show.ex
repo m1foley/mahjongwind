@@ -130,12 +130,13 @@ defmodule MjwWeb.GameLive.Show do
   def handle_event(
         "dropped",
         %{
-          "draggedFromId" => "concealed-0",
+          "draggedFromId" => dragged_from,
           "draggedToId" => "discards",
           "draggedId" => discarded_tile
         },
         socket
-      ) do
+      )
+      when dragged_from in ["concealed-0", "exposed-0"] do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =

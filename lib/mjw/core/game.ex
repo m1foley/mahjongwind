@@ -322,14 +322,8 @@ defmodule Mjw.Game do
   def discard(%__MODULE__{turn_state: :discarding} = game, seatno, tile) do
     new_discards = [tile | game.discards]
 
-    new_concealed =
-      game.seats
-      |> Enum.at(seatno)
-      |> Map.get(:concealed)
-      |> List.delete(tile)
-
     game
-    |> update_concealed(seatno, new_concealed)
+    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
     |> advance_turn_seat()
     |> Map.merge(%{
       discards: new_discards,

@@ -445,6 +445,31 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-3", "c3-3", "c4-3"]
       assert game.undo_event == {3, :discarded, "c2-3"}
     end
+
+    test "discarding from exposed" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :discarding,
+          discards: ["dp-0"],
+          seats:
+            0..3
+            |> Enum.map(fn i ->
+              %Mjw.Seat{
+                concealed: ["c1-#{i}", "c2-#{i}"],
+                exposed: ["b1-#{i}", "b2-#{i}"]
+              }
+            end)
+        }
+        |> Mjw.Game.discard(3, "b1-3")
+
+      assert game.discards == ["b1-3", "dp-0"]
+      assert game.turn_state == :drawing
+      assert game.turn_seatno == 0
+      assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-3", "c2-3"]
+      assert game.seats |> Enum.at(3) |> Map.get(:exposed) == ["b2-3"]
+      assert game.undo_event == {3, :discarded, "b1-3"}
+    end
   end
 
   describe "update_concealed" do

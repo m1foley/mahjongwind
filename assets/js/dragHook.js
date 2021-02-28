@@ -15,7 +15,7 @@ export default {
             name: 'discards',
             put: function (to, from) {
               if (dropzone.classList.contains('current-user-discarding')) {
-                return ['concealed-0'];
+                return ['concealed-0', 'exposed-0'];
               } else {
                 return false;
               }
@@ -128,7 +128,7 @@ export default {
           group: {
             name: 'exposed-0',
             put: ['concealed-0', 'hiddengongs-0', 'discards'],
-            pull: ['concealed-0', 'hiddengongs-0', 'wintile-0']
+            pull: ['concealed-0', 'hiddengongs-0', 'discards', 'wintile-0']
           },
           direction: 'horizontal',
           draggable: '.draggable',
