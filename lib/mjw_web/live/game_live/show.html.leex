@@ -146,11 +146,11 @@
               </div>
             <% :draw -> %>
               <div class="state-description">
-                <%= @event_details[:seat].player_name %> declared a draw. <span class="no-text-shadow text-5xl">🤝</span>
+                <%= @event_details[:seat].player_name %> declared a draw. <span class="no-text-shadow text-5xl mx-1">🤝</span>
               </div>
             <% :dq -> %>
               <div class="state-description">
-                <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl">🙅🏻‍♀️</span>
+                <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl mx-1">🙅🏻‍♀️</span>
               </div>
             <% :undo -> %>
               <%= if @event_details[:seat].seatno != @current_user_seatno do %>
@@ -159,7 +159,7 @@
                   <% :discarded -> %>
                     <%= @event_details[:seat].player_name %> took back their discard.
                   <% :declared_win -> %>
-                    <%= @event_details[:seat].player_name %> took back their win.
+                    <%= @event_details[:seat].player_name %> took back their win. <span class="no-text-shadow text-5xl mx-1">🤦🏻‍♀️</span>
                   <% :drew_discard -> %>
                     <%= @event_details[:seat].player_name %> returned the tile to discards.
                   <% n when n in [:drew_discard, :ponged] -> %>
