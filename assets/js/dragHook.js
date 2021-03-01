@@ -6,10 +6,9 @@ export default {
   mounted() {
     const hook = this;
     const dropzone = this.el;
-    const dropzoneSelector = '#' + dropzone.id;
 
-    switch(dropzoneSelector) {
-      case '#discards':
+    switch(dropzone.id) {
+      case 'discards':
         Sortable.create(dropzone, {
           group: {
             name: 'discards',
@@ -50,7 +49,7 @@ export default {
           },
         });
         break;
-      case '#concealed-0':
+      case 'concealed-0':
         Sortable.create(dropzone, {
           group: {
             name: 'concealed-0',
@@ -107,7 +106,7 @@ export default {
             }
 
             const draggedId = evt.item.id;
-            hook.pushEventTo(dropzoneSelector, 'dropped', {
+            hook.pushEvent('dropped', {
               draggedFromId: evt.from.id,
               draggedToId: evt.to.id,
               draggedFromList: draggedFromList,
@@ -123,7 +122,7 @@ export default {
           }
         });
         break;
-      case '#exposed-0':
+      case 'exposed-0':
         Sortable.create(dropzone, {
           group: {
             name: 'exposed-0',
@@ -169,7 +168,7 @@ export default {
               }
             }
 
-            hook.pushEventTo(dropzoneSelector, 'dropped', {
+            hook.pushEvent('dropped', {
               draggedFromId: evt.from.id,
               draggedToId: evt.to.id,
               draggedFromList: draggedFromList,
@@ -179,7 +178,7 @@ export default {
           }
         });
         break;
-      case '#hiddengongs-0':
+      case 'hiddengongs-0':
         Sortable.create(dropzone, {
           group: {
             name: 'hiddengongs-0',
@@ -207,7 +206,7 @@ export default {
               draggedToList.push(draggedToNodes[i].id);
             }
 
-            hook.pushEventTo(dropzoneSelector, 'dropped', {
+            hook.pushEvent('dropped', {
               draggedFromId: evt.from.id,
               draggedToId: evt.to.id,
               draggedToList: draggedToList,
@@ -216,7 +215,7 @@ export default {
           }
         });
         break;
-      case '#deckoffer':
+      case 'deckoffer':
         Sortable.create(dropzone, {
           group: {
             name: 'deckoffer',
@@ -233,7 +232,7 @@ export default {
           delayOnTouchOnly: true
         });
         break;
-      case '#correctiontiles':
+      case 'correctiontiles':
         Sortable.create(dropzone, {
           group: {
             name: 'correctiontiles',
@@ -250,7 +249,7 @@ export default {
           delayOnTouchOnly: true
         });
         break;
-      case '#wintile-0':
+      case 'wintile-0':
         Sortable.create(dropzone, {
           group: {
             name: 'wintile-0',
@@ -272,7 +271,7 @@ export default {
               return;
             }
 
-            hook.pushEventTo(dropzoneSelector, 'dropped', {
+            hook.pushEvent('dropped', {
               draggedFromId: evt.from.id,
               draggedToId: evt.to.id,
               draggedId: evt.item.id

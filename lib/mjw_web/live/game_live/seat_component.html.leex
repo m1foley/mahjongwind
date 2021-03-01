@@ -1,0 +1,114 @@
+<div id="<%= @id %>">
+  <div class="tiles flex-wrap<%= if @id == "seat-0" && @current_user_drawing, do: " current-user-turn-glow" %>">
+    <%= if @seat.seatno == 0 && @player_seats_finalized && (@rolling_dice || @rolled_dice) do %>
+      <div class="firstdealer" title="Indicates the first dealer. Game wind changes when the deal circles back to them.">庄</div>
+    <% end %>
+
+    <%= if @show_wall do %>
+      <div class="wall-tiles wall-tiles-1">
+        <%= for _ <- 0..15 do %>
+          <img src="/images/tiles/concealed.png" alt="concealed" class="walltile" />
+        <% end %>
+      </div>
+      <div class="line-break"></div>
+      <div class="wall-tiles">
+        <%= for _ <- 0..15 do %>
+          <img src="/images/tiles/concealed.png" alt="concealed" class="walltile" />
+        <% end %>
+      </div>
+    <% else %>
+      <%= if @id == "seat-0" do %>
+        <div id="hiddengongs-0" phx-hook="Drag" phx-target="#game" class="hiddengong-tiles dropzone<%= if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && Mjw.Seat.win_expose?(@seat), do: " exposed-loser-hand" %>">
+          <%= for tile <- @seat.hiddengongs do %>
+            <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile draggable" />
+          <% end %>
+          <div class="dropzone-description">
+            Hidden gong
+          </div>
+        </div>
+
+        <div id="exposed-0" phx-hook="Drag" phx-target="#game" class="exposed-tiles dropzone">
+          <%= for tile <- @seat.exposed do %>
+            <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile draggable<%= if @glow_tile == tile, do: " glow" %>" />
+          <% end %>
+        </div>
+
+        <div id="wintile-0" phx-hook="Drag" phx-target="#game" class="wintile-tiles<%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno, do: " dropzone" %>">
+          <%= if @seat.wintile do %>
+            <img id="<%= @seat.wintile %>" src="/images/tiles/<%= String.slice(@seat.wintile, 0..1) %>.png" alt="<%= String.slice(@seat.wintile, 0..1) %>" class="tile cursor-not-allowed" />
+          <% end %>
+          <%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno do %>
+            <div class="dropzone-description">
+              Winning tile
+            </div>
+          <% end %>
+        </div>
+        <div class="line-break"></div>
+
+        <div id="concealed-0" phx-hook="Drag" phx-target="#game" class="concealed-tiles dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @available_discard_tile, do: " enable-pull-from-discards" %><%= if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && !Mjw.Seat.win_expose?(@seat), do: " concealed-loser-hand" %>">
+          <%= for tile <- @seat.concealed do %>
+            <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile draggable<%= if @glow_tile == tile, do: " glow" %>" />
+          <% end %>
+        </div>
+      <% else %>
+        <div class="exposed-tiles<%= if @seat.seatno == @game.turn_seatno, do: " turn-glow" %>">
+          <%= for tile <- @seat.exposed do %>
+            <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile<%= if @glow_tile == tile, do: " glow" %>" />
+          <% end %>
+        </div>
+        <div class="hiddengong-tiles<%= if @seat.seatno == @game.turn_seatno, do: " turn-glow" %>">
+          <%= if Mjw.Seat.win_expose?(@seat) do %>
+            <%= for tile <- @seat.hiddengongs do %>
+              <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile opacity-50" />
+            <% end %>
+          <% else %>
+            <%= for _tile <- @seat.hiddengongs do %>
+              <img src="/images/tiles/concealed.png" alt="hidden gong" class="tile" />
+            <% end %>
+          <% end %>
+        </div>
+        <div class="line-break"></div>
+        <%= if Mjw.Seat.win_expose?(@seat) do %>
+          <div class="concealed-tiles">
+            <%= for tile <- @seat.concealed do %>
+              <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile" />
+            <% end %>
+          </div>
+        <% else %>
+          <div class="concealed-tiles<%= if @seat.seatno == @game.turn_seatno, do: " turn-glow" %>">
+            <%= for _tile <- @seat.concealed do %>
+              <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+            <% end %>
+          </div>
+        <% end %>
+        <div class="wintile-tiles">
+          <%= if @seat.wintile do %>
+            <img src="/images/tiles/<%= String.slice(@seat.wintile, 0..1) %>.png" alt="<%= String.slice(@seat.wintile, 0..1) %>" class="tile glow ml-8" />
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# to simplify the CSS, table-center is displayed beneath the tiles in the top of the screen %>
+  <%= if @id == "seat-2" do %>
+    <%= live_component @socket, MjwWeb.GameLive.TableCenterComponent, id: "table-center", game: @game, current_user_id: @current_user_id, event: @event, raw_event: @raw_event, event_details: @event_details, show_wind_picking: @show_wind_picking, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, show_wall: @show_wall, current_user_drawing: @current_user_drawing, game_state: @game_state, current_user_discarding: @current_user_discarding, available_discard_tile: @available_discard_tile, current_user_seatno: @current_user_seatno, win_declared_seatno: @win_declared_seatno, turn_player_name: @turn_player_name, discarded_by_relative_seatno: @discarded_by_relative_seatno, current_user_seat: @current_user_seat, relative_game_seats: @relative_game_seats, empty_seats_count: @empty_seats_count %>
+  <% end %>
+
+  <%= if @id != "seat-0" && @player_seats_finalized do %>
+    <div class="player-name-container text-center justify-center items-center">
+      <div class="playericons">
+        <%= if @seat.seatno == @game.dealer_seatno do %>
+          <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="Dealer<%= if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})" %>">
+            Dealer<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
+          </div>
+        <% end %>
+        <%= if @game_state != :rolling_for_deal && @seat.seatno == @game.dealpick_seatno do %>
+          <img src="/images/staircase.png" alt="This staircase is the end of the deck (used to determine player wind)" title="This staircase is the end of the deck (used to determine player wind)" class="dealpickstaircase inline-block mx-auto relative bottom-1<%= if @seat.seatno == @game.dealer_seatno, do: " pl-1" %><%= if @id != "seat-2", do: " opacity-70" %>" />
+        <% end %>
+      </div>
+
+      <div class="player-name"><%= @seat.player_name %></div>
+    </div>
+  <% end %>
+</div>

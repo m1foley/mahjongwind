@@ -3,6 +3,7 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Extract code/assigns from show.ex into components
 - Bug: released tile, still in hand
 - Indicate how many tiles remain in deck
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
