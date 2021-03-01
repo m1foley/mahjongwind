@@ -1,0 +1,111 @@
+<div id="<%= @id %>">
+  <%= case @event do %>
+    <% :drew_correction_tile -> %>
+      <div class="state-description">
+        <%= @event_details[:seat].player_name %> drew a correction tile.
+        <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+      </div>
+    <% :player_seated -> %>
+      <%= if @event_details[:seat].player_id != @current_user_id do %>
+        <div class="state-description">
+          <%= @event_details[:seat].player_name %> joined the game!
+        </div>
+      <% end %>
+    <% :reset -> %>
+      <div class="state-description">
+        <%= @event_details[:seat].player_name %> reset the game.
+      </div>
+    <% :draw -> %>
+      <div class="state-description">
+        <%= @event_details[:seat].player_name %> declared a draw. <span class="no-text-shadow text-5xl mx-1">🤝</span>
+      </div>
+    <% :dq -> %>
+      <div class="state-description">
+        <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl mx-1">🙅🏻‍♀️</span>
+      </div>
+    <% :undo -> %>
+      <%= if @event_details[:seat].seatno != @current_user_seatno do %>
+        <div class="state-description">
+          <%= case @event_details[:event] do %>
+          <% :discarded -> %>
+            <%= @event_details[:seat].player_name %> took back their discard.
+          <% :declared_win -> %>
+            <%= @event_details[:seat].player_name %> took back their win. <span class="no-text-shadow text-5xl mx-1">🤦🏻‍♀️</span>
+          <% n when n in [:drew_discard, :ponged] -> %>
+            <%= @event_details[:seat].player_name %> returned the tile to discards.
+          <% :drew_from_deck -> %>
+            <%= @event_details[:seat].player_name %> returned the tile to the deck.
+          <% :drew_correction_tile -> %>
+            <%= @event_details[:seat].player_name %> returned the correction tile to the deck.
+          <% _unknown_undo_event -> %>
+          <% end %>
+        </div>
+      <% end %>
+    <% _event -> %>
+  <% end %>
+
+  <%= if @show_wind_picking do %>
+    <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
+  <% end %>
+  <%= if @rolling_dice || @rolled_dice do %>
+    <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_seatno: @current_user_seatno, event: @event, raw_event: @raw_event, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice %>
+  <% end %>
+
+  <%= unless @show_wall do %>
+    <div id="discards" phx-hook="Drag" phx-target="#game" class="flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @available_discard_tile, do: " enable-pull-from-discards" %>">
+      <%= for tile <- @game.discards |> Enum.reverse() do %>
+        <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile<%= if @available_discard_tile == tile, do: " glow draggable" %><%= if @available_discard_tile == tile && @discarded_by_relative_seatno, do: " discardedby-#{@discarded_by_relative_seatno}" %>">
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= if @current_user_drawing do %>
+    <div id="deckoffer" phx-hook="Drag" phx-target="#game" class="dropzone bg-green-600 bg-opacity-50 border-4 border-gray-800 rounded-full shadow-xl p-12">
+      <img id="decktile" src="/images/tiles/concealed.png" alt="wall tile" class="tile draggable" />
+    </div>
+  <% end %>
+
+  <%= case @game_state do %>
+    <% :waiting_for_players -> %>
+      <%= if @event == :left_game do %>
+        <div class="state-description">
+          <%= @event_details[:seat].player_name %> left the game.
+        </div>
+      <% end %>
+      <div class="state-description">
+        Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
+        <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-center", game: @game %>
+      </div>
+    <% :discarding -> %>
+      <%= if @game.turn_seatno != @current_user_seatno do %>
+        <%= case @event do %>
+          <% :drew_discard -> %>
+            <div class="state-description">
+              <%= @turn_player_name %> drew from discards:
+              <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
+            </div>
+          <% :ponged -> %>
+            <div class="state-description">
+              <%= @turn_player_name %> ponged:
+              <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
+            </div>
+          <% :drew_from_deck -> %>
+            <div class="state-description">
+              <%= @turn_player_name %> drew from the deck.
+              <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+            </div>
+          <% _other_event -> %>
+        <% end %>
+      <% end %>
+    <% :win_declared -> %>
+      <div class="state-description">
+        <%= if @win_declared_seatno == @current_user_seatno do %>
+          Congratulations!
+        <% else %>
+          <%= @relative_game_seats |> Enum.find(& &1.seatno == @win_declared_seatno) |> Map.get(:player_name) %> went out!
+        <% end %>
+      </div>
+      <%= live_component @socket, MjwWeb.GameLive.WinMenuComponent, id: "winmenu", game: @game, win_declared_seatno: @win_declared_seatno, current_user_seat: @current_user_seat %>
+    <% _ -> %>
+  <% end %>
+</div>

@@ -99,25 +99,6 @@
   height: 8rem;
 }
 
-.player-name-container {
-  position: fixed;
-}
-
-.player-name-container-1 {
-  right: 6rem;
-  top: 11rem;
-}
-
-.player-name-container-2 {
-  top: 0;
-  width: 100%;
-}
-
-.player-name-container-3 {
-  left: 6rem;
-  top: 11rem;
-}
-
 .player-name {
   display: inline-block;
   opacity: 0.6;
@@ -129,10 +110,6 @@
 
 .glow {
   box-shadow: 0px 0px 2rem #eee;
-}
-
-.seat {
-  position: absolute;
 }
 
 .dropzone {
@@ -186,7 +163,12 @@
   min-width: 24rem;
 }
 
-.seat-0 {
+.player-name-container {
+  position: fixed;
+}
+
+#seat-0 {
+  position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -195,7 +177,8 @@
   }
 }
 
-.seat-1 {
+#seat-1 {
+  position: absolute;
   top: -5%;
   right: 0;
   width: 100vh;
@@ -206,18 +189,28 @@
   .wall-tiles {
     margin-right: 5%;
   }
+  .player-name-container {
+    right: 6rem;
+    top: 11rem;
+  }
 }
 
-.seat-2 {
+#seat-2 {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   .tiles {
     transform: rotate(180deg);
   }
+  .player-name-container {
+    top: 0;
+    width: 100%;
+  }
 }
 
-.seat-3 {
+#seat-3 {
+  position: absolute;
   top: -5%;
   left: 0;
   width: 100vh;
@@ -227,6 +220,10 @@
   }
   .wall-tiles {
     margin-left: 5%;
+  }
+  .player-name-container {
+    left: 6rem;
+    top: 11rem;
   }
 }
 
@@ -238,7 +235,7 @@
   max-height: 50rem;
 }
 
-.table-center {
+#table-center {
   position: fixed;
   display: block;
   top: 12rem;
@@ -396,8 +393,12 @@ $discard-rotations: ("0": rotate(12deg), "1": rotate(-20deg), "2": rotate(-40deg
   left: 13rem;
   right: 13rem;
   .tile {
+    cursor: not-allowed;
     height: 3.1rem;
     position: relative;
+    &.draggable {
+      cursor: move;
+    }
     // scramble the discarded tiles
     &:nth-child(9n) {
       top: 0.6rem;
@@ -598,4 +599,8 @@ $discard-animation-translates: (
 
 .current-user-turn-glow {
   background-image: linear-gradient(to top, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0));
+}
+
+#undo {
+  @apply bg-gray-300 hover:bg-gray-200 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 shadow-md py-1 px-4 font-bold border-2 border-gray-400 cursor-pointer rounded-xl;
 }
