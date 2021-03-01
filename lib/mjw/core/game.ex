@@ -494,25 +494,6 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  A player draws from the deck: "decktile" in the player's hand is swapped
-  in-place with the next deck tile.
-  """
-  def draw_from_deck(%__MODULE__{turn_state: :drawing} = game, seatno, concealed) do
-    {new_deck, new_concealed, tile} = swap_concealed_deck_tile(game, concealed)
-
-    game =
-      game
-      |> update_concealed(seatno, new_concealed)
-      |> Map.merge(%{
-        deck: new_deck,
-        undo_event: {seatno, :drew_from_deck, tile},
-        turn_state: :discarding
-      })
-
-    {game, tile}
-  end
-
-  @doc """
   A player draws a gong correction tile: remove from the deck and update the
   player's concealed tiles (already calculated on frontend).
   "decktile" in the player's hand is swapped in-place with the correction tile.
@@ -672,7 +653,7 @@ defmodule Mjw.Game do
           game
       ) do
     game
-    |> update_seat(seatno, fn seat -> %{seat | concealed: seat.concealed ++ [tile]} end)
+    |> update_seat(seatno, fn seat -> Mjw.Seat.add_to_concealed(seat, tile) end)
     |> move_back_turn_seat()
     |> Map.merge(%{
       discards: new_discards,
@@ -707,7 +688,7 @@ defmodule Mjw.Game do
       ) do
     game
     |> clear_all_seat_win_attributes()
-    |> update_seat(seatno, fn seat -> %{seat | concealed: seat.concealed ++ [wintile]} end)
+    |> update_seat(seatno, fn seat -> Mjw.Seat.add_to_concealed(seat, wintile) end)
     |> Map.merge(%{
       turn_seatno: turn_seatno,
       turn_state: turn_state,
@@ -766,6 +747,34 @@ defmodule Mjw.Game do
   defp clear_all_seat_win_attributes(%__MODULE__{} = game) do
     seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
     %{game | seats: seats}
+  end
+
+  @doc """
+  Draw a tile from the deck, and temporarily hold it in the seat's peektile
+  before deciding whether to keep or discard. Params enforce that this player
+  is currently drawing.
+  """
+  def peek_deck_tile(
+        %__MODULE__{turn_seatno: seatno, turn_state: :drawing, deck: [peektile | remaining_deck]} =
+          game,
+        seatno
+      ) do
+    game
+    |> update_seat(seatno, fn seat -> Mjw.Seat.peek(seat, peektile) end)
+    |> Map.merge(%{
+      deck: remaining_deck,
+      undo_event: {seatno, :drew_from_deck, peektile},
+      turn_state: :discarding
+    })
+  end
+
+  @doc """
+  Keeping a peektile means just moving it to their concealed or hiddengong
+  tiles, which must be done before calling clear_peektile. The params enforce
+  that this is happening while the player is still discarding.
+  """
+  def clear_peektile(%__MODULE__{turn_seatno: seatno, turn_state: :discarding} = game, seatno) do
+    game |> update_seat(seatno, &Mjw.Seat.clear_peektile/1)
   end
 
   @doc """

@@ -2,11 +2,14 @@ defmodule Mjw.Seat do
   defstruct concealed: [],
             exposed: [],
             hiddengongs: [],
+            # a player "peeks" from the deck beore dragging it to their hand or
+            # discards
+            peektile: nil,
+            wintile: nil,
             player_id: nil,
             player_name: nil,
             picked_wind: nil,
             picked_wind_idx: nil,
-            wintile: nil,
             # Reaction to a declared win:
             # - nil = not confirmed
             # - :ok = confirmed
@@ -33,7 +36,15 @@ defmodule Mjw.Seat do
   Clear tile attributes between games
   """
   def clear_tiles(%__MODULE__{} = seat) do
-    %{seat | concealed: [], exposed: [], hiddengongs: [], wintile: nil, winreaction: nil}
+    %{
+      seat
+      | concealed: [],
+        exposed: [],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil,
+        winreaction: nil
+    }
   end
 
   @doc """
@@ -86,12 +97,26 @@ defmodule Mjw.Seat do
   end
 
   @doc """
-  Remove a tile from a player's hand, no matter which list it's in
+  Remove a tile from a player's hand, no matter which list it's in.
+  Excludes wintile because that's a special case.
   """
   def remove_from_hand(%__MODULE__{} = seat, tile) do
     seat
     |> Map.update!(:exposed, &List.delete(&1, tile))
     |> Map.update!(:concealed, &List.delete(&1, tile))
     |> Map.update!(:hiddengongs, &List.delete(&1, tile))
+    |> Map.update!(:peektile, fn peektile -> if peektile == tile, do: nil, else: peektile end)
+  end
+
+  def add_to_concealed(%__MODULE__{} = seat, tile) do
+    %{seat | concealed: seat.concealed ++ [tile]}
+  end
+
+  def peek(%__MODULE__{} = seat, tile) do
+    %{seat | peektile: tile}
+  end
+
+  def clear_peektile(%__MODULE__{} = seat) do
+    peek(seat, nil)
   end
 end

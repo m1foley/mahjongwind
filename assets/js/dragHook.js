@@ -14,7 +14,7 @@ export default {
             name: 'discards',
             put: function (to, from) {
               if (dropzone.classList.contains('current-user-discarding')) {
-                return ['concealed-0', 'exposed-0'];
+                return ['concealed-0', 'exposed-0', 'peektile-0'];
               } else {
                 return false;
               }
@@ -54,9 +54,9 @@ export default {
           group: {
             name: 'concealed-0',
             put: function (to, from) {
-              let ids = ['exposed-0', 'hiddengongs-0', 'correctiontiles'];
+              let ids = ['exposed-0', 'hiddengongs-0', 'correctiontiles', 'peektile-0'];
               if (dropzone.classList.contains('enable-pull-from-discards')) {
-                ids.push('discards', 'deckoffer');
+                ids.push('discards');
               }
               return ids;
             },
@@ -88,8 +88,8 @@ export default {
             });
           },
           onSort: function (evt) {
-            // if the action involves adding/removing from the player's personal
-            // tiles, we'll need to know what the updated list(s) look like
+            // if the action involves adding/removing from the player's hand,
+            // we'll need to know what the updated list(s) look like
             let draggedToList = [];
             if (['concealed-0', 'exposed-0', 'hiddengongs-0'].includes(evt.to.id)) {
               const draggedToNodes = evt.to.querySelectorAll('.draggable');
@@ -113,8 +113,8 @@ export default {
               draggedToList: draggedToList,
               draggedId: draggedId
             });
-            // The deck tile gets replaced on the backend and when the HTML
-            // gets updated, but it still persists in the DOM unless we
+            // The correction tile gets replaced on the backend and when the
+            // HTML gets updated, but it still persists in the DOM unless we
             // remove it manually like this
             if (draggedId == 'decktile') {
               evt.item.remove();
@@ -182,7 +182,7 @@ export default {
         Sortable.create(dropzone, {
           group: {
             name: 'hiddengongs-0',
-            put: ['concealed-0', 'exposed-0'],
+            put: ['concealed-0', 'exposed-0', 'peektile-0'],
             pull: ['concealed-0', 'exposed-0'] // for accidents
           },
           direction: 'horizontal',
@@ -194,9 +194,11 @@ export default {
           delay: 50,
           delayOnTouchOnly: true,
           onSort: function (evt) {
-            // Any interactions with the concealed or exposed tiles are handled in
-            // their respective onSort methods. That leaves just sorting.
-            if (evt.to.id != 'hiddengongs-0' || evt.from.id != 'hiddengongs-0') {
+            // Interactions with concealed, exposed, and peektile are handled
+            // in their respective onSort hooks. That should leave just
+            // sorting.
+            if (['concealed-0', 'exposed-0', 'peektile-0'].includes(evt.from.id) ||
+              ['concealed-0', 'exposed-0', 'peektile-0'].includes(evt.to.id)) {
               return;
             }
 
@@ -215,21 +217,53 @@ export default {
           }
         });
         break;
-      case 'deckoffer':
+      case 'peektile-0':
         Sortable.create(dropzone, {
           group: {
-            name: 'deckoffer',
+            name: 'peektile-0',
             put: false,
-            pull: 'clone'
+            pull: ['discards', 'concealed-0', 'hiddengongs-0', 'wintile-0']
           },
           sort: false,
           direction: 'horizontal',
           draggable: '.draggable',
           ghostClass: 'sortable-ghost',
           animation: 0,
-          emptyInsertThreshold: 0,
           delay: 50,
-          delayOnTouchOnly: true
+          delayOnTouchOnly: true,
+          onStart: function (evt) {
+            const hlSelector = '#hiddengongs-0, #wintile-0';
+            document.querySelectorAll(hlSelector).forEach((hlZone) => {
+              hlZone.classList.add('with-description');
+            });
+          },
+          onEnd: function (evt) {
+            document.querySelectorAll('.dropzone.with-description').forEach((hlZone) => {
+              hlZone.classList.remove('with-description');
+            });
+          },
+          onSort: function (evt) {
+            // Interactions with concealed and exposed are handled in their
+            // respective onSort hooks. That should leave discards, hidden
+            // gongs, and the win tile.
+            if (['concealed-0', 'exposed-0'].includes(evt.to.id)) {
+              return;
+            }
+
+            let draggedToList = [];
+            const draggedToNodes = evt.to.querySelectorAll('.draggable');
+            for (let i = 0; i < draggedToNodes.length; i++) {
+              draggedToList.push(draggedToNodes[i].id);
+            }
+
+            const draggedId = evt.item.id;
+            hook.pushEvent('dropped', {
+              draggedFromId: evt.from.id,
+              draggedToId: evt.to.id,
+              draggedToList: draggedToList,
+              draggedId: draggedId
+            });
+          }
         });
         break;
       case 'correctiontiles':
@@ -253,7 +287,7 @@ export default {
         Sortable.create(dropzone, {
           group: {
             name: 'wintile-0',
-            put: ['discards', 'concealed-0', 'exposed-0'],
+            put: ['discards', 'concealed-0', 'exposed-0', 'peektile-0'],
             pull: false // can only undo via Undo button
           },
           direction: 'horizontal',
@@ -265,9 +299,10 @@ export default {
           delay: 50,
           delayOnTouchOnly: true,
           onSort: function (evt) {
-            // Interactions with concealed or exposed tiles are handled in
-            // their respective onSort hooks. That should leave just discards.
-            if (['concealed-0', 'exposed-0'].includes(evt.from.id)) {
+            // Interactions with concealed, exposed, and peektiles are handled
+            // in their respective onSort hooks. That should leave just
+            // discards.
+            if (['concealed-0', 'exposed-0', 'peektile-0'].includes(evt.from.id)) {
               return;
             }
 

@@ -67,6 +67,17 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Peek next deck tile, which actually draws it and moves it to their hand
+  @impl true
+  def handle_event("peek", _params, socket) do
+    current_user_seatno = socket.assigns.current_user_seatno
+    game = socket.assigns.game |> Mjw.Game.peek_deck_tile(current_user_seatno)
+
+    socket = socket |> update_game(game, :drew_from_deck)
+
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_event("undo", _params, socket)
       when socket.assigns.can_undo do
@@ -136,7 +147,7 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       )
-      when dragged_from in ["concealed-0", "exposed-0"] do
+      when dragged_from in ["concealed-0", "exposed-0", "peektile-0"] do
     current_user_seatno = socket.assigns.current_user_seatno
 
     game =
@@ -196,12 +207,12 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # drew from the deck offer
+  # peektile -> concealed
   @impl true
   def handle_event(
         "dropped",
         %{
-          "draggedFromId" => "deckoffer",
+          "draggedFromId" => "peektile-0",
           "draggedToId" => "concealed-0",
           "draggedToList" => new_concealed
         },
@@ -209,10 +220,37 @@ defmodule MjwWeb.GameLive.Show do
       )
       when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
-    game = socket.assigns.game
 
-    {game, tile} = game |> Mjw.Game.draw_from_deck(current_user_seatno, new_concealed)
-    socket = socket |> update_game(game, :drew_from_deck, %{tile: tile})
+    game =
+      socket.assigns.game
+      |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
+      |> Mjw.Game.clear_peektile(current_user_seatno)
+
+    socket = socket |> update_game(game, :kept_peektile, %{local_only: true})
+
+    {:noreply, socket}
+  end
+
+  # peektile -> hiddengongs
+  @impl true
+  def handle_event(
+        "dropped",
+        %{
+          "draggedFromId" => "peektile-0",
+          "draggedToId" => "hiddengongs-0",
+          "draggedToList" => new_hiddengongs
+        },
+        socket
+      )
+      when length(new_hiddengongs) == length(socket.assigns.current_user_seat.hiddengongs) + 1 do
+    current_user_seatno = socket.assigns.current_user_seatno
+
+    game =
+      socket.assigns.game
+      |> Mjw.Game.update_hiddengongs(current_user_seatno, new_hiddengongs)
+      |> Mjw.Game.clear_peektile(current_user_seatno)
+
+    socket = socket |> update_game(game, :hiddengonged_tile)
 
     {:noreply, socket}
   end
@@ -421,7 +459,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # concealed/exposed -> wintile: declaring a win
+  # peektile/concealed/exposed -> wintile: declaring a win
   @impl true
   def handle_event(
         "dropped",
@@ -432,7 +470,7 @@ defmodule MjwWeb.GameLive.Show do
         },
         socket
       )
-      when dragged_from in ["concealed-0", "exposed-0"] do
+      when dragged_from in ["peektile-0", "concealed-0", "exposed-0"] do
     current_user_seatno = socket.assigns.current_user_seatno
     game = socket.assigns.game
 
@@ -763,6 +801,7 @@ defmodule MjwWeb.GameLive.Show do
     :concealed_sorted,
     :exposed_sorted,
     :hiddengongs_sorted,
+    :kept_peektile,
     # opened_game_menu/closed_game_menu don't get sent to other players, but
     # they are nonetheless ignored by business logic; without these here, CSS
     # animations get replayed when opening/closing the game menu.

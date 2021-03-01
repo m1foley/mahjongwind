@@ -602,28 +602,6 @@ defmodule Mjw.GameTest do
     end
   end
 
-  describe "draw_from_deck" do
-    test "removes a tile from deck, updates the player's concealed, updates turn state" do
-      {game, "dp-0"} =
-        %Mjw.Game{
-          turn_seatno: 3,
-          turn_state: :drawing,
-          deck: ["dp-0", "df-0", "dp-1"]
-        }
-        |> Mjw.Game.seat_player("id0", "name0")
-        |> Mjw.Game.seat_player("id1", "name1")
-        |> Mjw.Game.seat_player("id2", "name2")
-        |> Mjw.Game.seat_player("id3", "name3")
-        |> Mjw.Game.draw_from_deck(3, ["c1-0", "c1-1", "decktile", "c2-0"])
-
-      assert game.deck == ["df-0", "dp-1"]
-      assert game.turn_state == :discarding
-      assert game.turn_seatno == 3
-      assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-0", "c1-1", "dp-0", "c2-0"]
-      assert game.undo_event == {3, :drew_from_deck, "dp-0"}
-    end
-  end
-
   describe "draw_correction_tile" do
     test "removes a tile from deck and updates the player's concealed tiles" do
       {game, returned_tile} =
@@ -1252,10 +1230,12 @@ defmodule Mjw.GameTest do
           end)
       }
 
-      {game, "b1-0"} =
-        orig_game |> Mjw.Game.draw_from_deck(3, ["n1-3", "n2-3", "n3-3", "decktile"])
+      game =
+        orig_game
+        |> Mjw.Game.peek_deck_tile(3)
+        |> Mjw.Game.clear_peektile(3)
+        |> Mjw.Game.undo()
 
-      game = game |> Mjw.Game.undo()
       assert game == orig_game
     end
 
@@ -1283,6 +1263,43 @@ defmodule Mjw.GameTest do
 
       game = game |> Mjw.Game.undo()
       assert game == orig_game
+    end
+  end
+
+  describe "peek_deck_tile" do
+    test "moves next tile from deck to player's hand" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :drawing,
+          discards: ["dp-0", "df-0"],
+          deck: ["c1-0", "c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.peek_deck_tile(3)
+
+      assert game.deck == ["c2-0", "c3-0"]
+      assert game.turn_seatno == 3
+      assert game.turn_state == :discarding
+      assert game.seats |> Enum.map(& &1.peektile) == [nil, nil, nil, "c1-0"]
+      assert game.undo_event == {3, :drew_from_deck, "c1-0"}
+    end
+  end
+
+  describe "clear_peektile" do
+    test "removes the peektile from the hand" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :discarding,
+          seats: 0..3 |> Enum.map(fn i -> %Mjw.Seat{peektile: "b1-#{i}"} end)
+        }
+        |> Mjw.Game.clear_peektile(3)
+
+      assert game.seats |> Enum.map(& &1.peektile) == ["b1-0", "b1-1", "b1-2", nil]
     end
   end
 end
