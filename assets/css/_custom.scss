@@ -392,6 +392,7 @@ $discard-rotations: ("0": rotate(12deg), "1": rotate(-20deg), "2": rotate(-40deg
   bottom: 17rem;
   left: 13rem;
   right: 13rem;
+  @apply flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone;
   .tile {
     cursor: not-allowed;
     height: 3.1rem;
@@ -532,11 +533,15 @@ $discard-animation-translates: (
   @apply opacity-70;
 }
 
-#deckoffer {
+#peektile-0 {
   position: fixed;
   bottom: 10%;
   right: 10%;
+  height: 15rem;
+  width: 14rem;
+  @apply dropzone flex justify-center bg-green-600 bg-opacity-50 border-4 border-gray-800 rounded-full shadow-xl;
   .tile {
+    margin: auto;
     @apply largetile;
   }
 }

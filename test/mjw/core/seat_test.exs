@@ -82,7 +82,8 @@ defmodule Mjw.SeatTest do
           concealed: ["n1-0"],
           exposed: ["n2-0"],
           hiddengongs: ["n3-0"],
-          wintile: "n4-0",
+          peektile: "n4-0",
+          wintile: "n5-0",
           winreaction: :ok
         }
         |> Mjw.Seat.clear_tiles()
@@ -92,6 +93,7 @@ defmodule Mjw.SeatTest do
       assert seat.concealed == []
       assert seat.exposed == []
       assert seat.hiddengongs == []
+      assert seat.peektile == nil
       assert seat.wintile == nil
       assert seat.winreaction == nil
     end
@@ -197,7 +199,8 @@ defmodule Mjw.SeatTest do
           concealed: ["n1-0"],
           exposed: ["n2-0"],
           hiddengongs: ["n3-0"],
-          wintile: "n4-0",
+          peektile: "n4-0",
+          wintile: "n5-0",
           winreaction: :ok
         }
         |> Mjw.Seat.clear_win_attributes()
@@ -207,6 +210,7 @@ defmodule Mjw.SeatTest do
       assert seat.concealed == ["n1-0"]
       assert seat.exposed == ["n2-0"]
       assert seat.hiddengongs == ["n3-0"]
+      assert seat.peektile == "n4-0"
       assert seat.wintile == nil
       assert seat.winreaction == nil
     end
@@ -253,13 +257,15 @@ defmodule Mjw.SeatTest do
         %Mjw.Seat{
           concealed: ["n1-0", "n2-0", "n3-0"],
           exposed: ["n1-1", "n2-1", "n3-1"],
-          hiddengongs: ["n1-2", "n2-2", "n3-2"]
+          hiddengongs: ["n1-2", "n2-2", "n3-2"],
+          peektile: "b1-0"
         }
         |> Mjw.Seat.remove_from_hand("n2-1")
 
       assert seat.concealed == ["n1-0", "n2-0", "n3-0"]
       assert seat.exposed == ["n1-1", "n3-1"]
       assert seat.hiddengongs == ["n1-2", "n2-2", "n3-2"]
+      assert seat.peektile == "b1-0"
     end
 
     test "removes tile from concealed" do
@@ -267,13 +273,15 @@ defmodule Mjw.SeatTest do
         %Mjw.Seat{
           concealed: ["n1-0", "n2-0", "n3-0"],
           exposed: ["n1-1", "n2-1", "n3-1"],
-          hiddengongs: ["n1-2", "n2-2", "n3-2"]
+          hiddengongs: ["n1-2", "n2-2", "n3-2"],
+          peektile: "b1-0"
         }
         |> Mjw.Seat.remove_from_hand("n2-0")
 
       assert seat.concealed == ["n1-0", "n3-0"]
       assert seat.exposed == ["n1-1", "n2-1", "n3-1"]
       assert seat.hiddengongs == ["n1-2", "n2-2", "n3-2"]
+      assert seat.peektile == "b1-0"
     end
 
     test "removes tile from hiddengongs" do
@@ -281,23 +289,90 @@ defmodule Mjw.SeatTest do
         %Mjw.Seat{
           concealed: ["n1-0", "n2-0", "n3-0"],
           exposed: ["n1-1", "n2-1", "n3-1"],
-          hiddengongs: ["n1-2", "n2-2", "n3-2"]
+          hiddengongs: ["n1-2", "n2-2", "n3-2"],
+          peektile: "b1-0"
         }
         |> Mjw.Seat.remove_from_hand("n2-2")
 
       assert seat.concealed == ["n1-0", "n2-0", "n3-0"]
       assert seat.exposed == ["n1-1", "n2-1", "n3-1"]
       assert seat.hiddengongs == ["n1-2", "n3-2"]
+      assert seat.peektile == "b1-0"
+    end
+
+    test "removes tile from peektile" do
+      seat =
+        %Mjw.Seat{
+          concealed: ["n1-0", "n2-0", "n3-0"],
+          exposed: ["n1-1", "n2-1", "n3-1"],
+          hiddengongs: ["n1-2", "n2-2", "n3-2"],
+          peektile: "b1-0"
+        }
+        |> Mjw.Seat.remove_from_hand("b1-0")
+
+      assert seat.concealed == ["n1-0", "n2-0", "n3-0"]
+      assert seat.exposed == ["n1-1", "n2-1", "n3-1"]
+      assert seat.hiddengongs == ["n1-2", "n2-2", "n3-2"]
+      assert seat.peektile == nil
     end
 
     test "no change if tile not present" do
       seat = %Mjw.Seat{
         concealed: ["n1-0", "n2-0", "n3-0"],
         exposed: ["n1-1", "n2-1", "n3-1"],
-        hiddengongs: ["n1-2", "n2-2", "n3-2"]
+        hiddengongs: ["n1-2", "n2-2", "n3-2"],
+        peektile: "b1-0"
       }
 
       assert Mjw.Seat.remove_from_hand(seat, "b9-0") == seat
+    end
+  end
+
+  describe "add_to_concealed" do
+    test "adds to concealed tiles" do
+      seat =
+        %Mjw.Seat{
+          concealed: ["n1-0"],
+          exposed: ["n1-1"]
+        }
+        |> Mjw.Seat.add_to_concealed("b1-0")
+
+      assert seat.concealed == ["n1-0", "b1-0"]
+      assert seat.exposed == ["n1-1"]
+    end
+  end
+
+  describe "peek" do
+    test "sets peektile" do
+      seat = %Mjw.Seat{} |> Mjw.Seat.peek("b1-0")
+
+      assert seat.peektile == "b1-0"
+    end
+  end
+
+  describe "clear_peektile" do
+    test "removes the peektile" do
+      seat =
+        %Mjw.Seat{
+          player_id: "id1",
+          player_name: "Name1",
+          concealed: ["n1-0"],
+          exposed: ["n2-0"],
+          hiddengongs: ["n3-0"],
+          peektile: "n4-0",
+          wintile: "n5-0",
+          winreaction: :ok
+        }
+        |> Mjw.Seat.clear_peektile()
+
+      assert seat.player_id == "id1"
+      assert seat.player_name == "Name1"
+      assert seat.concealed == ["n1-0"]
+      assert seat.exposed == ["n2-0"]
+      assert seat.hiddengongs == ["n3-0"]
+      assert seat.peektile == nil
+      assert seat.wintile == "n5-0"
+      assert seat.winreaction == :ok
     end
   end
 end

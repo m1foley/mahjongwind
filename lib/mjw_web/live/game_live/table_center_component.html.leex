@@ -24,23 +24,45 @@
         <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl mx-1">🙅🏻‍♀️</span>
       </div>
     <% :undo -> %>
-      <%= if @event_details[:seat].seatno != @current_user_seatno do %>
-        <div class="state-description">
-          <%= case @event_details[:event] do %>
-          <% :discarded -> %>
+      <div class="state-description">
+        <%= case @event_details[:event] do %>
+        <% :discarded -> %>
+          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+            You took back your discard.
+          <% else %>
             <%= @event_details[:seat].player_name %> took back their discard.
-          <% :declared_win -> %>
-            <%= @event_details[:seat].player_name %> took back their win. <span class="no-text-shadow text-5xl mx-1">🤦🏻‍♀️</span>
-          <% n when n in [:drew_discard, :ponged] -> %>
-            <%= @event_details[:seat].player_name %> returned the tile to discards.
-          <% :drew_from_deck -> %>
-            <%= @event_details[:seat].player_name %> returned the tile to the deck.
-          <% :drew_correction_tile -> %>
-            <%= @event_details[:seat].player_name %> returned the correction tile to the deck.
-          <% _unknown_undo_event -> %>
           <% end %>
-        </div>
-      <% end %>
+        <% :declared_win -> %>
+          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+            You took back your win.
+          <% else %>
+            <%= @event_details[:seat].player_name %> took back their win.
+          <% end %>
+          <span class="no-text-shadow text-5xl mx-1">🤦🏻‍♀️</span>
+        <% n when n in [:drew_discard, :ponged] -> %>
+          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+            You
+          <% else %>
+            <%= @event_details[:seat].player_name %>
+          <% end %>
+          returned the tile to discards.
+        <% :drew_from_deck -> %>
+          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+            You
+          <% else %>
+            <%= @event_details[:seat].player_name %>
+          <% end %>
+          returned the tile to the deck.
+        <% :drew_correction_tile -> %>
+          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+            You
+          <% else %>
+            <%= @event_details[:seat].player_name %>
+          <% end %>
+          returned the correction tile to the deck.
+        <% _unknown_undo_event -> %>
+        <% end %>
+      </div>
     <% _event -> %>
   <% end %>
 
@@ -52,16 +74,20 @@
   <% end %>
 
   <%= unless @show_wall do %>
-    <div id="discards" phx-hook="Drag" phx-target="#game" class="flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @available_discard_tile, do: " enable-pull-from-discards" %>">
+    <div id="discards" phx-hook="Drag" phx-target="#game" class="<%= if @current_user_discarding, do: "current-user-discarding" %><%= if @available_discard_tile, do: "enable-pull-from-discards" %>">
       <%= for tile <- @game.discards |> Enum.reverse() do %>
         <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile<%= if @available_discard_tile == tile, do: " glow draggable" %><%= if @available_discard_tile == tile && @discarded_by_relative_seatno, do: " discardedby-#{@discarded_by_relative_seatno}" %>">
       <% end %>
     </div>
   <% end %>
 
-  <%= if @current_user_drawing do %>
-    <div id="deckoffer" phx-hook="Drag" phx-target="#game" class="dropzone bg-green-600 bg-opacity-50 border-4 border-gray-800 rounded-full shadow-xl p-12">
-      <img id="decktile" src="/images/tiles/concealed.png" alt="wall tile" class="tile draggable" />
+  <%= if @current_user_drawing || @current_user_seat.peektile do %>
+    <div id="peektile-0" phx-hook="Drag" phx-target="#game">
+      <%= if @current_user_seat.peektile do %>
+        <img id="<%= @current_user_seat.peektile %>" src="/images/tiles/<%= String.slice(@current_user_seat.peektile, 0..1) %>.png" alt="<%= String.slice(@current_user_seat.peektile, 0..1) %>" class="tile draggable" />
+      <% else %>
+        <img src="/images/tiles/concealed.png" alt="wall tile" class="tile cursor-pointer" phx-target="#game" phx-click="peek" />
+      <% end %>
     </div>
   <% end %>
 
