@@ -99,15 +99,6 @@
   height: 8rem;
 }
 
-.player-name {
-  display: inline-block;
-  opacity: 0.6;
-  @apply bg-gray-100 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 rounded-full py-1 px-4 mb-2 shadow-md;
-  &.glow {
-    opacity: 0.8;
-  }
-}
-
 .glow {
   box-shadow: 0px 0px 2rem #eee;
 }
@@ -163,11 +154,7 @@
   min-width: 24rem;
 }
 
-.player-name-container {
-  position: fixed;
-}
-
-#seat-0 {
+#seat-0, #walltiles-0 {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -177,7 +164,7 @@
   }
 }
 
-#seat-1 {
+#seat-1, #walltiles-1 {
   position: absolute;
   top: -5%;
   right: 0;
@@ -189,13 +176,9 @@
   .wall-tiles {
     margin-right: 5%;
   }
-  .player-name-container {
-    right: 6rem;
-    top: 11rem;
-  }
 }
 
-#seat-2 {
+#seat-2, #walltiles-2 {
   position: absolute;
   top: 0;
   left: 0;
@@ -203,13 +186,9 @@
   .tiles {
     transform: rotate(180deg);
   }
-  .player-name-container {
-    top: 0;
-    width: 100%;
-  }
 }
 
-#seat-3 {
+#seat-3, #walltiles-3 {
   position: absolute;
   top: -5%;
   left: 0;
@@ -221,9 +200,34 @@
   .wall-tiles {
     margin-left: 5%;
   }
-  .player-name-container {
-    left: 6rem;
-    top: 11rem;
+}
+
+#player-name-1 {
+  position: fixed;
+  right: 6rem;
+  top: 11rem;
+  opacity: 0.7;
+}
+
+#player-name-2 {
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+#player-name-3 {
+  position: fixed;
+  left: 6rem;
+  top: 11rem;
+  opacity: 0.7;
+}
+
+.player-name {
+  display: inline-block;
+  opacity: 0.6;
+  @apply bg-gray-100 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 rounded-full py-1 px-4 mb-2 shadow-md;
+  &.glow {
+    opacity: 0.8;
   }
 }
 
@@ -385,6 +389,7 @@
 
 // using a variable because these are used by the normal CSS and the animations
 $discard-rotations: ("0": rotate(12deg), "1": rotate(-20deg), "2": rotate(-40deg), "5": rotate(50deg), "6": rotate(-24deg), "7": rotate(73deg), "8": rotate(30deg), "firstchild": rotate(14deg));
+$discard-childnos-without-rotations: 3, 4;
 
 #discards {
   position: fixed;
@@ -397,91 +402,43 @@ $discard-rotations: ("0": rotate(12deg), "1": rotate(-20deg), "2": rotate(-40deg
     cursor: not-allowed;
     height: 3.1rem;
     position: relative;
-    &.draggable {
-      cursor: move;
-    }
     // scramble the discarded tiles
-    &:nth-child(9n) {
+    &:nth-child(9n+0) {
       top: 0.6rem;
       transform: map-get($discard-rotations, "0");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-0 1s ease;
-        }
-      }
     }
     &:nth-child(9n+1) {
       top: -2rem;
       left: 1rem;
       transform: map-get($discard-rotations, "1");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-1 1s ease;
-        }
-      }
     }
     &:nth-child(9n+2) {
       top: 4rem;
       transform: map-get($discard-rotations, "2");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-2 1s ease;
-        }
-      }
     }
     &:nth-child(9n+3) {
       top: -2rem;
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i} 1s ease;
-        }
-      }
     }
     &:nth-child(9n+4) {
       top: 4rem;
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i} 1s ease;
-        }
-      }
     }
     &:nth-child(9n+5) {
       top: -1.5rem;
       left: 0.5rem;
       transform: map-get($discard-rotations, "5");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-5 1s ease;
-        }
-      }
     }
     &:nth-child(9n+6) {
       top: 2rem;
       transform: map-get($discard-rotations, "6");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-6 1s ease;
-        }
-      }
     }
     &:nth-child(9n+7) {
       top: 5.0rem;
       left: 0.5rem;
       transform: map-get($discard-rotations, "7");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-7 1s ease;
-        }
-      }
     }
     &:nth-child(9n+8) {
       top: -2.5rem;
       transform: map-get($discard-rotations, "8");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-8 1s ease;
-        }
-      }
     }
     // not sure why but space-y-32 (which provides good spacing when new rows
     // are created) makes the first child appear way off to the upper left
@@ -489,18 +446,9 @@ $discard-rotations: ("0": rotate(12deg), "1": rotate(-20deg), "2": rotate(-40deg
       top: 7rem;
       left: 0;
       transform: map-get($discard-rotations, "firstchild");
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: discardanimation-#{$i}-firstchild 1s ease;
-        }
-      }
     }
     &.sortable-ghost {
-      @for $i from 1 through 3 {
-        &.discardedby-#{$i} {
-          animation: none;
-        }
-      }
+      animation: none;
     }
   }
 }
@@ -598,8 +546,10 @@ $discard-animation-translates: (
 }
 
 .turn-glow {
-  box-shadow: 0px 0px 5rem #eee;
-  @apply bg-green-600;
+  .exposed-tiles, .hiddengong-tiles, .concealed-tiles {
+    box-shadow: 0px 0px 5rem #eee;
+    @apply bg-green-600;
+  }
 }
 
 .current-user-turn-glow {
@@ -608,4 +558,33 @@ $discard-animation-translates: (
 
 #undo {
   @apply bg-gray-300 hover:bg-gray-200 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 shadow-md py-1 px-4 font-bold border-2 border-gray-400 cursor-pointer rounded-xl;
+}
+
+$tile-types: b1, b2, b3, b4, b5, b6, b7, b8, b9, c1, c2, c3, c4, c5, c6, c7, c8, c9, n1, n2, n3, n4, n5, n6, n7, n8, n9, df, dp, dz, we, ws, ww, wn;
+@each $tile-type in $tile-types {
+  @for $i from 0 through 3 {
+    .glow-#{$tile-type}-#{$i} ##{$tile-type}-#{$i} {
+      @apply glow;
+    }
+    .dglow-#{$tile-type}-#{$i} ##{$tile-type}-#{$i} {
+      @apply glow draggable cursor-move;
+    }
+    @for $seatno from 1 through 3 {
+      #discards.dglow-#{$tile-type}-#{$i}.discardedby-#{$seatno} {
+        @each $childno, $transform in $discard-rotations {
+          .tile:nth-child(9n+#{$childno})##{$tile-type}-#{$i} {
+            animation: discardanimation-#{$seatno}-#{$childno} 1s ease;
+          }
+        }
+        @each $childno in $discard-childnos-without-rotations {
+          .tile:nth-child(9n+#{$childno})##{$tile-type}-#{$i} {
+            animation: discardanimation-#{$seatno} 1s ease;
+          }
+        }
+        .tile:first-child##{$tile-type}-#{$i} {
+          animation: discardanimation-#{$i}-firstchild 1s ease;
+        }
+      }
+    }
+  }
 }

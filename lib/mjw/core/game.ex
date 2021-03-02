@@ -763,8 +763,8 @@ defmodule Mjw.Game do
     |> update_seat(seatno, fn seat -> Mjw.Seat.peek(seat, peektile) end)
     |> Map.merge(%{
       deck: remaining_deck,
-      undo_event: {seatno, :drew_from_deck, peektile},
-      turn_state: :discarding
+      turn_state: :discarding,
+      undo_event: {seatno, :drew_from_deck, peektile}
     })
   end
 

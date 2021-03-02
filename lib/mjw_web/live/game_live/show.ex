@@ -476,7 +476,7 @@ defmodule MjwWeb.GameLive.Show do
 
     game = game |> Mjw.Game.declare_win_from_hand(current_user_seatno, tile)
 
-    socket = socket |> update_game(game, :declared_win)
+    socket = socket |> update_game(game, :declared_win, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -498,7 +498,7 @@ defmodule MjwWeb.GameLive.Show do
       socket.assigns.game
       |> Mjw.Game.declare_win_from_discards(current_user_seatno, tile)
 
-    socket = socket |> update_game(game, :declared_win)
+    socket = socket |> update_game(game, :declared_win, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -687,7 +687,8 @@ defmodule MjwWeb.GameLive.Show do
     can_undo = undo_seatno == current_user_seatno
 
     # seats ordered by their position to the current player (0 = self, etc.).
-    # A seatno attribute is added as a convenience to get the original index.
+    # Extra attributes added for convenience or LiveView diff optimization:
+    # seatno (get original index in seats), win_expose
     relative_game_seats =
       0..3
       |> Enum.map(fn i ->
@@ -695,7 +696,9 @@ defmodule MjwWeb.GameLive.Show do
       end)
       |> Enum.with_index()
       |> Enum.sort_by(fn {{_seat, relative_position}, _i} -> relative_position end)
-      |> Enum.map(fn {{seat, _relative_position}, i} -> Map.merge(seat, %{seatno: i}) end)
+      |> Enum.map(fn {{seat, _relative_position}, i} ->
+        Map.merge(seat, %{seatno: i, win_expose: Mjw.Seat.win_expose?(seat)})
+      end)
 
     current_user_seat = relative_game_seats |> Enum.at(0)
 
@@ -752,10 +755,12 @@ defmodule MjwWeb.GameLive.Show do
 
     event_seatno = event_details |> Map.get(:seat, %{}) |> Map.get(:seatno)
 
-    glow_tile =
-      if glow_tile_from_event?(raw_event, event_seatno, current_user_seatno) do
+    non_discard_glow_tile =
+      if glow_tile_from_non_discard_event?(raw_event, event_seatno, current_user_seatno) do
         event_details[:tile]
       end
+
+    turn_glow_seatno = unless win_declared_seatno, do: game.turn_seatno
 
     socket
     |> assign(:game, game)
@@ -781,7 +786,8 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:discarded_by_relative_seatno, discarded_by_relative_seatno)
     |> assign(:current_user_discarding, current_user_discarding)
     |> assign(:show_correction_tile, show_correction_tile)
-    |> assign(:glow_tile, glow_tile)
+    |> assign(:non_discard_glow_tile, non_discard_glow_tile)
+    |> assign(:turn_glow_seatno, turn_glow_seatno)
   end
 
   defp unjoinable_game_redirect(socket) do
@@ -859,7 +865,8 @@ defmodule MjwWeb.GameLive.Show do
     :rolled_for_deal,
     :confirmed_win,
     :draw,
-    :dq
+    :dq,
+    :reset
   ]
 
   # There are only a few events from other players that can change the current
@@ -878,7 +885,6 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   @current_player_glow_tile_events [
-    :drew_from_deck,
     :drew_discard,
     :drew_correction_tile,
     :ponged
@@ -887,10 +893,11 @@ defmodule MjwWeb.GameLive.Show do
   @other_player_glow_tile_events [
     :exposed_tile,
     :drew_discard,
-    :ponged
+    :ponged,
+    :declared_win
   ]
 
-  def glow_tile_from_event?(raw_event, event_seatno, current_user_seatno) do
+  def glow_tile_from_non_discard_event?(raw_event, event_seatno, current_user_seatno) do
     (raw_event in @current_player_glow_tile_events && event_seatno == current_user_seatno) ||
       (raw_event in @other_player_glow_tile_events && event_seatno != current_user_seatno)
   end

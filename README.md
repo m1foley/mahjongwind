@@ -3,8 +3,10 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Bug: prevent discarding while peektile is present
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Indicate how many tiles remain in deck
+- Experiment with phx "update" optimization in discards
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
 - Add website name to landing page
@@ -14,6 +16,7 @@ Play mahjong with your friends online!
 - Experiment with more CSS animations: exposing a tile, taking from discards, etc.
 - Enforce that the winning tile was the last one picked up
 - Think of a better domain name
+- Robot to allow 2-player games
 
 ## Long-term TODOs for public release
 - Real user accounts instead of just web sessions

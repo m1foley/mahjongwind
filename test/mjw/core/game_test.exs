@@ -681,12 +681,13 @@ defmodule Mjw.GameTest do
         dice: [1, 2, 3],
         wind: "wn",
         seats:
-          0..3
-          |> Enum.map(fn i ->
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
             %Mjw.Seat{
               player_id: "id#{i}",
               player_name: "name#{i}",
-              picked_wind: "ww",
+              picked_wind: w,
               concealed: ["n1-#{i}"],
               exposed: ["n2-#{i}"],
               hiddengongs: ["n3-#{i}"],

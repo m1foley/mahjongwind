@@ -1,70 +1,73 @@
 <div id="<%= @id %>">
-  <%= case @event do %>
-    <% :drew_correction_tile -> %>
-      <div class="state-description">
-        <%= @event_details[:seat].player_name %> drew a correction tile.
-        <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
-      </div>
-    <% :player_seated -> %>
-      <%= if @event_details[:seat].player_id != @current_user_id do %>
-        <div class="state-description">
-          <%= @event_details[:seat].player_name %> joined the game!
-        </div>
-      <% end %>
-    <% :reset -> %>
-      <div class="state-description">
-        <%= @event_details[:seat].player_name %> reset the game.
-      </div>
-    <% :draw -> %>
-      <div class="state-description">
-        <%= @event_details[:seat].player_name %> declared a draw. <span class="no-text-shadow text-5xl mx-1">🤝</span>
-      </div>
-    <% :dq -> %>
-      <div class="state-description">
-        <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl mx-1">🙅🏻‍♀️</span>
-      </div>
-    <% :undo -> %>
-      <div class="state-description">
-        <%= case @event_details[:event] do %>
-        <% :discarded -> %>
-          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-            You took back your discard.
-          <% else %>
-            <%= @event_details[:seat].player_name %> took back their discard.
-          <% end %>
-        <% :declared_win -> %>
-          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-            You took back your win.
-          <% else %>
-            <%= @event_details[:seat].player_name %> took back their win.
-          <% end %>
-          <span class="no-text-shadow text-5xl mx-1">🤦🏻‍♀️</span>
-        <% n when n in [:drew_discard, :ponged] -> %>
-          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-            You
-          <% else %>
-            <%= @event_details[:seat].player_name %>
-          <% end %>
-          returned the tile to discards.
-        <% :drew_from_deck -> %>
-          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-            You
-          <% else %>
-            <%= @event_details[:seat].player_name %>
-          <% end %>
-          returned the tile to the deck.
-        <% :drew_correction_tile -> %>
-          <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-            You
-          <% else %>
-            <%= @event_details[:seat].player_name %>
-          <% end %>
-          returned the correction tile to the deck.
-        <% _unknown_undo_event -> %>
+  <div class="state-description">
+    <%= case @event do %>
+      <% :drew_discard -> %>
+        <%= if @game.turn_seatno != @current_user_seatno do %>
+          <%= @turn_player_name %> drew from discards. <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
         <% end %>
-      </div>
-    <% _event -> %>
-  <% end %>
+      <% :ponged -> %>
+        <%= if @game.turn_seatno != @current_user_seatno do %>
+          <%= @turn_player_name %> ponged. <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
+        <% end %>
+      <% :drew_from_deck -> %>
+        <%= if @game.turn_seatno != @current_user_seatno do %>
+          <%= @turn_player_name %> drew from the deck. <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+        <% end %>
+      <% :draw -> %>
+        <%= @event_details[:seat].player_name %> declared a draw. <span class="no-text-shadow text-5xl mx-1">🤝</span>
+      <% :dq -> %>
+        <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl mx-1">🙅🏻‍♀️</span>
+      <% :undo -> %>
+        <%= case @event_details[:event] do %>
+          <% :discarded -> %>
+            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+              You took back your discard.
+            <% else %>
+              <%= @event_details[:seat].player_name %> took back their discard.
+            <% end %>
+          <% :declared_win -> %>
+            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+              You took back your win.
+            <% else %>
+              <%= @event_details[:seat].player_name %> took back their win.
+            <% end %>
+            <span class="no-text-shadow text-5xl mx-1">🤦🏻‍♀️</span>
+          <% :drew_from_deck -> %>
+            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+              You
+            <% else %>
+              <%= @event_details[:seat].player_name %>
+            <% end %>
+            returned the tile to the deck.
+          <% :drew_correction_tile -> %>
+            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+              You
+            <% else %>
+              <%= @event_details[:seat].player_name %>
+            <% end %>
+            returned the correction tile to the deck.
+          <% n when n in [:drew_discard, :ponged] -> %>
+            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+              You
+            <% else %>
+              <%= @event_details[:seat].player_name %>
+            <% end %>
+            returned the tile to discards.
+          <% _unknown_undo_event -> %>
+        <% end %>
+      <% :drew_correction_tile -> %>
+        <%= if @event_details[:seat].seatno == @current_user_seatno do %>
+          You drew a correction tile.
+        <% else %>
+          <%= @event_details[:seat].player_name %> drew a correction tile. <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
+        <% end %>
+      <% :left_game -> %>
+        <%= @event_details[:seat].player_name %> left the game.
+      <% :reset -> %>
+        <%= @event_details[:seat].player_name %> reset the game.
+      <% _other_event -> %>
+    <% end %>
+  </div>
 
   <%= if @show_wind_picking do %>
     <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
@@ -74,55 +77,30 @@
   <% end %>
 
   <%= unless @show_wall do %>
-    <div id="discards" phx-hook="Drag" phx-target="#game" class="<%= if @current_user_discarding, do: "current-user-discarding" %><%= if @available_discard_tile, do: "enable-pull-from-discards" %>">
+    <div id="discards" phx-hook="Drag" phx-target="#game" class="dglow-<%= @available_discard_tile %> discardedby-<%= @discarded_by_relative_seatno %><%= if @current_user_discarding, do: " current-user-discarding" %><%= if @available_discard_tile, do: " enable-pull-from-discards" %>">
       <%= for tile <- @game.discards |> Enum.reverse() do %>
-        <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile<%= if @available_discard_tile == tile, do: " glow draggable" %><%= if @available_discard_tile == tile && @discarded_by_relative_seatno, do: " discardedby-#{@discarded_by_relative_seatno}" %>">
+        <%# Every tile isn't really draggable, but dynamic code like `available_discard_tile == tile` marks it dirty in the LiveView diffs, even if an action didn't modify it. This causes too much information to be sent over the wire. Instead we use CSS & JS to determine draggability, glowing, and animations. %>
+        <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="<%= String.slice(tile, 0..1) %>" class="tile draggable">
       <% end %>
     </div>
   <% end %>
 
-  <%= if @current_user_drawing || @current_user_seat.peektile do %>
-    <div id="peektile-0" phx-hook="Drag" phx-target="#game">
-      <%= if @current_user_seat.peektile do %>
-        <img id="<%= @current_user_seat.peektile %>" src="/images/tiles/<%= String.slice(@current_user_seat.peektile, 0..1) %>.png" alt="<%= String.slice(@current_user_seat.peektile, 0..1) %>" class="tile draggable" />
-      <% else %>
-        <img src="/images/tiles/concealed.png" alt="wall tile" class="tile cursor-pointer" phx-target="#game" phx-click="peek" />
-      <% end %>
-    </div>
-  <% end %>
-
+  <%# Placed after discards so it's higher in z-index %>
   <%= case @game_state do %>
     <% :waiting_for_players -> %>
-      <%= if @event == :left_game do %>
-        <div class="state-description">
-          <%= @event_details[:seat].player_name %> left the game.
-        </div>
-      <% end %>
       <div class="state-description">
-        Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit...
-        <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-center", game: @game %>
+        Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit:
       </div>
-    <% :discarding -> %>
-      <%= if @game.turn_seatno != @current_user_seatno do %>
-        <%= case @event do %>
-          <% :drew_discard -> %>
-            <div class="state-description">
-              <%= @turn_player_name %> drew from discards:
-              <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
-            </div>
-          <% :ponged -> %>
-            <div class="state-description">
-              <%= @turn_player_name %> ponged:
-              <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="<%= String.slice(@event_details[:tile], 0..1) %>" class="tile" />
-            </div>
-          <% :drew_from_deck -> %>
-            <div class="state-description">
-              <%= @turn_player_name %> drew from the deck.
-              <img src="/images/tiles/concealed.png" alt="concealed" class="tile" />
-            </div>
-          <% _other_event -> %>
-        <% end %>
-      <% end %>
+      <div class="state-description">
+        <ul class="text-left inline-block">
+          <%= for name <- @game.seats |> Enum.map(fn seat -> if Mjw.Seat.empty?(seat), do: "", else: seat.player_name end) do %>
+            <li class="py-2">
+              🪑<span class="pl-3"><%= name %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+      <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-center", game: @game %>
     <% :win_declared -> %>
       <div class="state-description">
         <%= if @win_declared_seatno == @current_user_seatno do %>
@@ -133,5 +111,15 @@
       </div>
       <%= live_component @socket, MjwWeb.GameLive.WinMenuComponent, id: "winmenu", game: @game, win_declared_seatno: @win_declared_seatno, current_user_seat: @current_user_seat %>
     <% _ -> %>
+  <% end %>
+
+  <%= if @current_user_drawing || @current_user_seat.peektile do %>
+    <div id="peektile-0" phx-hook="Drag" phx-target="#game">
+      <%= if @current_user_seat.peektile do %>
+        <img id="<%= @current_user_seat.peektile %>" src="/images/tiles/<%= String.slice(@current_user_seat.peektile, 0..1) %>.png" alt="<%= String.slice(@current_user_seat.peektile, 0..1) %>" class="tile draggable" />
+      <% else %>
+        <img src="/images/tiles/concealed.png" alt="wall tile" class="tile cursor-pointer" phx-target="#game" phx-click="peek" />
+      <% end %>
+    </div>
   <% end %>
 </div>
