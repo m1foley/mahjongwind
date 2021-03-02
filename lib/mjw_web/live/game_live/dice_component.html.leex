@@ -44,7 +44,7 @@
   <div id="<%= @id %>" class="dice-<%= @roller_relative_position %>">
     <%= for {die, i} <- @dice |> Enum.with_index() do %>
       <%# game_state class added to distinguish the identical animations for the 2 types of rolls %>
-      <img src="/images/dice/d<%= die %>.png" alt="die" class="die die-<%= i %><%= if @raw_event in [:rolled_for_first_dealer, :rolled_for_deal], do: " #{@game_state}-#{@roller_relative_position}" %>" />
+      <img src="/images/dice/d<%= die %>.png" alt="" class="die die-<%= i %><%= if @raw_event in [:rolled_for_first_dealer, :rolled_for_deal], do: " #{@game_state}-#{@roller_relative_position}" %>" />
     <% end %>
   </div>
 <% end %>
