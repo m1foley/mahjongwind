@@ -14,7 +14,9 @@ defmodule MjwWeb.GameLive.Show do
           |> assign_game_info(game)
 
         if game_joinable?(socket) do
-          socket |> subscribe_to_game_updates()
+          socket
+          |> assign(:reversed_discards, game.discards |> Enum.reverse())
+          |> subscribe_to_game_updates()
         else
           socket |> unjoinable_game_redirect()
         end
@@ -22,7 +24,7 @@ defmodule MjwWeb.GameLive.Show do
         socket |> game_not_found_redirect()
       end
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [reversed_discards: []]}
   end
 
   @impl true
@@ -45,9 +47,23 @@ defmodule MjwWeb.GameLive.Show do
       socket
       |> assign_event(event, event_details)
       |> assign_game_info(game)
+      |> update_discards(event, event_details)
 
     {:noreply, socket}
   end
+
+  defp update_discards(socket, event, event_details)
+       when event == :discarded do
+    socket |> assign(:reversed_discards, [event_details[:tile]])
+  end
+
+  # prefixing "remove-" tells the frontend to turn it into a dummy element
+  defp update_discards(socket, event, event_details)
+       when event in [:drew_discard, :ponged] do
+    socket |> assign(:reversed_discards, ["remove-#{event_details[:tile]}"])
+  end
+
+  defp update_discards(socket, _event, _event_details), do: socket
 
   @impl true
   def handle_event("opengamemenu", _params, socket) do
@@ -154,7 +170,7 @@ defmodule MjwWeb.GameLive.Show do
       socket.assigns.game
       |> Mjw.Game.discard(current_user_seatno, discarded_tile)
 
-    socket = socket |> update_game(game, :discarded)
+    socket = socket |> update_game(game, :discarded, %{tile: discarded_tile})
 
     {:noreply, socket}
   end

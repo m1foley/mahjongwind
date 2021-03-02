@@ -77,10 +77,14 @@
   <% end %>
 
   <%= unless @show_wall do %>
-    <div id="discards" phx-hook="Drag" phx-target="#game" class="dglow-<%= @available_discard_tile %> discardedby-<%= @discarded_by_relative_seatno %> current-user-discarding-<%= if @current_user_discarding, do: "t" %> enable-pull-from-discards-<%= if @available_discard_tile, do: "t" %>">
+    <div id="discards" phx-hook="Drag" phx-target="#game" phx-update="append" class="dglow-<%= @available_discard_tile %> discardedby-<%= @discarded_by_relative_seatno %> current-user-discarding-<%= if @current_user_discarding, do: "t" %> enable-pull-from-discards-<%= if @available_discard_tile, do: "t" %>">
       <%# Every tile isn't really draggable, but dynamic code like `available_discard_tile == tile` marks it dirty in the LiveView diffs, even if an action didn't modify it. This causes too much information to be sent over the wire. Instead we use CSS & JS to determine draggability, glowing, and animations. %>
-      <%= for tile <- @game.discards |> Enum.reverse() do %>
-        <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile draggable">
+      <%= for tile <- @reversed_discards do %>
+        <%= if String.match?(tile, ~r/\Aremove-/) do %>
+          <span id="<%= String.replace(tile, ~r/\Aremove-/, "") %>"></span>
+        <% else %>
+          <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile draggable">
+        <% end %>
       <% end %>
     </div>
   <% end %>
