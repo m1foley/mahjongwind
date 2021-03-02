@@ -316,19 +316,19 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  A player discards a tile: add to discards, remove from player's hand,
-  increment turn_seatno & turn_state.
+  A player discards a tile from their hand
   """
   def discard(%__MODULE__{turn_state: :discarding} = game, seatno, tile) do
     new_discards = [tile | game.discards]
 
     game
     |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
+    |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
     |> advance_turn_seat()
     |> Map.merge(%{
       discards: new_discards,
-      undo_event: {seatno, :discarded, tile},
-      turn_state: :drawing
+      turn_state: :drawing,
+      undo_event: {seatno, :discarded, tile}
     })
   end
 
@@ -432,6 +432,7 @@ defmodule Mjw.Game do
   def declare_win_from_hand(%__MODULE__{} = game, seatno, wintile) do
     game
     |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, wintile))
+    |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
     |> declare_win(seatno, wintile, :hand)
   end
 

@@ -375,4 +375,23 @@ defmodule Mjw.SeatTest do
       assert seat.winreaction == :ok
     end
   end
+
+  describe "ensure_no_dangling_peektile" do
+    test "moves the peektile into the seat's concealed tiles" do
+      seat =
+        %Mjw.Seat{peektile: "n1-0", concealed: ["b1-0"]}
+        |> Mjw.Seat.ensure_no_dangling_peektile()
+
+      assert seat.peektile == nil
+      assert seat.concealed == ["b1-0", "n1-0"]
+    end
+
+    test "doesn't modify the seat if no peektile" do
+      orig_seat = %Mjw.Seat{peektile: nil, concealed: ["b1-0"]}
+
+      seat = orig_seat |> Mjw.Seat.ensure_no_dangling_peektile()
+
+      assert seat == orig_seat
+    end
+  end
 end
