@@ -399,22 +399,31 @@ $discard-childnos-without-rotations: 3, 4;
   right: 13rem;
   @apply flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone;
   .tile {
-    cursor: not-allowed;
+    cursor: not-allowed; // overridden by dglow classes
     height: 3.1rem;
     position: relative;
-    // scramble the discarded tiles
+    // make the discarded tiles appear scrambled
     &:nth-child(9n+0) {
       top: 0.6rem;
       transform: map-get($discard-rotations, "0");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "0") !important;
+      }
     }
     &:nth-child(9n+1) {
       top: -2rem;
       left: 1rem;
       transform: map-get($discard-rotations, "1");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "1") !important;
+      }
     }
     &:nth-child(9n+2) {
       top: 4rem;
       transform: map-get($discard-rotations, "2");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "2") !important;
+      }
     }
     &:nth-child(9n+3) {
       top: -2rem;
@@ -426,19 +435,31 @@ $discard-childnos-without-rotations: 3, 4;
       top: -1.5rem;
       left: 0.5rem;
       transform: map-get($discard-rotations, "5");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "5") !important;
+      }
     }
     &:nth-child(9n+6) {
       top: 2rem;
       transform: map-get($discard-rotations, "6");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "6") !important;
+      }
     }
     &:nth-child(9n+7) {
       top: 5.0rem;
       left: 0.5rem;
       transform: map-get($discard-rotations, "7");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "7") !important;
+      }
     }
     &:nth-child(9n+8) {
       top: -2.5rem;
       transform: map-get($discard-rotations, "8");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "8") !important;
+      }
     }
     // not sure why but space-y-32 (which provides good spacing when new rows
     // are created) makes the first child appear way off to the upper left
