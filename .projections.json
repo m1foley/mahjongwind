@@ -1,4 +1,12 @@
 {
+  "lib/mjw_web/live/game_live/*.ex": {
+    "type": "controller",
+    "alternate": "lib/mjw_web/live/game_live/{basename}.html.leex"
+  },
+  "lib/mjw_web/live/game_live/*.html.leex": {
+    "type": "template",
+    "alternate": "lib/mjw_web/live/game_live/{basename}.ex"
+  },
   "lib/**/views/*_view.ex": {
     "type": "view",
     "alternate": "test/{dirname}/views/{basename}_view_test.exs",
@@ -36,14 +44,6 @@
       "  use {dirname|camelcase|capitalize}.ConnCase, async: true",
       "end"
     ]
-  },
-  "lib/mjw_web/live/game_live/*.ex": {
-    "type": "livecontroller",
-    "alternate": "lib/mjw_web/live/game_live/{basename}.html.leex"
-  },
-  "lib/mjw_web/live/game_live/*.html.leex": {
-    "type": "livetemplate",
-    "alternate": "lib/mjw_web/live/game_live/{basename}.ex"
   },
   "lib/**/channels/*_channel.ex": {
     "type": "channel",
