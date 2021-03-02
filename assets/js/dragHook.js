@@ -13,14 +13,14 @@ export default {
           group: {
             name: 'discards',
             put: function (to, from) {
-              if (dropzone.classList.contains('current-user-discarding')) {
+              if (dropzone.classList.contains('current-user-discarding-t')) {
                 return ['concealed-0', 'exposed-0', 'peektile-0'];
               } else {
                 return false;
               }
             },
             pull: function (to, from) {
-              if (dropzone.classList.contains('enable-pull-from-discards')) {
+              if (dropzone.classList.contains('enable-pull-from-discards-t')) {
                 return ['exposed-0', 'wintile-0'];
               } else {
                 return false;
@@ -60,14 +60,14 @@ export default {
             name: 'concealed-0',
             put: function (to, from) {
               let ids = ['exposed-0', 'hiddengongs-0', 'correctiontiles', 'peektile-0'];
-              if (dropzone.classList.contains('enable-pull-from-discards')) {
+              if (dropzone.classList.contains('enable-pull-from-discards-t')) {
                 ids.push('discards');
               }
               return ids;
             },
             pull: function (to, from) {
               let ids = ['exposed-0', 'hiddengongs-0', 'wintile-0'];
-              if (dropzone.classList.contains('current-user-discarding')) {
+              if (dropzone.classList.contains('current-user-discarding-t')) {
                 ids.push('discards');
               }
               return ids;
