@@ -1,5 +1,5 @@
 <div id="<%= @id %>">
-  <div class="tiles flex-wrap<%= if @current_user_drawing, do: " current-user-turn-glow" %>">
+  <div class="tiles flex-wrap turn-glow-0-<%= if @current_user_drawing, do: "t" %>">
     <%= if @seat.seatno == 0 && @player_seats_finalized && (@rolling_dice || @rolled_dice) do %>
       <div class="firstdealer" title="Indicates the first dealer. Game wind changes when the deal circles back to them.">庄</div>
     <% end %>
@@ -27,16 +27,7 @@
     </div>
     <div class="line-break"></div>
 
-    <div id="concealed-0" phx-hook="Drag" phx-target="#game" class="concealed-tiles dropzone<%= if @current_user_discarding, do: " current-user-discarding" %><%= if @available_discard_tile, do: " enable-pull-from-discards" %><%= if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && !@seat.win_expose, do: " concealed-loser-hand" %>">
-      <%# <%= if @game.turn_seatno == @current_user_seatno do %1> %>
-      <%#   <%= for tile <- @seat.concealed do %1> %>
-      <%#     <img id="<%= tile %1>" src="/images/tiles/<%= String.slice(tile, 0..1) %1>.png" alt="" class="tile draggable<%= if @glow_tile == tile, do: " glow" %1>" /> %>
-      <%#   <% end %1> %>
-      <%# <% else %1> %>
-      <%#   <%= for tile <- @seat.concealed do %1> %>
-      <%#     <img id="<%= tile %1>" src="/images/tiles/<%= String.slice(tile, 0..1) %1>.png" alt="" class="tile draggable" /> %>
-      <%#   <% end %1> %>
-      <%# <% end %1> %>
+    <div id="concealed-0" phx-hook="Drag" phx-target="#game" class="concealed-tiles dropzone current-user-discarding-<%= if @current_user_discarding, do: "t" %> enable-pull-from-discards-<%= if @available_discard_tile, do: "t" %> concealed-loser-hand-<%= if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && !@seat.win_expose, do: "t" %>">
       <%= for tile <- @seat.concealed do %>
         <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile draggable" />
       <% end %>
