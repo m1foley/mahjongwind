@@ -1,4 +1,4 @@
-defmodule MjwWeb.GameLive.SeatComponent do
+defmodule MjwWeb.GameLive.WallComponent do
   use MjwWeb, :live_component
 
   @impl true

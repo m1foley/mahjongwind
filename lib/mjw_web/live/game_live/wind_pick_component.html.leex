@@ -1,13 +1,7 @@
 <div id="<%= @id %>">
   <div class="state-description">
-    <%= if !@picked_wind do %>
+    <%= unless @picked_wind do %>
       Pick a wind to choose your seat:
-    <% else %>
-      <%= if @picked_winds |> Enum.all?(& &1[:picked_by_name]) do %>
-        &nbsp;
-      <% else %>
-        Waiting for everyone to pick...
-      <% end %>
     <% end %>
   </div>
 

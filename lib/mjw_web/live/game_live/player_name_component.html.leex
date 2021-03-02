@@ -1,0 +1,14 @@
+<div id="<%= @id %>" class="player-name-container text-center justify-center items-center">
+  <div class="playericons">
+    <%= if @seat.seatno == @game.dealer_seatno do %>
+      <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="Dealer<%= if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})" %>">
+        Dealer<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
+      </div>
+    <% end %>
+    <%= if @game_state != :rolling_for_deal && @seat.seatno == @game.dealpick_seatno do %>
+      <img src="/images/staircase.png" alt="This staircase is the end of the deck (used to determine player wind)" title="This staircase is the end of the deck (used to determine player wind)" class="dealpickstaircase inline-block mx-auto relative bottom-1<%= if @seat.seatno == @game.dealer_seatno, do: " pl-1" %>" />
+    <% end %>
+  </div>
+
+  <div class="player-name"><%= @seat.player_name %></div>
+</div>

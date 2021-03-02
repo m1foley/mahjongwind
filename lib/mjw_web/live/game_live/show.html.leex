@@ -6,7 +6,7 @@
   <%= live_component @socket, MjwWeb.GameLive.GameMenuComponent, id: "gamemenu", game: @game, relative_game_seats: @relative_game_seats, player_seats_finalized: @player_seats_finalized %>
 <% end %>
 
-<div id="game" class="<%= unless @current_user_seatno, do: "blurred" %>">
+<div id="game" class="glow-<%= @non_discard_glow_tile %><%= unless @current_user_seatno, do: " blurred" %>">
   <%= if @show_stick do %>
     <img src="/images/stickpomelo.png" alt="stick and pomelo" class="stickpomelo" />
   <% end %>
@@ -18,11 +18,26 @@
     <canvas id="win-confetti-canvas" class="confetti-canvas" phx-hook="Confetti" data-winner="<%= @win_declared_seatno == @current_user_seatno %>" data-dq="false"></canvas>
   <% end %>
 
-  <%# displaying seats based on z-index order: 2 has important game content, 0 has user's tiles %>
-  <%= live_component @socket, MjwWeb.GameLive.SeatComponent, id: "seat-1", seat: @relative_game_seats |> Enum.at(1), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, show_wall: @show_wall, win_declared_seatno: @win_declared_seatno, event: @event, event_details: @event_details, game_state: @game_state, current_user_id: @current_user_id, glow_tile: @glow_tile %>
-  <%= live_component @socket, MjwWeb.GameLive.SeatComponent, id: "seat-3", seat: @relative_game_seats |> Enum.at(3), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, show_wall: @show_wall, win_declared_seatno: @win_declared_seatno, event: @event, event_details: @event_details, game_state: @game_state, current_user_id: @current_user_id, glow_tile: @glow_tile %>
-  <%= live_component @socket, MjwWeb.GameLive.SeatComponent, id: "seat-0", seat: @relative_game_seats |> Enum.at(0), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, show_wall: @show_wall, win_declared_seatno: @win_declared_seatno, event: @event, event_details: @event_details, game_state: @game_state, current_user_id: @current_user_id, current_user_discarding: @current_user_discarding, available_discard_tile: @available_discard_tile, raw_event: @raw_event, current_user_seatno: @current_user_seatno, glow_tile: @glow_tile %>
-  <%= live_component @socket, MjwWeb.GameLive.SeatComponent, id: "seat-2", seat: @relative_game_seats |> Enum.at(2), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, show_wall: @show_wall, win_declared_seatno: @win_declared_seatno, event: @event, event_details: @event_details, game_state: @game_state, current_user_id: @current_user_id, show_wind_picking: @show_wind_picking, current_user_discarding: @current_user_discarding, available_discard_tile: @available_discard_tile, raw_event: @raw_event, current_user_seatno: @current_user_seatno, discarded_by_relative_seatno: @discarded_by_relative_seatno, turn_player_name: @turn_player_name, glow_tile: @glow_tile, current_user_seat: @current_user_seat, relative_game_seats: @relative_game_seats, empty_seats_count: @empty_seats_count %>
+  <%= if @show_wall do %>
+    <%= live_component @socket, MjwWeb.GameLive.WallComponent, id: "walltiles-1" %>
+    <%= live_component @socket, MjwWeb.GameLive.WallComponent, id: "walltiles-3" %>
+    <%= live_component @socket, MjwWeb.GameLive.WallComponent, id: "walltiles-0" %>
+    <%= live_component @socket, MjwWeb.GameLive.WallComponent, id: "walltiles-2" %>
+  <% else %>
+    <%# displaying seats based on z-index order: 2 has important game content, 0 has user's tiles %>
+    <%= live_component @socket, MjwWeb.GameLive.OpponentSeatComponent, id: "seat-1", seat: @relative_game_seats |> Enum.at(1), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, turn_glow_seatno: @turn_glow_seatno %>
+    <%= live_component @socket, MjwWeb.GameLive.OpponentSeatComponent, id: "seat-3", seat: @relative_game_seats |> Enum.at(3), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, turn_glow_seatno: @turn_glow_seatno %>
+    <%= live_component @socket, MjwWeb.GameLive.CurrentUserSeatComponent, id: "seat-0", seat: @current_user_seat, game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, win_declared_seatno: @win_declared_seatno, current_user_id: @current_user_id, current_user_discarding: @current_user_discarding, available_discard_tile: @available_discard_tile, current_user_seatno: @current_user_seatno %>
+    <%= live_component @socket, MjwWeb.GameLive.OpponentSeatComponent, id: "seat-2", seat: @relative_game_seats |> Enum.at(2), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, turn_glow_seatno: @turn_glow_seatno %>
+  <% end %>
+
+  <%= if @player_seats_finalized do %>
+    <%= live_component @socket, MjwWeb.GameLive.PlayerNameComponent, id: "player-name-1", seat: @relative_game_seats |> Enum.at(1), game: @game, relative_game_seats: @relative_game_seats, game_state: @game_state %>
+    <%= live_component @socket, MjwWeb.GameLive.PlayerNameComponent, id: "player-name-2", seat: @relative_game_seats |> Enum.at(2), game: @game, relative_game_seats: @relative_game_seats, game_state: @game_state %>
+    <%= live_component @socket, MjwWeb.GameLive.PlayerNameComponent, id: "player-name-3", seat: @relative_game_seats |> Enum.at(3), game: @game, relative_game_seats: @relative_game_seats, game_state: @game_state %>
+  <% end %>
+
+  <%= live_component @socket, MjwWeb.GameLive.TableCenterComponent, id: "table-center", game: @game, current_user_id: @current_user_id, event: @event, raw_event: @raw_event, event_details: @event_details, show_wind_picking: @show_wind_picking, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, show_wall: @show_wall, current_user_drawing: @current_user_drawing, game_state: @game_state, current_user_discarding: @current_user_discarding, available_discard_tile: @available_discard_tile, current_user_seatno: @current_user_seatno, win_declared_seatno: @win_declared_seatno, turn_player_name: @turn_player_name, discarded_by_relative_seatno: @discarded_by_relative_seatno, current_user_seat: @current_user_seat, relative_game_seats: @relative_game_seats, empty_seats_count: @empty_seats_count %>
 
   <div class="icons flex flex-row text-center justify-center items-center space-x-6">
     <%= if @can_undo do %>
