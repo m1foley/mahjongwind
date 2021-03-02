@@ -470,6 +470,31 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.at(3) |> Map.get(:exposed) == ["b2-3"]
       assert game.undo_event == {3, :discarded, "b1-3"}
     end
+
+    test "discarding from concealed when peektile is present" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :discarding,
+          discards: ["dp-0"],
+          seats:
+            0..3
+            |> Enum.map(fn i ->
+              %Mjw.Seat{
+                concealed: ["c1-#{i}", "c2-#{i}", "c3-#{i}", "c4-#{i}"],
+                peektile: "n1-#{i}"
+              }
+            end)
+        }
+        |> Mjw.Game.discard(3, "c2-3")
+
+      assert game.discards == ["c2-3", "dp-0"]
+      assert game.turn_state == :drawing
+      assert game.turn_seatno == 0
+      assert game.seats |> Enum.at(3) |> Map.get(:concealed) == ["c1-3", "c3-3", "c4-3", "n1-3"]
+      assert game.seats |> Enum.at(3) |> Map.get(:peektile) == nil
+      assert game.undo_event == {3, :discarded, "c2-3"}
+    end
   end
 
   describe "update_concealed" do
@@ -531,6 +556,35 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n2-1", nil, nil]
       assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, true, false, false]
       assert game.seats |> Enum.at(1) |> Map.get(:concealed) == ["n1-1", "n3-1"]
+      assert game.turn_seatno == 1
+      assert game.turn_state == :discarding
+      assert game.undo_event == {1, :declared_win, "n2-1", :hand, 3, :drawing}
+    end
+
+    test "ensures there is no dangling peektile" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :drawing,
+          seats:
+            ~w(ww we ws wn)
+            |> Enum.with_index()
+            |> Enum.map(fn {w, i} ->
+              %Mjw.Seat{
+                player_id: "id#{i}",
+                player_name: "name#{i}",
+                picked_wind: w,
+                concealed: ["n1-#{i}", "n2-#{i}", "n3-#{i}"],
+                peektile: "n4-#{i}"
+              }
+            end)
+        }
+        |> Mjw.Game.declare_win_from_hand(1, "n2-1")
+
+      assert game.seats |> Enum.map(& &1.wintile) == [nil, "n2-1", nil, nil]
+      assert game.seats |> Enum.map(&Mjw.Seat.declared_win?/1) == [false, true, false, false]
+      assert game.seats |> Enum.at(1) |> Map.get(:concealed) == ["n1-1", "n3-1", "n4-1"]
+      assert game.seats |> Enum.at(1) |> Map.get(:peektile) == nil
       assert game.turn_seatno == 1
       assert game.turn_state == :discarding
       assert game.undo_event == {1, :declared_win, "n2-1", :hand, 3, :drawing}

@@ -2,8 +2,9 @@ defmodule Mjw.Seat do
   defstruct concealed: [],
             exposed: [],
             hiddengongs: [],
-            # a player "peeks" from the deck beore dragging it to their hand or
-            # discards
+            # A player "peeks" from the deck beore dragging it to their hand or
+            # discards. This is the same as being in their concealed tiles, but
+            # displays separately on the screen for convenience.
             peektile: nil,
             wintile: nil,
             player_id: nil,
@@ -118,5 +119,17 @@ defmodule Mjw.Seat do
 
   def clear_peektile(%__MODULE__{} = seat) do
     peek(seat, nil)
+  end
+
+  @doc """
+  If a user discards a concealed tile while they still have a peektile, move
+  the peektile into their concealed tiles
+  """
+  def ensure_no_dangling_peektile(%__MODULE__{peektile: nil} = seat), do: seat
+
+  def ensure_no_dangling_peektile(%__MODULE__{peektile: peektile} = seat) do
+    seat
+    |> add_to_concealed(peektile)
+    |> clear_peektile()
   end
 end
