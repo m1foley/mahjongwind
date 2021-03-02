@@ -3,10 +3,12 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Bug: prevent discarding while peektile is present
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Indicate how many tiles remain in deck
-- Experiment with phx "update" optimization in discards
+- Experiment with phx "append" optimization in discards:
+  - `https://hexdocs.pm/phoenix_live_view/dom-patching.html`
+  - `https://www.youtube.com/watch?v=_ZZ1kDVwVwY`
+  - `https://newaperio.com/blog/updating-and-deleting-from-temporary-assigns-in-phoenix-live-view`
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
 - Add website name to landing page
