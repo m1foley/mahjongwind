@@ -89,16 +89,7 @@
   <%= case @game_state do %>
     <% :waiting_for_players -> %>
       <div class="state-description">
-        Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %> to sit:
-      </div>
-      <div class="state-description">
-        <ul class="text-left inline-block">
-          <%= for name <- @game.seats |> Enum.map(fn seat -> if Mjw.Seat.empty?(seat), do: "", else: seat.player_name end) do %>
-            <li class="py-2">
-              🪑<span class="pl-3"><%= name %></span>
-            </li>
-          <% end %>
-        </ul>
+        Waiting for <%= MjwWeb.Gettext.ngettext("1 more player", "%{count} more players", @empty_seats_count) %>...
       </div>
       <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-center", game: @game %>
     <% :win_declared -> %>

@@ -290,13 +290,26 @@ defmodule Mjw.Game do
   end
 
   defp roller_seatno(%__MODULE__{} = game, :rolling_for_first_dealer) do
-    game |> find_picked_wind_seatno("we")
+    picked_east_wind_seatno(game)
   end
 
   # dealer_seatno should always equal turn_seatno when rolling for deal, so
-  # it's arbitrary which one gets used
+  # either could get used
   defp roller_seatno(%__MODULE__{dealer_seatno: dealer_seatno}, _game_state) do
     dealer_seatno
+  end
+
+  # seatno of the player who picked the east wind
+  defp picked_east_wind_seatno(%__MODULE__{} = game) do
+    game |> find_picked_wind_seatno("we")
+  end
+
+  @doc """
+  Relative seat position of the player who picked the east wind
+  """
+  def picked_east_wind_relative_seatno(%__MODULE__{} = game, relative_to_seatno) do
+    picked_east_wind_seatno(game)
+    |> relative_position(relative_to_seatno)
   end
 
   @doc """
@@ -309,7 +322,7 @@ defmodule Mjw.Game do
     {seat, relative_position}
   end
 
-  # Where a seat appears relative to the player:
+  # Where a seat appears relative to the player sitting in relative_to_seatno:
   # 0 = self, 1 = right, 2 = across, 3 = left
   defp relative_position(seatno, relative_to_seatno) do
     rem(rem(4 - relative_to_seatno, 4) + seatno, 4)
