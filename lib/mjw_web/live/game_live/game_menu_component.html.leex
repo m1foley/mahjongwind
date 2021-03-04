@@ -2,10 +2,8 @@
   <div class="gamemenu-content rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-6 my-16 mx-auto shadow-md w-6/12 content-center text-center">
 
     <%= if @player_seats_finalized do %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
-        <div phx-target="#game" phx-click="draw">
-          Declare draw 🤝
-        </div>
+      <div phx-target="#game" phx-click="draw" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+        Declare draw 🤝
       </div>
 
       <div id="dqs" phx-hook="DeclareDq" phx-click="">
@@ -25,13 +23,11 @@
       </div>
     <% end %>
 
-    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
-      <div phx-target="<%= @myself %>" phx-click="quit">
-        Leave game
-      </div>
+    <div phx-target="<%= @myself %>" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-click="quit">
+      Leave game
     </div>
 
-    <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+    <div phx-target="#game" phx-click="reset" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
       <div phx-target="#game" phx-click="reset">
         Reset game
       </div>

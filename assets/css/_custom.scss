@@ -467,6 +467,9 @@ $discard-childnos-without-rotations: 3, 4;
       top: 7rem;
       left: 0;
       transform: map-get($discard-rotations, "firstchild");
+      &.sortable-ghost {
+        transform: map-get($discard-rotations, "firstchild") !important;
+      }
     }
     &.sortable-ghost {
       animation: none;
