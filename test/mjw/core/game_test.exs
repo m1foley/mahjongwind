@@ -1357,4 +1357,20 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.map(& &1.peektile) == ["b1-0", "b1-1", "b1-2", nil]
     end
   end
+
+  describe "picked_east_wind_relative_seatno" do
+    test "returns relative position of the player who picked east" do
+      game = %Mjw.Game{
+        seats:
+          ~w(we ws ww wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_name: "name#{i}"}
+          end)
+      }
+
+      assert game |> Mjw.Game.picked_east_wind_relative_seatno(0) == 0
+      assert game |> Mjw.Game.picked_east_wind_relative_seatno(1) == 3
+    end
+  end
 end

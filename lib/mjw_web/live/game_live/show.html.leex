@@ -31,10 +31,10 @@
     <%= live_component @socket, MjwWeb.GameLive.OpponentSeatComponent, id: "seat-2", seat: @relative_game_seats |> Enum.at(2), game: @game, current_user_drawing: @current_user_drawing, player_seats_finalized: @player_seats_finalized, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, turn_glow_seatno: @turn_glow_seatno %>
   <% end %>
 
-  <%= if @player_seats_finalized do %>
-    <%= live_component @socket, MjwWeb.GameLive.PlayerNameComponent, id: "player-name-1", seat: @relative_game_seats |> Enum.at(1), game: @game, relative_game_seats: @relative_game_seats, game_state: @game_state %>
-    <%= live_component @socket, MjwWeb.GameLive.PlayerNameComponent, id: "player-name-2", seat: @relative_game_seats |> Enum.at(2), game: @game, relative_game_seats: @relative_game_seats, game_state: @game_state %>
-    <%= live_component @socket, MjwWeb.GameLive.PlayerNameComponent, id: "player-name-3", seat: @relative_game_seats |> Enum.at(3), game: @game, relative_game_seats: @relative_game_seats, game_state: @game_state %>
+  <%= for {seat, i} <- @relative_game_seats |> Enum.slice(1..3) |> Enum.with_index(1) do %>
+    <%= unless Mjw.Seat.empty?(seat) do %>
+      <%= live_component @socket, MjwWeb.GameLive.PlayerNameComponent, id: "player-name-#{i}", seat: seat, game: @game, game_state: @game_state, show_wall: @show_wall %>
+    <% end %>
   <% end %>
 
   <%= live_component @socket, MjwWeb.GameLive.TableCenterComponent, id: "table-center", game: @game, current_user_id: @current_user_id, event: @event, raw_event: @raw_event, event_details: @event_details, show_wind_picking: @show_wind_picking, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, show_wall: @show_wall, current_user_drawing: @current_user_drawing, game_state: @game_state, current_user_discarding: @current_user_discarding, available_discard_tile: @available_discard_tile, current_user_seatno: @current_user_seatno, win_declared_seatno: @win_declared_seatno, turn_player_name: @turn_player_name, discarded_by_relative_seatno: @discarded_by_relative_seatno, current_user_seat: @current_user_seat, relative_game_seats: @relative_game_seats, empty_seats_count: @empty_seats_count %>
