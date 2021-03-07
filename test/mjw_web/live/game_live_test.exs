@@ -19,7 +19,7 @@ defmodule MjwWeb.GameLiveTest do
     test "lists all games", %{conn: conn, game: _game} do
       {:ok, _index_live, html} = live(conn, Routes.game_index_path(conn, :index))
 
-      assert html =~ "Games"
+      assert html =~ "Mahjong Wind"
       assert html =~ "name0"
     end
   end
