@@ -49,6 +49,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Open game menu
   @impl true
   def handle_event("opengamemenu", _params, socket) do
     socket =
@@ -58,6 +59,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Close game menu
   @impl true
   def handle_event("closegamemenu", _params, socket) do
     socket =
@@ -587,6 +589,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Sit down
   @impl true
   def handle_event(
         "accept_seat_offering",
@@ -611,7 +614,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # Pick a wind before sitting down
+  # Pick a wind tile
   @impl true
   def handle_event("windpick", %{"picked-wind-idx" => picked_wind_idx}, socket) do
     picked_wind_idx = String.to_integer(picked_wind_idx)
@@ -674,7 +677,6 @@ defmodule MjwWeb.GameLive.Show do
   defp assign_game_info(socket, %Mjw.Game{} = game) do
     current_user_id = socket.assigns.current_user_id
     event = socket.assigns.event
-    raw_event = socket.assigns.raw_event
     event_details = socket.assigns.event_details
     show_wind_picking_was = socket.assigns[:show_wind_picking]
 
@@ -741,7 +743,7 @@ defmodule MjwWeb.GameLive.Show do
       end
 
     discarded_by_relative_seatno =
-      if available_discard_tile && raw_event == :discarded do
+      if available_discard_tile do
         relative_game_seats |> Enum.find_index(&(&1.seatno == last_discarded_seatno))
       end
 
@@ -753,12 +755,7 @@ defmodule MjwWeb.GameLive.Show do
       player_seats_finalized && !win_declared_seatno &&
         !current_user_drawing && might_have_gongs?(current_user_seat)
 
-    event_seatno = event_details |> Map.get(:seat, %{}) |> Map.get(:seatno)
-
-    non_discard_glow_tile =
-      if glow_tile_from_non_discard_event?(raw_event, event_seatno, current_user_seatno) do
-        event_details[:tile]
-      end
+    non_discard_glow_tile = non_discard_glow_tile(event, event_details, current_user_seatno)
 
     turn_glow_seatno = unless win_declared_seatno, do: game.turn_seatno
 
@@ -886,8 +883,8 @@ defmodule MjwWeb.GameLive.Show do
 
   @current_player_glow_tile_events [
     :drew_discard,
-    :drew_correction_tile,
-    :ponged
+    :ponged,
+    :drew_correction_tile
   ]
 
   @other_player_glow_tile_events [
@@ -897,8 +894,11 @@ defmodule MjwWeb.GameLive.Show do
     :declared_win
   ]
 
-  def glow_tile_from_non_discard_event?(raw_event, event_seatno, current_user_seatno) do
-    (raw_event in @current_player_glow_tile_events && event_seatno == current_user_seatno) ||
-      (raw_event in @other_player_glow_tile_events && event_seatno != current_user_seatno)
+  defp non_discard_glow_tile(event, %{seat: event_seatno, tile: event_tile}, current_user_seatno)
+       when (event_seatno == current_user_seatno and event in @current_player_glow_tile_events) or
+              (event_seatno != current_user_seatno and event in @other_player_glow_tile_events) do
+    event_tile
   end
+
+  defp non_discard_glow_tile(_event, _event_details, _current_user_seatno), do: nil
 end
