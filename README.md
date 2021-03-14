@@ -6,7 +6,6 @@ Play mahjong with your friends online!
 - Bug: first dealer not displaying on regular deal roll
 - "drew from discards" -> "the discarded tile"
 - Bug: Hand revealed after undoing win
-- Bug: "Players reseated" after normal win (dealer changing)
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Indicate how many tiles remain in deck
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
