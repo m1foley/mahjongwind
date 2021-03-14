@@ -102,11 +102,11 @@
 }
 
 .tile {
-  height: 5.8rem;
+  height: 5rem;
 }
 
 .largetile {
-  height: 8rem;
+  height: 7rem;
 }
 
 .glow {
@@ -115,7 +115,7 @@
 
 .dropzone {
   // ensure we can drag & drop into an empty list
-  min-height: 8rem;
+  min-height: 7rem;
   // ensure the description boxes can be read
   min-width: 10rem;
 }
@@ -140,7 +140,7 @@
 #wintile-0 {
   position: absolute;
   right: 0;
-  height: 8rem;
+  height: 7rem;
 }
 
 .dropzone-description {
@@ -244,7 +244,7 @@
 .stickpomelo {
   position: fixed;
   left: 50%;
-  bottom: 8rem;
+  bottom: 7rem;
   transform: translate(-50%, 0);
   max-height: 50rem;
 }
@@ -252,9 +252,9 @@
 #table-center {
   position: fixed;
   display: block;
-  top: 12rem;
-  left: 13rem;
-  right: 13rem;
+  top: 11rem;
+  left: 11rem;
+  right: 11rem;
 }
 
 .pickable-wind {
@@ -263,7 +263,7 @@
 
 .windtiles {
   .windandname {
-    width: 8rem;
+    width: 7rem;
   }
   .tile {
     @apply largetile mx-auto;
@@ -305,7 +305,7 @@
 
 .hand-1 {
   right: 0;
-  top: 8rem;
+  top: 7rem;
 }
 
 .hand-2 {
@@ -317,7 +317,7 @@
 }
 
 .hand-3 {
-  top: 8rem;
+  top: 7rem;
 }
 
 #dicecomponent {
@@ -359,7 +359,7 @@
 
 .die-1 {
   position: relative;
-  top: 3rem;
+  top: -4rem;
 }
 
 .die-2 {
@@ -404,13 +404,14 @@ $discard-childnos-without-rotations: 3, 4;
 #discards {
   position: fixed;
   top: 2rem;
-  bottom: 17rem;
-  left: 13rem;
-  right: 13rem;
+  bottom: 14rem;
+  left: 11rem;
+  right: 11rem;
+  padding-bottom: 6rem;
   @apply flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone;
   .tile {
     cursor: not-allowed; // overridden by dglow classes
-    height: 3.1rem;
+    height: 2.5rem;
     position: relative;
     // make the discarded tiles appear scrambled
     &:nth-child(9n+0) {
@@ -422,7 +423,7 @@ $discard-childnos-without-rotations: 3, 4;
     }
     &:nth-child(9n+1) {
       top: -2rem;
-      left: 1rem;
+      left: 0.6rem;
       transform: map-get($discard-rotations, "1");
       &.sortable-ghost {
         transform: map-get($discard-rotations, "1") !important;
@@ -436,7 +437,7 @@ $discard-childnos-without-rotations: 3, 4;
       }
     }
     &:nth-child(9n+3) {
-      top: -2rem;
+      top: -1.2rem;
     }
     &:nth-child(9n+4) {
       top: 4rem;
@@ -517,10 +518,10 @@ $discard-animation-translates: (
 
 #peektile-0 {
   position: fixed;
-  bottom: 10%;
   right: 10%;
-  height: 15rem;
-  width: 14rem;
+  bottom: 8rem;
+  height: 13rem;
+  width: 12rem;
   @apply dropzone flex justify-center bg-green-600 bg-opacity-50 border-4 border-gray-800 rounded-full shadow-xl;
   .tile {
     margin: auto;
