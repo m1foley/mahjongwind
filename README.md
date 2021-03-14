@@ -3,8 +3,6 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Bug: first dealer not displaying on regular deal roll
-- "drew from discards" -> "the discarded tile"
 - Bug: Hand revealed after undoing win
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Indicate how many tiles remain in deck
