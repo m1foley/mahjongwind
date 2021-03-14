@@ -18,15 +18,15 @@
     </div>
   <% :rolling_for_deal -> %>
     <div class="state-description">
-      Players reseated.
-    </div>
-    <div class="state-description">
       <%= if @event == :rolled_for_first_dealer do %>
-        <%= if @roller_relative_position == 0 do %>
-          You are the first dealer!
-        <% else %>
-          <%= @roller_name %> is the first dealer.
-        <% end %>
+        <div class="state-description">
+          Players reseated.
+          <%= if @roller_relative_position == 0 do %>
+            You are the first dealer!
+          <% else %>
+            <%= @roller_name %> is the first dealer.
+          <% end %>
+        </div>
       <% end %>
 
       <%= if @roller_relative_position == 0 do %>
