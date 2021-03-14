@@ -3,6 +3,10 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Bug: first dealer not displaying on regular deal roll
+- "drew from discards" -> "the discarded tile"
+- Bug: Hand revealed after undoing win
+- Bug: "Players reseated" after normal win (dealer changing)
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Indicate how many tiles remain in deck
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
@@ -32,7 +36,7 @@ Play mahjong with your friends online!
 - Install dependencies with `mix deps.get`
 - Install Node.js dependencies with `npm install` inside the `assets` directory
 - Start Phoenix endpoint with `mix phx.server`
-- Visit [`localhost:4000`](http://localhost:4000)
+- Visit <http://localhost:4000>
 
 ### Deploy to Heroku
 git push heroku main:main
@@ -50,6 +54,7 @@ git push heroku main:main
 
 ### Research/similar sites
 - <http://mahjongbuddy.com>
+- <https://www.reddit.com/r/Mahjong/comments/jsbsve/i_created_online_hong_kong_mahjong_web_app/>
 - <https://www.reddit.com/r/Mahjong/>
 - <https://en.wikipedia.org/wiki/Hong_Kong_Mahjong_scoring_rules>
 
@@ -71,33 +76,35 @@ git push heroku main:main
 - <https://elixirmatch.com/>
 
 ### Available domains
-- `mahjonggenius.com`
-- `mahjongmeetup.com`
-- `mahjongnight.com`
-- `mahjongwithfriends.com`
-- `mahjongwithhonor.com`
-- `mjmad.com`
-- `themahjongtable.com`
-- `mahjongauntie.com`
-- `letsallplaymahjong.com`
-- `mjanywhere.com`
-- `mjbuddies.com`
-- `mjfriends.com`
-- `mjfromhome.com`
-- `mjhonor.com`
-- `mjsimulator.com`
-- `mjwithfriends.com`
-- `mahjongwash.com`
-- `ourmahjong.com`
-- `playmah.com`
-- `remotemj.com`
-- `themahjongtable.com`
-- `mahjongjia.com`
-- `mahjongis.fun`
-- `mahjongfriends.party`
-- `mahjongfriends.club`
-- `mahjongfriends.fun`
-- `damahjong.party`
-- `damahjong.club`
-- `damahjong.fun`
-- `mahjong.gold`
+```
+mahjonggenius.com
+mahjongmeetup.com
+mahjongnight.com
+mahjongwithfriends.com
+mahjongwithhonor.com
+mjmad.com
+themahjongtable.com
+mahjongauntie.com
+letsallplaymahjong.com
+mjanywhere.com
+mjbuddies.com
+mjfriends.com
+mjfromhome.com
+mjhonor.com
+mjsimulator.com
+mjwithfriends.com
+mahjongwash.com
+ourmahjong.com
+playmah.com
+remotemj.com
+themahjongtable.com
+mahjongjia.com
+mahjongis.fun
+mahjongfriends.party
+mahjongfriends.club
+mahjongfriends.fun
+damahjong.party
+damahjong.club
+damahjong.fun
+mahjong.gold
+```
