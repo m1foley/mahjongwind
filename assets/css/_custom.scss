@@ -82,9 +82,13 @@
 #correctiontiles {
   min-width: 0;
   min-height: 0;
-  .tile {
+  #decktile {
     height: 2.8rem;
   }
+}
+
+#dwindling-deck-remaining-count {
+  background: #f27a00; // same color as concealed tile
 }
 
 .walltile {

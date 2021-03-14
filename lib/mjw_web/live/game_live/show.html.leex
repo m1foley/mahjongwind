@@ -48,6 +48,9 @@
         <img id="decktile" alt="" title="Gong correction tile" src="/images/tiles/concealed.png" class="tile draggable" />
       </div>
     <% end %>
+    <%= if @dwindling_deck_remaining do %>
+      <span id="dwindling-deck-remaining-count" title="Tiles remaining in the deck" class="text-gray-700 font-bold p-1 border border-gray-600 rounded"><%= @dwindling_deck_remaining %></span>
+    <% end %>
     <img src="/images/gamewind/<%= @game.wind %>.png" alt="" title="Game wind (click for menu)" class="gamewind cursor-pointer" phx-click="opengamemenu">
   </div>
 
