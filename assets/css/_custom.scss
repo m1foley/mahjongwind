@@ -249,8 +249,8 @@
   position: fixed;
   display: block;
   top: 12rem;
-  left: 0;
-  width: 100%;
+  left: 13rem;
+  right: 13rem;
 }
 
 .pickable-wind {
@@ -399,7 +399,7 @@ $discard-childnos-without-rotations: 3, 4;
 
 #discards {
   position: fixed;
-  top: 0rem;
+  top: 2rem;
   bottom: 17rem;
   left: 13rem;
   right: 13rem;
@@ -547,17 +547,6 @@ $discard-animation-translates: (
   }
 }
 
-.firstdealer {
-  position: absolute;
-  bottom: 8rem;
-  width: 100%;
-  font-weight: normal;
-  font-size: 5rem;
-  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #000;
-  color: #047857;
-  opacity: 0.12;
-}
-
 .no-text-shadow {
   text-shadow: none;
 }
@@ -571,7 +560,7 @@ $discard-animation-translates: (
   height: 1.2rem;
 }
 
-.dealer-indicator {
+.dealer-indicator, .firstdealer-indicator {
   text-shadow: 1px 1px 2px #000;
 }
 

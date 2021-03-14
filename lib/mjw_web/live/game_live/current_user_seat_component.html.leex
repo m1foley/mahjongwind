@@ -1,9 +1,5 @@
 <div id="<%= @id %>">
   <div class="tiles flex-wrap turn-glow-0-<%= if @current_user_drawing, do: "t" %>">
-    <%= if @seat.seatno == 0 && @player_seats_finalized && (@rolling_dice || @rolled_dice) do %>
-      <div class="firstdealer" title="Indicates the first dealer. Game wind changes when the deal circles back to them.">庄</div>
-    <% end %>
-
     <div id="hiddengongs-0" phx-hook="Drag" phx-target="#game" class="hiddengong-tiles dropzone<%= if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && @seat.win_expose, do: " exposed-loser-hand" %>">
       <%= for tile <- @seat.hiddengongs do %>
         <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile draggable" />

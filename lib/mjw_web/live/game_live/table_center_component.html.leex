@@ -3,7 +3,7 @@
     <%= case @event do %>
       <% :drew_discard -> %>
         <%= if @game.turn_seatno != @current_user_seatno do %>
-          <%= @turn_player_name %> drew from discards. <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="" class="tile" />
+          <%= @turn_player_name %> drew the discarded tile. <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="" class="tile" />
         <% end %>
       <% :ponged -> %>
         <%= if @game.turn_seatno != @current_user_seatno do %>
