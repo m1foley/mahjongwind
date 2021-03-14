@@ -3,7 +3,6 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Bug: Hand revealed after undoing win
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Indicate how many tiles remain in deck
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
