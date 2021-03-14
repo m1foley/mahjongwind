@@ -4,7 +4,6 @@ Play mahjong with your friends online!
 
 ## TODO
 - Refactor: Try extracting code and/or assigns from show.ex into components
-- Indicate how many tiles remain in deck
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
