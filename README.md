@@ -3,6 +3,11 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Boot player
+- Change drag cursor on "remaining deck"
+- make horizonal dropzone wider
+- Label "roll" on hand
+- Label "discarding..." next to name
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
