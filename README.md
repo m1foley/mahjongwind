@@ -5,7 +5,6 @@ Play mahjong with your friends online!
 ## TODO
 - Boot player
 - Change drag cursor on "remaining deck"
-- make horizonal dropzone wider
 - Label "roll" on hand
 - Label "discarding..." next to name
 - Refactor: Try extracting code and/or assigns from show.ex into components
