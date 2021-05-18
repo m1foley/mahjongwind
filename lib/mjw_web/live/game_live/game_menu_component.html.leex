@@ -23,7 +23,7 @@
       </div>
     <% end %>
 
-    <%= unless Enum.empty?(@relative_game_seats_with_players) do %>
+    <%= if length(@relative_game_seats_with_players) > 1 do %>
       <div id="bootplayers" phx-hook="BootPlayer" phx-click="">
         <div id="boot-player-btn" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
           Boot player 🥾
