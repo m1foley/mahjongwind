@@ -3,6 +3,7 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Multiple levels of undo
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
 - Label "discarding..." next to name
