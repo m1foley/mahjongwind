@@ -3,6 +3,7 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Don't show "X joined the game" to player who joined
 - Multiple levels of undo
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
