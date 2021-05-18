@@ -23,6 +23,7 @@ import {LiveSocket} from "phoenix_live_view";
 import Drag from './dragHook';
 
 import CopyToClipboard from './copyToClipboard';
+import BootPlayer from './bootPlayer';
 import DeclareDq from './declareDq';
 import Simpledrag from './simpledrag';
 import Confetti from './confetti';
@@ -30,6 +31,7 @@ import Confetti from './confetti';
 const Hooks = {
   Drag: Drag,
   CopyToClipboard: CopyToClipboard,
+  BootPlayer: BootPlayer,
   DeclareDq: DeclareDq,
   Confetti: Confetti,
   Simpledrag: Simpledrag

@@ -28,6 +28,20 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_params(_params, _url, socket), do: {:noreply, socket}
 
+  @impl true
+  def handle_info(
+        {%Mjw.Game{} = _game, :booted, %{booted_seat: booted_seat} = _event_details},
+        socket
+      )
+      when booted_seat.seatno == socket.assigns.current_user_seatno do
+    socket =
+      socket
+      |> put_flash(:error, "You have been booted from the game.")
+      |> push_redirect(to: Routes.game_index_path(socket, :index))
+
+    {:noreply, socket}
+  end
+
   # Ignore game updates initiated by the current player because the local
   # assigns should have already been taken care of (usually by update_game/4)
   @impl true
@@ -585,6 +599,31 @@ defmodule MjwWeb.GameLive.Show do
     dqseat = socket.assigns.game.seats |> Enum.at(dqseatno)
     game = socket.assigns.game |> Mjw.Game.dq(dqseatno)
     socket = socket |> update_game(game, :dq, %{dqseat: dqseat})
+
+    {:noreply, socket}
+  end
+
+  # Boot a player
+  @impl true
+  def handle_event("bootplayer", %{"seatno" => booted_seatno}, socket) do
+    booted_seatno = String.to_integer(booted_seatno)
+
+    booted_seat =
+      socket.assigns.game.seats
+      |> Enum.at(booted_seatno)
+      |> Map.merge(%{seatno: booted_seatno})
+
+    event_details = %{seat: socket.assigns.current_user_seat, booted_seat: booted_seat}
+
+    game =
+      socket.assigns.game
+      |> Mjw.Game.evacuate_seat(booted_seatno)
+      |> MjwWeb.GameStore.update_with_lobby_change(:booted, event_details)
+
+    socket =
+      socket
+      |> assign_event(:booted, event_details)
+      |> assign_game_info(game)
 
     {:noreply, socket}
   end
