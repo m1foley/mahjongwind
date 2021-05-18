@@ -61,8 +61,13 @@
         <% else %>
           <%= @event_details[:seat].player_name %> drew a correction tile. <img src="/images/tiles/concealed.png" alt="" class="tile" />
         <% end %>
+      <% :player_seated -> %>
+        <%= @event_details[:seat].player_name %> joined the game.
       <% :left_game -> %>
         <%= @event_details[:seat].player_name %> left the game.
+      <% :booted -> %>
+        <%= @event_details[:booted_seat].player_name %> was booted from the game.
+        <span class="no-text-shadow text-5xl mx-1">🥾</span>
       <% :reset -> %>
         <%= @event_details[:seat].player_name %> reset the game.
       <% _other_event -> %>

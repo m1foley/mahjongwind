@@ -3,7 +3,14 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
 
   @impl true
   def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
+    relative_game_seats_with_players =
+      assigns.relative_game_seats |> Enum.reject(&Mjw.Seat.empty?/1)
+
+    socket =
+      assign(socket, assigns)
+      |> assign(:relative_game_seats_with_players, relative_game_seats_with_players)
+
+    {:ok, socket}
   end
 
   @impl true

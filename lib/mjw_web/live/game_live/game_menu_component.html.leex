@@ -23,6 +23,24 @@
       </div>
     <% end %>
 
+    <%= unless Enum.empty?(@relative_game_seats_with_players) do %>
+      <div id="bootplayers" phx-hook="BootPlayer" phx-click="">
+        <div id="boot-player-btn" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
+          Boot player 🥾
+        </div>
+
+        <div class="bootplayer opacity-30 bg-white text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-default my-4 hidden">
+          Boot player 🥾
+        </div>
+
+        <%= for seat <- @relative_game_seats_with_players |> Enum.slice(1..-1) do %>
+          <div class="bootplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden" phx-target="#game" phx-click="bootplayer" phx-value-seatno="<%= seat.seatno %>">
+            <%= seat.player_name %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <div phx-target="<%= @myself %>" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-click="quit">
       Leave game
     </div>

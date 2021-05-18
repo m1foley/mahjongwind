@@ -3,7 +3,6 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Boot player
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
 - Label "discarding..." next to name
