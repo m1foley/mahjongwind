@@ -27,16 +27,13 @@ defmodule Mjw.Game do
             turn_state: :rolling,
             dealer_seatno: 0,
             turn_seatno: 0,
-            # Store the last significant event for undos. Only undoable events
-            # are stored, which is a small subset of the event/raw_event
-            # assigns used in the frontend. Empty if no undoable event.
-            # Format is usually {seatno, event, tile} but can have additional
-            # fields per event type.
-            undo_event: {},
             # Where the deal picking started from. Might be used to count points.
             dealpick_seatno: 0,
             # Number of times the player has been dealer (wins, draws, DQs all count)
-            dealer_win_count: 0
+            dealer_win_count: 0,
+            event_log: [],
+            undo_seatno: nil,
+            undo_state: nil
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -85,7 +82,10 @@ defmodule Mjw.Game do
   """
   def seat_player(%__MODULE__{} = game, player_id, player_name) do
     empty_seatno = game.seats |> Enum.find_index(&Mjw.Seat.empty?/1)
-    seat_player_at(game, player_id, player_name, empty_seatno)
+
+    game
+    |> seat_player_at(player_id, player_name, empty_seatno)
+    |> log_player_joined_event(player_name)
   end
 
   defp seat_player_at(%__MODULE__{} = game, _player_id, _player_name, nil), do: game
@@ -212,7 +212,7 @@ defmodule Mjw.Game do
   end
 
   defp roll_seatno(roller_seatno, roll_total) do
-    rem(roller_seatno + roll_total - 1, 4)
+    increment_seatno(roller_seatno, roll_total - 1)
   end
 
   @doc """
@@ -335,40 +335,29 @@ defmodule Mjw.Game do
     new_discards = [tile | game.discards]
 
     game
+    |> set_undo_state(seatno)
+    |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
     |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
     |> advance_turn_seat()
-    |> Map.merge(%{
-      discards: new_discards,
-      turn_state: :drawing,
-      undo_event: {seatno, :discarded, tile}
-    })
+    |> Map.merge(%{discards: new_discards, turn_state: :drawing})
   end
 
   @doc """
   If someone just discarded, return their seat number. Otherwise nil
   """
-  def last_discarded_seatno(%__MODULE__{
-        turn_state: :drawing,
-        undo_event: {seatno, :discarded, _tile}
-      }) do
-    seatno
+  def last_discarded_seatno(%__MODULE__{turn_state: :drawing, turn_seatno: turn_seatno}) do
+    decrement_seatno(turn_seatno)
   end
 
   def last_discarded_seatno(%__MODULE__{} = _game), do: nil
 
   defp advance_turn_seat(%__MODULE__{} = game) do
-    turn_seatno = rem(game.turn_seatno + 1, 4)
-    %{game | turn_seatno: turn_seatno}
-  end
-
-  defp move_back_turn_seat(%__MODULE__{} = game) do
-    turn_seatno = rem(game.turn_seatno + 3, 4)
-    %{game | turn_seatno: turn_seatno}
+    %{game | turn_seatno: increment_seatno(game.turn_seatno)}
   end
 
   defp advance_dealer(%__MODULE__{} = game) do
-    dealer_seatno = rem(game.dealer_seatno + 1, 4)
+    dealer_seatno = increment_seatno(game.dealer_seatno)
 
     # the game wind changes when it gets back to the first dealer
     wind =
@@ -386,6 +375,9 @@ defmodule Mjw.Game do
       wind: wind
     })
   end
+
+  defp increment_seatno(seatno, by \\ 1), do: rem(seatno + by, 4)
+  defp decrement_seatno(seatno), do: rem(seatno + 3, 4)
 
   @doc """
   Update the given player's concealed tiles
@@ -443,68 +435,56 @@ defmodule Mjw.Game do
   Declare a win from a player's hand
   """
   def declare_win_from_hand(%__MODULE__{} = game, seatno, wintile) do
-    game
-    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, wintile))
-    |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
-    |> declare_win(seatno, wintile, :hand)
+    declare_win(game, seatno, wintile, fn game ->
+      game
+      |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, wintile))
+      |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
+    end)
   end
 
   @doc """
   Declare a win from the discards
   """
   def declare_win_from_discards(%__MODULE__{} = game, seatno, wintile) do
-    # assumes the frontend did its job so discards 0 == tile
-    new_discards = game.discards |> Enum.slice(1..-1)
-
-    game
-    |> Map.merge(%{discards: new_discards})
-    |> declare_win(seatno, wintile, :discards)
+    declare_win(game, seatno, wintile, fn game ->
+      # assumes the frontend did its job so discards 0 == tile
+      game |> Map.update!(:discards, &Enum.slice(&1, 1..-1))
+    end)
   end
 
-  defp declare_win(%__MODULE__{} = game, seatno, wintile, wintile_from) do
+  def declare_win(%__MODULE__{} = game, seatno, wintile, game_modifications) do
     game
-    |> Map.merge(%{
-      turn_seatno: seatno,
-      turn_state: :discarding,
-      undo_event:
-        {seatno, :declared_win, wintile, wintile_from, game.turn_seatno, game.turn_state}
-    })
-    |> update_seat(seatno, fn seat ->
-      seat |> Mjw.Seat.declare_win(wintile)
-    end)
+    |> set_undo_state(seatno)
+    |> log_declared_win_event(seatno, wintile)
+    |> game_modifications.()
+    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding})
+    |> update_seat(seatno, &Mjw.Seat.declare_win(&1, wintile))
   end
 
   @doc """
   A player draws from the discards (not a pong because it was their turn)
   """
   def draw_discard(%__MODULE__{turn_state: :drawing} = game, seatno, new_exposed, tile) do
-    # assumes the frontend did its job so discards 0 == tile
-    new_discards = game.discards |> Enum.slice(1..-1)
-
     game
+    |> set_undo_state(seatno)
+    |> log_draw_discard_event(seatno, tile)
     |> update_exposed(seatno, new_exposed)
-    |> Map.merge(%{
-      discards: new_discards,
-      undo_event: {seatno, :drew_discard, tile},
-      turn_state: :discarding
-    })
+    # assumes the frontend did its job so discards 0 == tile
+    |> Map.update!(:discards, &Enum.slice(&1, 1..-1))
+    |> Map.merge(%{turn_state: :discarding})
   end
 
   @doc """
   A player draws from the discards when it's not their turn
   """
   def pong(%__MODULE__{turn_state: :drawing} = game, seatno, new_exposed, tile) do
-    # Assuming that the frontend did its job so discards 0 == tile
-    new_discards = game.discards |> Enum.slice(1..-1)
-
     game
+    |> set_undo_state(seatno)
+    |> log_pong_event(seatno, tile)
     |> update_exposed(seatno, new_exposed)
-    |> Map.merge(%{
-      turn_seatno: seatno,
-      turn_state: :discarding,
-      discards: new_discards,
-      undo_event: {seatno, :ponged, tile, game.turn_seatno}
-    })
+    # assumes the frontend did its job so discards 0 == tile
+    |> Map.update!(:discards, &Enum.slice(&1, 1..-1))
+    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding})
   end
 
   @doc """
@@ -517,8 +497,10 @@ defmodule Mjw.Game do
 
     game =
       game
+      |> set_undo_state(seatno)
+      |> log_drew_correction_tile_event(seatno)
       |> update_concealed(seatno, new_concealed)
-      |> Map.merge(%{deck: new_deck, undo_event: {seatno, :drew_correction_tile, tile}})
+      |> Map.merge(%{deck: new_deck})
 
     {game, tile}
   end
@@ -552,7 +534,22 @@ defmodule Mjw.Game do
   Player quits the game
   """
   def evacuate_seat(%__MODULE__{} = game, seatno) do
-    update_seat(game, seatno, &Mjw.Seat.evacuate_player/1)
+    player_name = player_name_at(game, seatno)
+
+    game
+    |> update_seat(seatno, &Mjw.Seat.evacuate_player/1)
+    |> log_quit_event(player_name)
+  end
+
+  @doc """
+  Forcibly boot player from the game
+  """
+  def boot(%__MODULE__{} = game, seatno) do
+    player_name = player_name_at(game, seatno)
+
+    game
+    |> update_seat(seatno, &Mjw.Seat.evacuate_player/1)
+    |> log_player_booted_event(player_name)
   end
 
   @doc """
@@ -566,13 +563,16 @@ defmodule Mjw.Game do
     |> Enum.reduce(new_game_with_same_id, fn {seat, i}, game ->
       game |> seat_player_at(seat.player_id, seat.player_name, i)
     end)
+    |> log_reset_event()
   end
 
   @doc """
   Declare a draw game
   """
   def draw(%__MODULE__{} = game) do
-    game |> advance_game(:same_dealer)
+    game
+    |> advance_game(:same_dealer)
+    |> log_draw_event()
   end
 
   @doc """
@@ -581,42 +581,43 @@ defmodule Mjw.Game do
   """
   def dq(%__MODULE__{} = game, seatno)
       when seatno == game.dealer_seatno do
-    game |> advance_game(:advance_dealer)
-  end
-
-  def dq(%__MODULE__{} = game, _non_dealer_seatno) do
-    game |> advance_game(:same_dealer)
-  end
-
-  defp advance_game(%__MODULE__{} = game, :same_dealer) do
     game
-    |> clear_seat_tiles()
-    |> Map.merge(%{
-      deck: shuffled_deck(),
-      discards: [],
-      turn_seatno: game.dealer_seatno,
-      undo_event: {},
-      turn_state: :rolling,
+    |> advance_game(:advance_dealer)
+    |> log_dq_event(seatno)
+  end
+
+  def dq(%__MODULE__{} = game, seatno) do
+    game
+    |> advance_game(:same_dealer)
+    |> log_dq_event(seatno)
+  end
+
+  defp advance_game(%__MODULE__{} = game, dealer_advancement)
+       when dealer_advancement in [:same_dealer, :advance_dealer] do
+    game =
+      game
+      |> clear_all_seat_tiles()
+      |> Map.merge(%{
+        deck: shuffled_deck(),
+        discards: [],
+        undo_seatno: nil,
+        undo_state: nil,
+        event_log: [],
+        turn_state: :rolling
+      })
+
+    if dealer_advancement == :advance_dealer do
+      game |> advance_dealer()
+    else
       # dealer_win_count gets incremented even on draws and DQs
-      dealer_win_count: game.dealer_win_count + 1
-    })
+      %{game | dealer_win_count: game.dealer_win_count + 1, turn_seatno: game.dealer_seatno}
+    end
   end
 
-  defp advance_game(%__MODULE__{} = game, :advance_dealer) do
-    game
-    |> advance_dealer()
-    |> clear_seat_tiles()
-    |> Map.merge(%{
-      deck: shuffled_deck(),
-      discards: [],
-      undo_event: {},
-      turn_state: :rolling
-    })
-  end
-
-  defp clear_seat_tiles(%__MODULE__{} = game) do
-    seats = game.seats |> Enum.map(&Mjw.Seat.clear_tiles/1)
-    %{game | seats: seats}
+  defp clear_all_seat_tiles(%__MODULE__{} = game) do
+    Map.update!(game, :seats, fn seats ->
+      Enum.map(seats, &Mjw.Seat.clear_tiles/1)
+    end)
   end
 
   @doc """
@@ -641,126 +642,35 @@ defmodule Mjw.Game do
     update_seat(game, seatno, fn _seat_being_replaced -> seat end)
   end
 
-  @doc """
-  If there is an undo available, return the seatno of the player who can undo
-  and the event description
-  """
-  def undo_availability(%__MODULE__{undo_event: {seatno, event, _tile}}) do
-    {seatno, event}
-  end
+  def undo(%__MODULE__{undo_seatno: undo_seatno, undo_state: %__MODULE__{} = undo_state} = game)
+      when undo_seatno != nil do
+    player_name = player_name_at(game, undo_seatno)
 
-  def undo_availability(%__MODULE__{undo_event: {seatno, event, _tile, _turn_seatno}}) do
-    {seatno, event}
-  end
-
-  def undo_availability(%__MODULE__{
-        undo_event: {seatno, event, _tile, _from, _turn_seatno, _turn_state}
-      }) do
-    {seatno, event}
-  end
-
-  def undo_availability(%__MODULE__{}), do: {nil, nil}
-
-  # undo a discard
-  def undo(
-        %__MODULE__{undo_event: {seatno, :discarded, tile}, discards: [tile | new_discards]} =
-          game
-      ) do
-    game
-    |> update_seat(seatno, fn seat -> Mjw.Seat.add_to_concealed(seat, tile) end)
-    |> move_back_turn_seat()
-    |> Map.merge(%{
-      discards: new_discards,
-      turn_state: :discarding,
-      undo_event: {}
-    })
-  end
-
-  # undo a declared win from discards
-  def undo(
-        %__MODULE__{
-          undo_event: {_seatno, :declared_win, wintile, :discards, turn_seatno, turn_state}
-        } = game
-      ) do
-    discards = [wintile | game.discards]
-
-    game
+    undo_state
+    # event_log is preserved as a singleton at the top-level game
+    |> Map.merge(%{event_log: game.event_log})
+    |> preserve_hand_rearranges_for_undo(game)
+    # just in case undoing a declared win
     |> clear_all_seat_win_attributes()
-    |> Map.merge(%{
-      discards: discards,
-      turn_seatno: turn_seatno,
-      turn_state: turn_state,
-      undo_event: {}
-    })
+    |> log_event("#{player_name} undid their action.")
   end
 
-  # Undo a declared win from hand. Puts the tile back in their concealed tiles.
-  def undo(
-        %__MODULE__{
-          undo_event: {seatno, :declared_win, wintile, :hand, turn_seatno, turn_state}
-        } = game
-      ) do
-    game
-    |> clear_all_seat_win_attributes()
-    |> update_seat(seatno, fn seat -> Mjw.Seat.add_to_concealed(seat, wintile) end)
-    |> Map.merge(%{
-      turn_seatno: turn_seatno,
-      turn_state: turn_state,
-      undo_event: {}
-    })
-  end
+  # The undo player's hand will change after an undo, but try to preserve their
+  # preferred tile order
+  defp preserve_hand_rearranges_for_undo(%__MODULE__{} = undo_state, %__MODULE__{} = game) do
+    undo_state_seat = undo_state.seats |> Enum.at(game.undo_seatno)
 
-  # undo drawing a discard
-  def undo(%__MODULE__{undo_event: {seatno, :drew_discard, tile}} = game) do
-    game
-    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
-    |> Map.merge(%{
-      discards: [tile | game.discards],
-      turn_state: :drawing,
-      undo_event: {}
-    })
+    undo_state
+    |> Map.merge(%{seats: game.seats})
+    |> update_seat(game.undo_seatno, fn seat ->
+      seat |> Mjw.Seat.preserve_hand_rearranges_for_undo(undo_state_seat)
+    end)
   end
-
-  # undo pong
-  def undo(%__MODULE__{undo_event: {seatno, :ponged, tile, turn_seatno}} = game) do
-    game
-    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
-    |> Map.merge(%{
-      turn_state: :drawing,
-      turn_seatno: turn_seatno,
-      discards: [tile | game.discards],
-      undo_event: {}
-    })
-  end
-
-  # undo draw from deck
-  def undo(%__MODULE__{undo_event: {seatno, :drew_from_deck, tile}} = game) do
-    game
-    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
-    |> Map.merge(%{
-      turn_state: :drawing,
-      deck: [tile | game.deck],
-      undo_event: {}
-    })
-  end
-
-  # undo draw correction tile
-  def undo(%__MODULE__{undo_event: {seatno, :drew_correction_tile, tile}} = game) do
-    game
-    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
-    |> Map.merge(%{
-      turn_state: :drawing,
-      deck: [tile | game.deck],
-      undo_event: {}
-    })
-  end
-
-  # something went wrong if it doesn't pattern match above
-  def undo(%__MODULE__{} = game), do: game
 
   defp clear_all_seat_win_attributes(%__MODULE__{} = game) do
-    seats = game.seats |> Enum.map(&Mjw.Seat.clear_win_attributes/1)
-    %{game | seats: seats}
+    Map.update!(game, :seats, fn seats ->
+      Enum.map(seats, &Mjw.Seat.clear_win_attributes/1)
+    end)
   end
 
   @doc """
@@ -774,12 +684,10 @@ defmodule Mjw.Game do
         seatno
       ) do
     game
+    |> set_undo_state(seatno)
+    |> log_drew_from_deck_event(seatno)
     |> update_seat(seatno, fn seat -> Mjw.Seat.peek(seat, peektile) end)
-    |> Map.merge(%{
-      deck: remaining_deck,
-      turn_state: :discarding,
-      undo_event: {seatno, :drew_from_deck, peektile}
-    })
+    |> Map.merge(%{deck: remaining_deck, turn_state: :discarding})
   end
 
   @doc """
@@ -789,6 +697,73 @@ defmodule Mjw.Game do
   """
   def clear_peektile(%__MODULE__{turn_seatno: seatno, turn_state: :discarding} = game, seatno) do
     game |> update_seat(seatno, &Mjw.Seat.clear_peektile/1)
+  end
+
+  defp log_discard_event(%__MODULE__{} = game, seatno, tile) do
+    player_name = player_name_at(game, seatno)
+    game |> log_event("#{player_name} discarded.", tile)
+  end
+
+  defp log_declared_win_event(%__MODULE__{} = game, seatno, tile) do
+    player_name = player_name_at(game, seatno)
+    game |> log_event("#{player_name} went out!", tile)
+  end
+
+  defp log_draw_discard_event(%__MODULE__{} = game, seatno, tile) do
+    player_name = player_name_at(game, seatno)
+    game |> log_event("#{player_name} drew the discarded tile.", tile)
+  end
+
+  defp log_pong_event(%__MODULE__{} = game, seatno, tile) do
+    player_name = player_name_at(game, seatno)
+    game |> log_event("#{player_name} ponged.", tile)
+  end
+
+  defp log_drew_correction_tile_event(%__MODULE__{} = game, seatno) do
+    player_name = player_name_at(game, seatno)
+    game |> log_event("#{player_name} drew a correction tile.")
+  end
+
+  defp log_drew_from_deck_event(%__MODULE__{} = game, seatno) do
+    player_name = player_name_at(game, seatno)
+    game |> log_event("#{player_name} drew from the deck.")
+  end
+
+  defp log_dq_event(%__MODULE__{} = game, seatno) do
+    player_name = player_name_at(game, seatno)
+    game |> log_event("#{player_name} has been disqualified.", "🙅🏻‍♀️")
+  end
+
+  defp log_player_joined_event(%__MODULE__{} = game, player_name) do
+    game |> log_event("#{player_name} joined the game.")
+  end
+
+  defp log_quit_event(%__MODULE__{} = game, player_name) do
+    game |> log_event("#{player_name} left the game.")
+  end
+
+  defp log_player_booted_event(%__MODULE__{} = game, player_name) do
+    game |> log_event("#{player_name} was booted from the game.", "🥾")
+  end
+
+  defp log_draw_event(%__MODULE__{} = game) do
+    game |> log_event("The game was declared a draw.", "🤝")
+  end
+
+  defp log_reset_event(%__MODULE__{} = game) do
+    game |> log_event("The game was reset.")
+  end
+
+  defp log_event(%__MODULE__{} = game, event, tile \\ nil) do
+    %{game | event_log: [{event, tile} | game.event_log]}
+  end
+
+  # When an undoable change is made, set the undo_state so that the player in
+  # undo_seatno can possibly undo it. event_log is not saved in undo states
+  # because it exists as a singleton at the top-level game.
+  defp set_undo_state(%__MODULE__{} = game, undo_seatno) do
+    undo_state = game |> Map.delete(:event_log)
+    %{game | undo_seatno: undo_seatno, undo_state: undo_state}
   end
 
   @doc """

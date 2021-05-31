@@ -3,8 +3,8 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Don't show "X joined the game" to player who joined
-- Multiple levels of undo
+- Highlight discarding drop zone on hover
+- Always show remaining deck count
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
 - Label "discarding..." next to name

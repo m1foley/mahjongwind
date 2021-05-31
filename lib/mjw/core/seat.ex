@@ -99,7 +99,6 @@ defmodule Mjw.Seat do
 
   @doc """
   Remove a tile from a player's hand, no matter which list it's in.
-  Excludes wintile because that's a special case.
   """
   def remove_from_hand(%__MODULE__{} = seat, tile) do
     seat
@@ -107,6 +106,7 @@ defmodule Mjw.Seat do
     |> Map.update!(:concealed, &List.delete(&1, tile))
     |> Map.update!(:hiddengongs, &List.delete(&1, tile))
     |> Map.update!(:peektile, fn peektile -> if peektile == tile, do: nil, else: peektile end)
+    |> Map.update!(:wintile, fn wintile -> if wintile == tile, do: nil, else: wintile end)
   end
 
   def add_to_concealed(%__MODULE__{} = seat, tile) do
@@ -131,5 +131,59 @@ defmodule Mjw.Seat do
     seat
     |> add_to_concealed(peektile)
     |> clear_peektile()
+  end
+
+  @doc """
+  A user may have done minor (i.e., not undoable) things like moving tiles
+  within their hand since they performed the undoable action. All those
+  reordering changes should be preserved when undoing. The easiest way to do
+  this is to just start with their current game hand, and remove/add any tiles
+  that were added/removed by the undoable action, respectively. This ensures
+  that the tiles in the two hands are identical but possibly rearranged.
+  Assumes that any undoable action can add or remove at most 1 tile, and can't
+  do both at once.
+  """
+  def preserve_hand_rearranges_for_undo(%__MODULE__{} = seat, %__MODULE__{} = undo_state_seat) do
+    # There is no situation where we end up with a wintile present, because an
+    # undo_state can never be a win state. Doing it this way is the easiest way
+    # to rollback declare_win_from_hand, which appears as if it's "rearranging"
+    # the tiles.
+    seat = %{seat | wintile: nil}
+
+    all_seat_tiles = seat |> all_tiles_in_hand()
+    all_undo_state_seat_tiles = undo_state_seat |> all_tiles_in_hand()
+    tile_added = all_seat_tiles |> Enum.find(&(!(&1 in all_undo_state_seat_tiles)))
+
+    if tile_added do
+      seat |> remove_from_hand(tile_added)
+    else
+      tile_removed = all_undo_state_seat_tiles |> Enum.find(&(!(&1 in all_seat_tiles)))
+
+      if tile_removed do
+        seat |> restore_to_hand(undo_state_seat, tile_removed)
+      else
+        seat
+      end
+    end
+  end
+
+  defp all_tiles_in_hand(%__MODULE__{} = seat) do
+    seat.exposed ++
+      seat.concealed ++
+      seat.hiddengongs ++
+      Enum.filter([seat.peektile, seat.wintile], & &1)
+  end
+
+  # Doesn't check wintile because it can never be populated in an undo_state
+  defp restore_to_hand(%__MODULE__{} = seat, %__MODULE__{} = undo_state_seat, tile) do
+    if undo_state_seat.peektile == tile do
+      %{seat | peektile: tile}
+    else
+      removed_from_list =
+        [:exposed, :concealed, :hiddengongs]
+        |> Enum.find(fn list -> tile in Map.get(undo_state_seat, list) end)
+
+      seat |> Map.update!(removed_from_list, fn list -> list ++ [tile] end)
+    end
   end
 end
