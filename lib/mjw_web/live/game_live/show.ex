@@ -96,10 +96,9 @@ defmodule MjwWeb.GameLive.Show do
 
   @impl true
   def handle_event("undo", _params, socket)
-      when socket.assigns.can_undo do
-    undo_event = socket.assigns.undo_event
+      when socket.assigns.current_user_can_undo do
     game = socket.assigns.game |> Mjw.Game.undo()
-    socket = socket |> update_game(game, :undo, %{event: undo_event})
+    socket = socket |> update_game(game, :undo)
 
     {:noreply, socket}
   end
@@ -617,7 +616,7 @@ defmodule MjwWeb.GameLive.Show do
 
     game =
       socket.assigns.game
-      |> Mjw.Game.evacuate_seat(booted_seatno)
+      |> Mjw.Game.boot(booted_seatno)
       |> MjwWeb.GameStore.update_with_lobby_change(:booted, event_details)
 
     socket =
@@ -724,8 +723,7 @@ defmodule MjwWeb.GameLive.Show do
     game_state = Mjw.Game.state(game)
     turn_player_name = Mjw.Game.turn_player_name(game)
     last_discarded_seatno = Mjw.Game.last_discarded_seatno(game)
-    {undo_seatno, undo_event} = Mjw.Game.undo_availability(game)
-    can_undo = undo_seatno == current_user_seatno
+    current_user_can_undo = game.undo_seatno == current_user_seatno
 
     # seats ordered by their position to the current player (0 = self, etc.).
     # Extra attributes added for convenience or LiveView diff optimization:
@@ -806,8 +804,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_seatno, current_user_seatno)
     |> assign(:game_state, game_state)
     |> assign(:turn_player_name, turn_player_name)
-    |> assign(:can_undo, can_undo)
-    |> assign(:undo_event, undo_event)
+    |> assign(:current_user_can_undo, current_user_can_undo)
     |> assign(:relative_game_seats, relative_game_seats)
     |> assign(:current_user_seat, current_user_seat)
     |> assign(:show_stick, show_stick)

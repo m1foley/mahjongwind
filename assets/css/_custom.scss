@@ -288,6 +288,35 @@
   }
 }
 
+.gamelog {
+  position: fixed;
+  overflow-y: auto;
+  overflow-x: visible;
+  min-width: 18rem;
+  max-width: 40rem;
+  width: fit-content;
+  right: 11rem;
+  top: 6rem;
+  max-height: 9rem;
+  border-color: #aaa;
+  @apply text-gray-200 text-xs;
+  .event {
+    display: block;
+    border-top: 1px #aaa dashed;
+    white-space: nowrap;
+    &:last-child {
+      border-top: unset;
+    }
+    .tile, .icon {
+      display: inline-block;
+      margin-left: 0.2rem;
+    }
+    .tile {
+      height: 1.4rem;
+    }
+  }
+}
+
 .hand {
   position: fixed;
   cursor: not-allowed;

@@ -316,6 +316,22 @@ defmodule Mjw.SeatTest do
       assert seat.peektile == nil
     end
 
+    test "removes tile from wintile" do
+      seat =
+        %Mjw.Seat{
+          concealed: ["n1-0", "n2-0", "n3-0"],
+          exposed: ["n1-1", "n2-1", "n3-1"],
+          hiddengongs: ["n1-2", "n2-2", "n3-2"],
+          wintile: "b1-0"
+        }
+        |> Mjw.Seat.remove_from_hand("b1-0")
+
+      assert seat.concealed == ["n1-0", "n2-0", "n3-0"]
+      assert seat.exposed == ["n1-1", "n2-1", "n3-1"]
+      assert seat.hiddengongs == ["n1-2", "n2-2", "n3-2"]
+      assert seat.wintile == nil
+    end
+
     test "no change if tile not present" do
       seat = %Mjw.Seat{
         concealed: ["n1-0", "n2-0", "n3-0"],
@@ -392,6 +408,165 @@ defmodule Mjw.SeatTest do
       seat = orig_seat |> Mjw.Seat.ensure_no_dangling_peektile()
 
       assert seat == orig_seat
+    end
+  end
+
+  describe "preserve_hand_rearranges_for_undo" do
+    test "doesn't modify seat when hands are identical" do
+      seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1"],
+        hiddengongs: ["n3-0", "n3-1"],
+        peektile: "n4-0"
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, seat)
+
+      assert result == seat
+    end
+
+    test "doesn't modify seat when tiles were rearranged but not added or deleted" do
+      undo_state_seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1"],
+        hiddengongs: ["n3-0", "n3-1"],
+        peektile: "n4-0"
+      }
+
+      seat = %Mjw.Seat{
+        concealed: [],
+        exposed: ["n2-0", "n2-1", "n1-1", "n1-0", "n3-1"],
+        hiddengongs: ["n3-0", "n4-0"],
+        peektile: nil
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+
+      assert result == seat
+    end
+
+    test "removes a tile added to a list by the undoable action" do
+      undo_state_seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1"],
+        hiddengongs: ["n3-0", "n3-1"],
+        peektile: "n4-0"
+      }
+
+      seat = %Mjw.Seat{
+        concealed: [],
+        exposed: ["n2-0", "n2-1", "dz-0", "n1-1", "n1-0", "n3-1"],
+        hiddengongs: ["n3-0", "n4-0"],
+        peektile: nil
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+
+      assert result == %{seat | exposed: ["n2-0", "n2-1", "n1-1", "n1-0", "n3-1"]}
+    end
+
+    test "removes a tile added to peektile by the undoable action" do
+      undo_state_seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1"],
+        hiddengongs: ["n3-0", "n3-1"],
+        peektile: "n4-0"
+      }
+
+      seat = %Mjw.Seat{
+        concealed: [],
+        exposed: ["n2-0", "n2-1", "n1-1", "n1-0", "n3-1"],
+        hiddengongs: ["n3-0", "n4-0"],
+        peektile: "dz-0"
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+
+      assert result == %{seat | peektile: nil}
+    end
+
+    test "restores a declared win from hand" do
+      undo_state_seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1", "n1-0", "n1-1"],
+        hiddengongs: ["n3-0", "n3-1", "n4-0"],
+        peektile: nil,
+        wintile: nil
+      }
+
+      seat = %Mjw.Seat{
+        concealed: ["n1-1"],
+        exposed: ["n2-0", "n2-1", "n1-0", "n3-0"],
+        hiddengongs: ["n3-1"],
+        peektile: nil,
+        wintile: "n4-0"
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+
+      assert result == %{seat | wintile: nil, hiddengongs: ["n3-1", "n4-0"]}
+    end
+
+    test "restores a declared win from deck" do
+      undo_state_seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1", "n1-0", "n1-1"],
+        hiddengongs: ["n3-0", "n3-1", "n4-0"],
+        peektile: nil,
+        wintile: nil
+      }
+
+      seat = %Mjw.Seat{
+        concealed: ["n1-1"],
+        exposed: ["n2-0", "n2-1", "n1-0", "n3-0"],
+        hiddengongs: ["n3-1", "n4-0"],
+        peektile: nil,
+        wintile: "dz-0"
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+
+      assert result == %{seat | wintile: nil}
+    end
+
+    test "restores a tile removed from a list by the undoable action" do
+      undo_state_seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1"],
+        hiddengongs: ["n3-0", "n3-1"],
+        peektile: "n4-0"
+      }
+
+      seat = %Mjw.Seat{
+        concealed: [],
+        exposed: ["n2-0", "n2-1", "n1-1", "n1-0"],
+        hiddengongs: ["n3-0", "n4-0"],
+        peektile: nil
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+
+      assert result == %{seat | hiddengongs: ["n3-0", "n4-0", "n3-1"]}
+    end
+
+    test "restores a tile removed from the peektile by the undoable action" do
+      undo_state_seat = %Mjw.Seat{
+        concealed: ["n1-0", "n1-1"],
+        exposed: ["n2-0", "n2-1"],
+        hiddengongs: ["n3-0", "n3-1"],
+        peektile: "n4-0"
+      }
+
+      seat = %Mjw.Seat{
+        concealed: [],
+        exposed: ["n2-0", "n2-1", "n1-1", "n1-0", "n3-1"],
+        hiddengongs: ["n3-0"],
+        peektile: nil
+      }
+
+      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+
+      assert result == %{seat | peektile: "n4-0"}
     end
   end
 end

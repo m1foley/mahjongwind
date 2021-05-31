@@ -1,79 +1,4 @@
 <div id="<%= @id %>">
-  <div class="state-description">
-    <%= case @event do %>
-      <% :drew_discard -> %>
-        <%= if @game.turn_seatno != @current_user_seatno do %>
-          <%= @turn_player_name %> drew the discarded tile. <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="" class="tile" />
-        <% end %>
-      <% :ponged -> %>
-        <%= if @game.turn_seatno != @current_user_seatno do %>
-          <%= @turn_player_name %> ponged. <img src="/images/tiles/<%= String.slice(@event_details[:tile], 0..1) %>.png" alt="" class="tile" />
-        <% end %>
-      <% :drew_from_deck -> %>
-        <%= if @game.turn_seatno != @current_user_seatno do %>
-          <%= @turn_player_name %> drew from the deck. <img src="/images/tiles/concealed.png" alt="" class="tile" />
-        <% end %>
-      <% :draw -> %>
-        <%= @event_details[:seat].player_name %> declared a draw. <span class="no-text-shadow text-5xl mx-1">🤝</span>
-      <% :dq -> %>
-        <%= @event_details[:dqseat].player_name %> has been disqualified. <span class="no-text-shadow text-5xl mx-1">🙅🏻‍♀️</span>
-      <% :undo -> %>
-        <%= case @event_details[:event] do %>
-          <% :discarded -> %>
-            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-              You took back your discard.
-            <% else %>
-              <%= @event_details[:seat].player_name %> took back their discard.
-            <% end %>
-          <% :declared_win -> %>
-            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-              You took back your win.
-            <% else %>
-              <%= @event_details[:seat].player_name %> took back their win.
-            <% end %>
-            <span class="no-text-shadow text-5xl mx-1">🤦🏻‍♀️</span>
-          <% :drew_from_deck -> %>
-            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-              You
-            <% else %>
-              <%= @event_details[:seat].player_name %>
-            <% end %>
-            returned the tile to the deck.
-          <% :drew_correction_tile -> %>
-            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-              You
-            <% else %>
-              <%= @event_details[:seat].player_name %>
-            <% end %>
-            returned the correction tile to the deck.
-          <% n when n in [:drew_discard, :ponged] -> %>
-            <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-              You
-            <% else %>
-              <%= @event_details[:seat].player_name %>
-            <% end %>
-            returned the tile to discards.
-          <% _unknown_undo_event -> %>
-        <% end %>
-      <% :drew_correction_tile -> %>
-        <%= if @event_details[:seat].seatno == @current_user_seatno do %>
-          You drew a correction tile.
-        <% else %>
-          <%= @event_details[:seat].player_name %> drew a correction tile. <img src="/images/tiles/concealed.png" alt="" class="tile" />
-        <% end %>
-      <% :player_seated -> %>
-        <%= @event_details[:seat].player_name %> joined the game.
-      <% :left_game -> %>
-        <%= @event_details[:seat].player_name %> left the game.
-      <% :booted -> %>
-        <%= @event_details[:booted_seat].player_name %> was booted from the game.
-        <span class="no-text-shadow text-5xl mx-1">🥾</span>
-      <% :reset -> %>
-        <%= @event_details[:seat].player_name %> reset the game.
-      <% _other_event -> %>
-    <% end %>
-  </div>
-
   <%= if @show_wind_picking do %>
     <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
   <% end %>
@@ -89,6 +14,21 @@
       <% end %>
     </div>
   <% end %>
+
+  <div class="gamelog flex flex-col-reverse flex-nowrap px-2 border rounded">
+    <%= for {event, icon} <- @game.event_log do %>
+      <div class="event py-1 flex-grow">
+        <span class="desc align-middle"><%= event %></span>
+        <%= if icon do %>
+          <%= if String.match?(icon, ~r/^[a-z1-9]{2}-[0-3]$/) do %>
+            <img src="/images/tiles/<%= String.slice(icon, 0..1) %>.png" alt="" class="tile align-middle" />
+          <% else %>
+            <span class="icon text-xl align-middle"><%= icon %></span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
   <%# Placed after discards so it's higher in z-index %>
   <%= case @game_state do %>
