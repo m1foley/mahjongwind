@@ -3,13 +3,13 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Append-only mode on event log UI
 - Highlight discarding drop zone on hover
 - Always show remaining deck count
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
 - Label "discarding..." next to name
 - Refactor: Try extracting code and/or assigns from show.ex into components
-- Persist notifications longer. e.g., persist "drew from deck" after remaining exposed tiles come out
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
 - Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
