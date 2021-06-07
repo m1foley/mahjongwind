@@ -796,7 +796,7 @@ defmodule MjwWeb.GameLive.Show do
 
     turn_glow_seatno = unless win_declared_seatno, do: game.turn_seatno
 
-    dwindling_deck_remaining = if length(game.deck) < 25, do: length(game.deck)
+    deck_remaining = length(game.deck)
 
     socket
     |> assign(:game, game)
@@ -823,7 +823,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:show_correction_tile, show_correction_tile)
     |> assign(:non_discard_glow_tile, non_discard_glow_tile)
     |> assign(:turn_glow_seatno, turn_glow_seatno)
-    |> assign(:dwindling_deck_remaining, dwindling_deck_remaining)
+    |> assign(:deck_remaining, deck_remaining)
   end
 
   defp unjoinable_game_redirect(socket) do

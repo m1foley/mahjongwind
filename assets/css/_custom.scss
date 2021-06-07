@@ -87,8 +87,9 @@
   }
 }
 
-#dwindling-deck-remaining-count {
+#deck-remaining-count {
   background: #f27a00; // same color as concealed tile
+  @apply text-gray-700 font-bold p-1 border-2 opacity-95 border-gray-600 rounded;
 }
 
 .walltile {

@@ -3,9 +3,7 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Append-only mode on event log UI
 - Highlight discarding drop zone on hover
-- Always show remaining deck count
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
 - Label "discarding..." next to name
@@ -15,7 +13,6 @@ Play mahjong with your friends online!
 - Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
 - Experiment with more CSS animations: exposing a tile, taking from discards, dealing the tiles, etc.
 - Enforce that the winning tile was the last one picked up
-- Think of a better domain name?
 - Robot to allow 2-player games
 - Inform the player if their browser window is too small
 - Discards shift when 2nd tile is discarded
@@ -29,6 +26,7 @@ Play mahjong with your friends online!
 - Test Internet Explorer
 - Mobile support
 - Automatically expire games
+- Think of a better domain name?
 
 ## Instructions
 
