@@ -83,17 +83,18 @@ defmodule Mjw.Game do
   def seat_player(%__MODULE__{} = game, player_id, player_name) do
     empty_seatno = game.seats |> Enum.find_index(&Mjw.Seat.empty?/1)
 
-    game
-    |> seat_player_at(player_id, player_name, empty_seatno)
-    |> log_player_joined_event(player_name)
+    if empty_seatno do
+      game
+      |> seat_player_at(player_id, player_name, empty_seatno)
+      |> log_player_joined_event(player_name)
+    else
+      game
+    end
   end
-
-  defp seat_player_at(%__MODULE__{} = game, _player_id, _player_name, nil), do: game
 
   defp seat_player_at(%__MODULE__{} = game, player_id, player_name, seatno) do
     update_seat(game, seatno, fn seat ->
-      seat
-      |> Mjw.Seat.seat_player(player_id, player_name)
+      seat |> Mjw.Seat.seat_player(player_id, player_name)
     end)
   end
 
@@ -764,6 +765,42 @@ defmodule Mjw.Game do
   defp set_undo_state(%__MODULE__{} = game, undo_seatno) do
     undo_state = game |> Map.delete(:event_log)
     %{game | undo_seatno: undo_seatno, undo_state: undo_state}
+  end
+
+  def seat_bot(%__MODULE__{} = game) do
+    empty_seatno = game.seats |> Enum.find_index(&Mjw.Seat.empty?/1)
+
+    if empty_seatno do
+      bot_name = game |> generate_bot_name()
+
+      game
+      |> seat_bot_at(bot_name, empty_seatno)
+      |> log_player_joined_event(bot_name)
+    else
+      game
+    end
+  end
+
+  defp seat_bot_at(%__MODULE__{} = game, bot_name, seatno) do
+    update_seat(game, seatno, fn seat ->
+      seat |> Mjw.Seat.seat_bot(bot_name)
+    end)
+  end
+
+  @bot_names [
+    "Guava 🤖",
+    "Pomelo 🤖",
+    "Ginger 🤖",
+    "Goji 🤖",
+    "Wax Apple 🤖",
+    "Kohlrabi 🤖",
+    "Flat Cabbage 🤖"
+  ]
+
+  defp generate_bot_name(%__MODULE__{} = game) do
+    existing_player_names = game |> seated_player_names()
+
+    (@bot_names -- existing_player_names) |> Enum.random()
   end
 
   @doc """

@@ -78,17 +78,32 @@ defmodule Mjw.GameTest do
 
   describe "seat_player" do
     test "adds a player to the first empty seat" do
-      game = %Mjw.Game{
-        seats:
-          Enum.concat(
-            ~w(0 1) |> Enum.map(fn i -> %Mjw.Seat{player_id: i, player_name: i} end),
-            ~w(2 3) |> Enum.map(fn _ -> %Mjw.Seat{player_id: nil} end)
-          )
-      }
+      game =
+        %Mjw.Game{
+          seats:
+            Enum.concat(
+              ~w(0 1) |> Enum.map(fn i -> %Mjw.Seat{player_id: i, player_name: i} end),
+              ~w(2 3) |> Enum.map(fn _ -> %Mjw.Seat{player_id: nil} end)
+            )
+        }
+        |> Mjw.Game.seat_player("new_id", "New Name")
 
-      game = game |> Mjw.Game.seat_player("new_id", "New Name")
       assert Enum.map(game.seats, & &1.player_id) == ["0", "1", "new_id", nil]
       assert Enum.map(game.seats, & &1.player_name) == ["0", "1", "New Name", nil]
+    end
+
+    test "does nothing if no empty seats" do
+      orig_game = %Mjw.Game{
+        seats:
+          ~w(we ws ww wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      game = orig_game |> Mjw.Game.seat_player("id1", "Won't Get Seated")
+      assert game == orig_game
     end
   end
 
@@ -1454,6 +1469,39 @@ defmodule Mjw.GameTest do
         |> Mjw.Game.discard(3, "n1-1")
 
       assert game |> Mjw.Game.last_discarded_seatno() == 3
+    end
+  end
+
+  describe "seat_bot" do
+    test "does nothing if all seats are full" do
+      orig_game = %Mjw.Game{
+        seats:
+          ~w(we ws ww wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      game = orig_game |> Mjw.Game.seat_bot()
+
+      assert game == orig_game
+    end
+
+    test "adds a bot in the first empty seat" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_bot()
+
+      assert Mjw.Game.empty_seats_count(game) == 0
+      bot_seat = game.seats |> Enum.at(3)
+      assert Mjw.Seat.bot?(bot_seat)
+      assert String.length(bot_seat.player_name) > 0
+      {event, nil} = game.event_log |> Enum.at(0)
+      assert event =~ ~r/\A[a-zA-Z0-9 ]+ joined the game\.\z/
     end
   end
 end
