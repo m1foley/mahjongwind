@@ -63,6 +63,15 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Add bot player
+  @impl true
+  def handle_event("addbot", _params, socket) do
+    game = socket.assigns.game |> Mjw.Game.seat_bot()
+    socket = socket |> update_game(game, :bot_added)
+
+    {:noreply, socket}
+  end
+
   # Open game menu
   @impl true
   def handle_event("opengamemenu", _params, socket) do

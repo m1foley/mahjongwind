@@ -2,4 +2,11 @@
   Invite link:
   <input type="text" value="<%= Routes.game_show_url(@socket, :show, @game.id) %>" size="<%= Routes.game_show_url(@socket, :show, @game.id) |> String.length() %>" class="game-url text-gray-800 bg-white ml-3 mr-1 px-1" />
   <span class="copy-to-clipboard" style="cursor:pointer;">📋</span>
+
+  <div class="pt-12">
+    <div id="addbot" class="inline-block" phx-click="addbot">
+      <span class="align-middle">Add bot</span>
+      <span class="pl-2 text-2xl align-middle">🤖</span>
+    </div>
+  </div>
 </div>

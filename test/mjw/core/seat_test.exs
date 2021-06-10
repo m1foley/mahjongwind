@@ -15,8 +15,10 @@ defmodule Mjw.SeatTest do
 
   describe "seat_player" do
     test "seats a player in an empty seat" do
-      seat = %Mjw.Seat{}
-      seat = Mjw.Seat.seat_player(seat, "new_id", "New Name")
+      seat =
+        %Mjw.Seat{}
+        |> Mjw.Seat.seat_player("new_id", "New Name")
+
       assert seat.player_id == "new_id"
       assert seat.player_name == "New Name"
       assert seat.concealed == []
@@ -25,20 +27,70 @@ defmodule Mjw.SeatTest do
     end
 
     test "replaces an existing player with the new player" do
-      seat = %Mjw.Seat{
-        player_id: "old_id",
-        player_name: "Old Name",
-        concealed: ["n1-0"],
-        exposed: ["n2-0"],
-        hiddengongs: ["n3-0"]
-      }
+      seat =
+        %Mjw.Seat{
+          player_id: "old_id",
+          player_name: "Old Name",
+          concealed: ["n1-0"],
+          exposed: ["n2-0"],
+          hiddengongs: ["n3-0"]
+        }
+        |> Mjw.Seat.seat_player("new_id", "New Name")
 
-      seat = Mjw.Seat.seat_player(seat, "new_id", "New Name")
       assert seat.player_id == "new_id"
       assert seat.player_name == "New Name"
       assert seat.concealed == ["n1-0"]
       assert seat.exposed == ["n2-0"]
       assert seat.hiddengongs == ["n3-0"]
+    end
+  end
+
+  describe "seat_bot" do
+    test "seats a bot in an empty seat" do
+      seat =
+        %Mjw.Seat{}
+        |> Mjw.Seat.seat_bot("Bot Name")
+
+      assert Mjw.Seat.bot?(seat)
+      assert seat.player_name == "Bot Name"
+      assert seat.concealed == []
+      assert seat.exposed == []
+      assert seat.hiddengongs == []
+    end
+
+    test "replaces an existing player with the new bot" do
+      seat =
+        %Mjw.Seat{
+          player_id: "old_id",
+          player_name: "Old Name",
+          concealed: ["n1-0"],
+          exposed: ["n2-0"],
+          hiddengongs: ["n3-0"]
+        }
+        |> Mjw.Seat.seat_bot("Bot Name")
+
+      assert Mjw.Seat.bot?(seat)
+      assert seat.player_name == "Bot Name"
+      assert seat.concealed == ["n1-0"]
+      assert seat.exposed == ["n2-0"]
+      assert seat.hiddengongs == ["n3-0"]
+    end
+  end
+
+  describe "bot" do
+    test "true if player_id is the reserved bot id" do
+      seat = %Mjw.Seat{player_id: "bot"}
+      assert Mjw.Seat.bot?(seat)
+    end
+
+    test "false if player_id is not the reserved bot id" do
+      seat = %Mjw.Seat{player_id: "other_id"}
+      refute Mjw.Seat.bot?(seat)
+    end
+
+    test "false if player_id is nil" do
+      seat = %Mjw.Seat{}
+      refute Mjw.Seat.bot?(seat)
     end
   end
 

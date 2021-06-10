@@ -610,7 +610,7 @@ $discard-animation-translates: (
   background-image: linear-gradient(to top, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0));
 }
 
-#undo {
+#undo, #addbot {
   @apply bg-gray-300 hover:bg-gray-200 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 shadow-md py-1 px-4 font-bold border-2 border-gray-400 cursor-pointer rounded-xl;
 }
 

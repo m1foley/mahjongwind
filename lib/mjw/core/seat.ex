@@ -19,11 +19,20 @@ defmodule Mjw.Seat do
             winreaction: nil
 
   def empty?(%__MODULE__{player_id: nil}), do: true
-  def empty?(%__MODULE__{player_id: _id}), do: false
+  def empty?(%__MODULE__{}), do: false
 
   def seat_player(%__MODULE__{} = seat, player_id, player_name) do
     %{seat | player_id: player_id, player_name: player_name}
   end
+
+  @bot_id "bot"
+
+  def seat_bot(%__MODULE__{} = seat, bot_name) do
+    %{seat | player_id: @bot_id, player_name: bot_name}
+  end
+
+  def bot?(%__MODULE__{player_id: @bot_id}), do: true
+  def bot?(%__MODULE__{}), do: false
 
   def pick_wind(%__MODULE__{} = seat, picked_wind, picked_wind_idx) do
     %{seat | picked_wind: picked_wind, picked_wind_idx: picked_wind_idx}
