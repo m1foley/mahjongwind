@@ -3,6 +3,8 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Slam/shake animation when current player discards
+- Sort bot hand more intelligently: special tiles last
 - Random bot behavior: pongs
 - Visually indicate when another player drew from deck. Floating peektile?
 - Highlight discarding drop zone on hover
