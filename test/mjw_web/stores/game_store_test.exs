@@ -59,7 +59,7 @@ defmodule MjwWeb.GameStoreTest do
   end
 
   test "all retrieves all games" do
-    MjwWeb.GameStore.clear()
+    :ok = MjwWeb.GameStore.clear()
     games = 0..3 |> Enum.map(fn _ -> MjwWeb.GameStore.create() end)
     result = MjwWeb.GameStore.all()
     assert Enum.sort_by(result, & &1.id) == Enum.sort_by(games, & &1.id)
@@ -79,6 +79,7 @@ defmodule MjwWeb.GameStoreTest do
 
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
     MjwWeb.GameStore.update(updated_game, :event1)
+    :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
     assert_received({^updated_game, :event1, %{}})
   end
 
@@ -88,6 +89,7 @@ defmodule MjwWeb.GameStoreTest do
 
     :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
     MjwWeb.GameStore.update(updated_game, :event1, :detail1)
+    :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
     assert_received({^updated_game, :event1, :detail1})
   end
 

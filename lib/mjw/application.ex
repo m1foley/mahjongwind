@@ -14,7 +14,9 @@ defmodule Mjw.Application do
       # Start the Endpoint (http/https)
       MjwWeb.Endpoint,
       # Service to handle game data persistence
-      MjwWeb.GameStore
+      MjwWeb.GameStore,
+      # Service that handles bot moves
+      MjwWeb.BotService
 
       # Start a worker by calling: Mjw.Worker.start_link(arg)
       # {Mjw.Worker, arg}

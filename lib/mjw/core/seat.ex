@@ -60,8 +60,8 @@ defmodule Mjw.Seat do
   @doc """
   True if the given player confirmed the declared win
   """
-  def confirmed_win?(%__MODULE__{winreaction: winreaction}) do
-    winreaction in [:ok, :expose_ok]
+  def confirmed_win?(%__MODULE__{} = seat) do
+    bot?(seat) || seat.winreaction in [:ok, :expose_ok]
   end
 
   @doc """
@@ -102,8 +102,8 @@ defmodule Mjw.Seat do
   def declared_win?(%__MODULE__{wintile: nil}), do: false
   def declared_win?(%__MODULE__{}), do: true
 
-  def win_expose?(%__MODULE__{winreaction: winreaction}) do
-    winreaction in [:expose, :expose_ok]
+  def win_expose?(%__MODULE__{} = seat) do
+    bot?(seat) || seat.winreaction in [:expose, :expose_ok]
   end
 
   @doc """
@@ -118,8 +118,19 @@ defmodule Mjw.Seat do
     |> Map.update!(:wintile, fn wintile -> if wintile == tile, do: nil, else: wintile end)
   end
 
+  def remove_random_concealed_tile(%__MODULE__{} = seat) do
+    tile = Enum.random(seat.concealed)
+    seat = seat |> Map.update!(:concealed, &List.delete(&1, tile))
+
+    {tile, seat}
+  end
+
   def add_to_concealed(%__MODULE__{} = seat, tile) do
     %{seat | concealed: seat.concealed ++ [tile]}
+  end
+
+  def sort_concealed(%__MODULE__{} = seat) do
+    seat |> Map.update!(:concealed, &Enum.sort(&1))
   end
 
   def peek(%__MODULE__{} = seat, tile) do

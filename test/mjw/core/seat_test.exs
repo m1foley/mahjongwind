@@ -153,48 +153,33 @@ defmodule Mjw.SeatTest do
 
   describe "confirmed_win?" do
     test "false when winreaction is nil" do
-      seat = %Mjw.Seat{
-        wintile: nil,
-        winreaction: nil
-      }
-
-      refute seat |> Mjw.Seat.confirmed_win?()
+      refute %Mjw.Seat{wintile: nil, winreaction: nil}
+             |> Mjw.Seat.confirmed_win?()
     end
 
     test "false when winreaction is :expose" do
-      seat = %Mjw.Seat{
-        wintile: nil,
-        winreaction: :expose
-      }
-
-      refute seat |> Mjw.Seat.confirmed_win?()
+      refute %Mjw.Seat{wintile: nil, winreaction: :expose}
+             |> Mjw.Seat.confirmed_win?()
     end
 
     test "true when winreaction is :ok" do
-      seat = %Mjw.Seat{
-        wintile: nil,
-        winreaction: :ok
-      }
-
-      assert seat |> Mjw.Seat.confirmed_win?()
+      assert %Mjw.Seat{wintile: nil, winreaction: :ok}
+             |> Mjw.Seat.confirmed_win?()
     end
 
     test "true when winreaction is :ok and wintile is present" do
-      seat = %Mjw.Seat{
-        wintile: "b1-1",
-        winreaction: :ok
-      }
-
-      assert seat |> Mjw.Seat.confirmed_win?()
+      assert %Mjw.Seat{wintile: "b1-1", winreaction: :ok}
+             |> Mjw.Seat.confirmed_win?()
     end
 
     test "true when winreaction is :expose_ok" do
-      seat = %Mjw.Seat{
-        wintile: nil,
-        winreaction: :expose_ok
-      }
+      assert %Mjw.Seat{wintile: nil, winreaction: :expose_ok}
+             |> Mjw.Seat.confirmed_win?()
+    end
 
-      assert seat |> Mjw.Seat.confirmed_win?()
+    test "true when player is a bot" do
+      assert %Mjw.Seat{wintile: nil, winreaction: nil, player_id: "bot"}
+             |> Mjw.Seat.confirmed_win?()
     end
   end
 
@@ -300,6 +285,10 @@ defmodule Mjw.SeatTest do
     test "false if not exposed" do
       refute %Mjw.Seat{winreaction: nil} |> Mjw.Seat.win_expose?()
       refute %Mjw.Seat{winreaction: :ok} |> Mjw.Seat.win_expose?()
+    end
+
+    test "true if bot" do
+      assert %Mjw.Seat{winreaction: nil, player_id: "bot"} |> Mjw.Seat.win_expose?()
     end
   end
 
@@ -619,6 +608,29 @@ defmodule Mjw.SeatTest do
       result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
 
       assert result == %{seat | peektile: "n4-0"}
+    end
+  end
+
+  describe "sort_concealed" do
+    test "sorts the concealed tiles" do
+      seat =
+        %Mjw.Seat{concealed: ["n1-0", "b1-0", "n1-3", "dp-0"], exposed: ["n1-2", "b1-1"]}
+        |> Mjw.Seat.sort_concealed()
+
+      assert seat.concealed == ["b1-0", "dp-0", "n1-0", "n1-3"]
+      assert seat.exposed == ["n1-2", "b1-1"]
+    end
+  end
+
+  describe "remove_random_concealed_tile" do
+    test "removes a random concealed tile" do
+      {tile, seat} =
+        %Mjw.Seat{concealed: ["n1-0", "b1-0", "n1-3", "dp-0"], exposed: ["n1-2", "b1-1"]}
+        |> Mjw.Seat.remove_random_concealed_tile()
+
+      assert length(seat.concealed) == 3
+      assert tile in ["b1-0", "dp-0", "n1-0", "n1-3"]
+      assert seat.exposed == ["n1-2", "b1-1"]
     end
   end
 end

@@ -130,21 +130,15 @@ defmodule Mjw.Game do
   @doc """
   Pick a random available wind tile and assign it to the player's seat
   """
-  def pick_random_available_wind(%__MODULE__{} = game, player_id, picked_wind_idx) do
+  def pick_random_available_wind(%__MODULE__{} = game, seatno, picked_wind_idx \\ 0) do
     remaining_winds = game |> remaining_winds_to_pick()
-    pick_random_wind(game, player_id, picked_wind_idx, remaining_winds)
-  end
 
-  defp pick_random_wind(%__MODULE__{} = game, _player_id, _picked_wind_idx, []), do: game
-
-  defp pick_random_wind(%__MODULE__{} = game, player_id, picked_wind_idx, winds) do
-    wind = winds |> Enum.random()
-    seatno = game |> sitting_at(player_id)
-
-    update_seat(game, seatno, fn seat ->
-      seat
-      |> Mjw.Seat.pick_wind(wind, picked_wind_idx)
-    end)
+    if !Enum.empty?(remaining_winds) do
+      wind = remaining_winds |> Enum.random()
+      game |> update_seat(seatno, &Mjw.Seat.pick_wind(&1, wind, picked_wind_idx))
+    else
+      game
+    end
   end
 
   defp update_seat(%__MODULE__{} = game, seatno, update_function) do
@@ -290,13 +284,13 @@ defmodule Mjw.Game do
     seat_with_relative_position(game, roller_seatno, relative_to_seatno)
   end
 
-  defp roller_seatno(%__MODULE__{} = game, :rolling_for_first_dealer) do
+  def roller_seatno(%__MODULE__{} = game, :rolling_for_first_dealer) do
     picked_east_wind_seatno(game)
   end
 
   # dealer_seatno should always equal turn_seatno when rolling for deal, so
   # either could get used
-  defp roller_seatno(%__MODULE__{dealer_seatno: dealer_seatno}, _game_state) do
+  def roller_seatno(%__MODULE__{dealer_seatno: dealer_seatno}, _game_state) do
     dealer_seatno
   end
 
@@ -332,7 +326,7 @@ defmodule Mjw.Game do
   @doc """
   A player discards a tile from their hand
   """
-  def discard(%__MODULE__{turn_state: :discarding} = game, seatno, tile) do
+  def discard(%__MODULE__{turn_state: :discarding, turn_seatno: seatno} = game, seatno, tile) do
     new_discards = [tile | game.discards]
 
     game
@@ -340,6 +334,20 @@ defmodule Mjw.Game do
     |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
     |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
+    |> advance_turn_seat()
+    |> Map.merge(%{discards: new_discards, turn_state: :drawing})
+  end
+
+  @doc """
+  Bot discards a random tile from their hand
+  """
+  def bot_discard(%__MODULE__{turn_state: :discarding, turn_seatno: seatno} = game, seatno) do
+    {tile, seat} = Enum.at(game.seats, seatno) |> Mjw.Seat.remove_random_concealed_tile()
+    new_discards = [tile | game.discards]
+
+    game
+    |> log_discard_event(seatno, tile)
+    |> replace_seat(seatno, seat)
     |> advance_turn_seat()
     |> Map.merge(%{discards: new_discards, turn_state: :drawing})
   end
@@ -561,8 +569,12 @@ defmodule Mjw.Game do
 
     seats
     |> Enum.with_index()
-    |> Enum.reduce(new_game_with_same_id, fn {seat, i}, game ->
-      game |> seat_player_at(seat.player_id, seat.player_name, i)
+    |> Enum.reduce(new_game_with_same_id, fn {seat, seatno}, game ->
+      if Mjw.Seat.bot?(seat) do
+        seat_bot_at(game, seat.player_name, seatno)
+      else
+        seat_player_at(game, seat.player_id, seat.player_name, seatno)
+      end
     end)
     |> log_reset_event()
   end
@@ -700,6 +712,23 @@ defmodule Mjw.Game do
     game |> update_seat(seatno, &Mjw.Seat.clear_peektile/1)
   end
 
+  @doc """
+  Bot draws from the deck.
+  Sorts the concealed tiles so it's easier to read at the end of the game.
+  """
+  def bot_draw_deck_tile(
+        %__MODULE__{turn_seatno: seatno, turn_state: :drawing, deck: [tile | remaining_deck]} =
+          game,
+        seatno
+      ) do
+    game
+    |> log_drew_from_deck_event(seatno)
+    |> update_seat(seatno, fn seat ->
+      seat |> Mjw.Seat.add_to_concealed(tile) |> Mjw.Seat.sort_concealed()
+    end)
+    |> Map.merge(%{deck: remaining_deck, turn_state: :discarding})
+  end
+
   defp log_discard_event(%__MODULE__{} = game, seatno, tile) do
     player_name = player_name_at(game, seatno)
     game |> log_event("#{player_name} discarded.", tile)
@@ -782,20 +811,24 @@ defmodule Mjw.Game do
   end
 
   defp seat_bot_at(%__MODULE__{} = game, bot_name, seatno) do
-    update_seat(game, seatno, fn seat ->
-      seat |> Mjw.Seat.seat_bot(bot_name)
-    end)
+    game
+    |> update_seat(seatno, fn seat -> Mjw.Seat.seat_bot(seat, bot_name) end)
+    |> pick_random_available_wind(seatno)
   end
 
   @bot_names [
-    "Guava 🤖",
-    "Pomelo 🤖",
-    "Ginger 🤖",
-    "Goji 🤖",
-    "Wax Apple 🤖",
-    "Kohlrabi 🤖",
-    "Flat Cabbage 🤖"
-  ]
+               "Flat Cabbage",
+               "Ginger",
+               "Goji",
+               "Guava",
+               "Kohlrabi",
+               "Lychee",
+               "Papaya",
+               "Persimmon",
+               "Pomelo",
+               "Wax Apple"
+             ]
+             |> Enum.map(fn name -> "#{name} 🤖" end)
 
   defp generate_bot_name(%__MODULE__{} = game) do
     existing_player_names = game |> seated_player_names()
