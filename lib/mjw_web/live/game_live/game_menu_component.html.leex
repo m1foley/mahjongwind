@@ -52,7 +52,7 @@
     </div>
 
     <div phx-click="">
-      <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-gamemenu", game: @game %>
+      <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-gamemenu", game: @game, game_state: @game_state %>
     </div>
   </div>
 </div>
