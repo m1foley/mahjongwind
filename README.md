@@ -3,6 +3,8 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Random bot behavior: pongs
+- Visually indicate when another player drew from deck. Floating peektile?
 - Highlight discarding drop zone on hover
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
@@ -13,7 +15,6 @@ Play mahjong with your friends online!
 - Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
 - Experiment with more CSS animations: exposing a tile, taking from discards, dealing the tiles, etc.
 - Enforce that the winning tile was the last one picked up
-- Robot to allow 2-player games
 - Inform the player if their browser window is too small
 - Discards shift when 2nd tile is discarded
 
@@ -55,6 +56,7 @@ git push heroku main:main
 - <https://www.reddit.com/r/Mahjong/comments/jsbsve/i_created_online_hong_kong_mahjong_web_app/>
 - <https://www.reddit.com/r/Mahjong/>
 - <https://en.wikipedia.org/wiki/Hong_Kong_Mahjong_scoring_rules>
+- Deploys: <https://damonvjanis.medium.com/optimizing-for-free-hosting-elixir-deployments-6bfc119a1f44>
 
 ### sortablejs
 - <https://fullstackphoenix.com/features/sortable-lists-with-sortable-js>

@@ -67,6 +67,13 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event("addbot", _params, socket) do
     game = socket.assigns.game |> Mjw.Game.seat_bot()
+
+    # These might be necessary if a bot joins mid-game
+    game
+    |> MjwWeb.BotService.optionally_enqueue_roll()
+    |> MjwWeb.BotService.optionally_enqueue_draw()
+    |> MjwWeb.BotService.optionally_enqueue_discard()
+
     socket = socket |> update_game(game, :bot_added)
 
     {:noreply, socket}
@@ -177,6 +184,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.discard(current_user_seatno, discarded_tile)
+      |> MjwWeb.BotService.optionally_enqueue_draw()
 
     socket = socket |> update_game(game, :discarded)
 
@@ -547,7 +555,10 @@ defmodule MjwWeb.GameLive.Show do
     dqseatno = socket.assigns.win_declared_seatno
     dqseat = socket.assigns.game.seats |> Enum.at(dqseatno)
 
-    game = socket.assigns.game |> Mjw.Game.dq(dqseatno)
+    game =
+      socket.assigns.game
+      |> Mjw.Game.dq(dqseatno)
+      |> MjwWeb.BotService.optionally_enqueue_roll()
 
     socket = socket |> update_game(game, :dq, %{dqseat: dqseat})
 
@@ -562,6 +573,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.confirm_win(current_user_seatno)
+      |> MjwWeb.BotService.optionally_enqueue_roll()
 
     socket = socket |> update_game(game, :confirmed_win)
 
@@ -585,7 +597,11 @@ defmodule MjwWeb.GameLive.Show do
   # Reset game
   @impl true
   def handle_event("reset", _params, socket) do
-    game = socket.assigns.game |> Mjw.Game.reset()
+    game =
+      socket.assigns.game
+      |> Mjw.Game.reset()
+      |> MjwWeb.BotService.optionally_enqueue_roll()
+
     socket = socket |> update_game(game, :reset)
 
     {:noreply, socket}
@@ -594,7 +610,11 @@ defmodule MjwWeb.GameLive.Show do
   # Declare draw game
   @impl true
   def handle_event("draw", _params, socket) do
-    game = socket.assigns.game |> Mjw.Game.draw()
+    game =
+      socket.assigns.game
+      |> Mjw.Game.draw()
+      |> MjwWeb.BotService.optionally_enqueue_roll()
+
     socket = socket |> update_game(game, :draw)
 
     {:noreply, socket}
@@ -605,7 +625,12 @@ defmodule MjwWeb.GameLive.Show do
   def handle_event("dq", %{"seatno" => dqseatno}, socket) do
     dqseatno = String.to_integer(dqseatno)
     dqseat = socket.assigns.game.seats |> Enum.at(dqseatno)
-    game = socket.assigns.game |> Mjw.Game.dq(dqseatno)
+
+    game =
+      socket.assigns.game
+      |> Mjw.Game.dq(dqseatno)
+      |> MjwWeb.BotService.optionally_enqueue_roll()
+
     socket = socket |> update_game(game, :dq, %{dqseat: dqseat})
 
     {:noreply, socket}
@@ -658,6 +683,12 @@ defmodule MjwWeb.GameLive.Show do
       |> assign_event(:player_seated, %{seat: seat})
       |> assign_game_info(game)
 
+    # A player joining mid-game might trigger bot actions
+    game
+    |> MjwWeb.BotService.optionally_enqueue_roll()
+    |> MjwWeb.BotService.optionally_enqueue_draw()
+    |> MjwWeb.BotService.optionally_enqueue_discard()
+
     {:noreply, socket}
   end
 
@@ -665,45 +696,42 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event("windpick", %{"picked-wind-idx" => picked_wind_idx}, socket) do
     picked_wind_idx = String.to_integer(picked_wind_idx)
-    current_user_id = socket.assigns.current_user_id
+    current_user_seatno = socket.assigns.current_user_seatno
 
     game =
       socket.assigns.game
-      |> Mjw.Game.pick_random_available_wind(current_user_id, picked_wind_idx)
+      |> Mjw.Game.pick_random_available_wind(current_user_seatno, picked_wind_idx)
+      |> MjwWeb.BotService.optionally_enqueue_roll()
 
     socket = socket |> update_game(game, :picked_wind)
 
     {:noreply, socket}
   end
 
-  # Roll dice
   @impl true
-  def handle_event("roll", _params, socket) do
-    game_state = socket.assigns.game_state
-
-    socket =
-      socket
-      |> persist_roll(game_state)
-
-    {:noreply, socket}
-  end
-
-  defp persist_roll(socket, :rolling_for_first_dealer) do
+  def handle_event("roll", _params, socket)
+      when socket.assigns.game_state == :rolling_for_first_dealer do
     game =
       socket.assigns.game
       |> Mjw.Game.roll_dice()
       |> Mjw.Game.reseat_players()
+      |> MjwWeb.BotService.optionally_enqueue_roll()
 
-    socket |> update_game(game, :rolled_for_first_dealer)
+    socket = socket |> update_game(game, :rolled_for_first_dealer)
+    {:noreply, socket}
   end
 
-  defp persist_roll(socket, :rolling_for_deal) do
+  @impl true
+  def handle_event("roll", _params, socket)
+      when socket.assigns.game_state == :rolling_for_deal do
     game =
       socket.assigns.game
       |> Mjw.Game.roll_dice()
       |> Mjw.Game.deal()
+      |> MjwWeb.BotService.optionally_enqueue_draw()
 
-    socket |> update_game(game, :rolled_for_deal)
+    socket = socket |> update_game(game, :rolled_for_deal)
+    {:noreply, socket}
   end
 
   defp game_not_found_redirect(socket) do
@@ -734,6 +762,9 @@ defmodule MjwWeb.GameLive.Show do
     last_discarded_seatno = Mjw.Game.last_discarded_seatno(game)
     current_user_can_undo = game.undo_seatno == current_user_seatno
 
+    win_declared_seatno =
+      if game_state == :win_declared, do: game |> Mjw.Game.win_declared_seatno()
+
     # seats ordered by their position to the current player (0 = self, etc.).
     # Extra attributes added for convenience or LiveView diff optimization:
     # seatno (get original index in seats), win_expose
@@ -745,7 +776,10 @@ defmodule MjwWeb.GameLive.Show do
       |> Enum.with_index()
       |> Enum.sort_by(fn {{_seat, relative_position}, _i} -> relative_position end)
       |> Enum.map(fn {{seat, _relative_position}, i} ->
-        Map.merge(seat, %{seatno: i, win_expose: Mjw.Seat.win_expose?(seat)})
+        Map.merge(seat, %{
+          seatno: i,
+          win_expose: win_declared_seatno && Mjw.Seat.win_expose?(seat)
+        })
       end)
 
     current_user_seat = relative_game_seats |> Enum.at(0)
@@ -769,9 +803,6 @@ defmodule MjwWeb.GameLive.Show do
 
     player_seats_finalized =
       game_state not in [:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
-
-    win_declared_seatno =
-      if game_state == :win_declared, do: game |> Mjw.Game.win_declared_seatno()
 
     dq_confetti = event == :dq
     win_confetti = !dq_confetti && win_declared_seatno
