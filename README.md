@@ -38,7 +38,10 @@ Play mahjong with your friends online!
 - Visit <http://localhost:4000>
 
 ### Deploy to Heroku
+```sh
+heroku login
 git push heroku main:main
+```
 
 ### Console
 `iex -S mix`
