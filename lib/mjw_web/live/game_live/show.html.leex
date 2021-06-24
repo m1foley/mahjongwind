@@ -3,7 +3,7 @@
 <% end %>
 
 <%= if @raw_event == :opened_game_menu do %>
-  <%= live_component @socket, MjwWeb.GameLive.GameMenuComponent, id: "gamemenu", game: @game, relative_game_seats: @relative_game_seats, player_seats_finalized: @player_seats_finalized %>
+  <%= live_component @socket, MjwWeb.GameLive.GameMenuComponent, id: "gamemenu", game: @game, relative_game_seats: @relative_game_seats, player_seats_finalized: @player_seats_finalized, game_state: @game_state %>
 <% end %>
 
 <div id="game" class="glow-<%= @non_discard_glow_tile %><%= unless @current_user_seatno, do: " blurred" %>">

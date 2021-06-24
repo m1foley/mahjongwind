@@ -610,8 +610,12 @@ $discard-animation-translates: (
   background-image: linear-gradient(to top, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0));
 }
 
-#undo, #addbot {
+#undo, .addbot {
   @apply bg-gray-300 hover:bg-gray-200 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 shadow-md py-1 px-4 font-bold border-2 border-gray-400 cursor-pointer rounded-xl;
+}
+
+.addbot {
+  display: inline-block;
 }
 
 $tile-types: b1, b2, b3, b4, b5, b6, b7, b8, b9, c1, c2, c3, c4, c5, c6, c7, c8, c9, n1, n2, n3, n4, n5, n6, n7, n8, n9, df, dp, dz, we, ws, ww, wn;
