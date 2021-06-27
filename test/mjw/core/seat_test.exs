@@ -622,14 +622,13 @@ defmodule Mjw.SeatTest do
     end
   end
 
-  describe "remove_random_concealed_tile" do
-    test "removes a random concealed tile" do
-      {tile, seat} =
+  describe "remove_from_concealed" do
+    test "removes a concealed tile" do
+      seat =
         %Mjw.Seat{concealed: ["n1-0", "b1-0", "n1-3", "dp-0"], exposed: ["n1-2", "b1-1"]}
-        |> Mjw.Seat.remove_random_concealed_tile()
+        |> Mjw.Seat.remove_from_concealed("n1-3")
 
-      assert length(seat.concealed) == 3
-      assert tile in ["b1-0", "dp-0", "n1-0", "n1-3"]
+      assert seat.concealed == ["n1-0", "b1-0", "dp-0"]
       assert seat.exposed == ["n1-2", "b1-1"]
     end
   end

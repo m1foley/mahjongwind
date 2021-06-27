@@ -118,7 +118,7 @@ defmodule MjwWeb.BotService do
        ) do
     if Mjw.Game.state(game) == :drawing && bot_sitting_at?(game, bot_seatno) do
       game
-      |> Mjw.Game.bot_draw_deck_tile(bot_seatno)
+      |> Mjw.Game.bot_draw(bot_seatno)
       |> MjwWeb.GameStore.update(:drew_from_deck)
       |> enqueue_discard()
     end
