@@ -249,7 +249,14 @@ defmodule Mjw.Game do
             tiles
           end
 
-        %{seat | concealed: tiles}
+        seat = %{seat | concealed: tiles}
+
+        # only sort tiles for bots because humans like sorting their own
+        if Mjw.Seat.bot?(seat) do
+          Mjw.Seat.sort_concealed(seat)
+        else
+          seat
+        end
       end)
 
     new_deck = Enum.slice(game.deck, 53..-1)
@@ -883,6 +890,7 @@ defmodule Mjw.Game do
 
   @bot_names [
                "Flat Cabbage",
+               "Garlic",
                "Ginger",
                "Goji",
                "Guava",

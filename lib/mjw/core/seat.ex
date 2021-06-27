@@ -146,8 +146,18 @@ defmodule Mjw.Seat do
     %{seat | concealed: seat.concealed ++ [tile]}
   end
 
+  @suit_sort_order ~w(n c b w d)
+
+  @doc """
+  Sort according to beauty, with special tiles last
+  """
   def sort_concealed(%__MODULE__{} = seat) do
-    seat |> Map.update!(:concealed, &Enum.sort(&1))
+    Map.update!(seat, :concealed, fn concealed ->
+      Enum.sort_by(concealed, fn tile ->
+        suit = String.at(tile, 0)
+        {Enum.find_index(@suit_sort_order, &(&1 == suit)), tile}
+      end)
+    end)
   end
 
   def peek(%__MODULE__{} = seat, tile) do

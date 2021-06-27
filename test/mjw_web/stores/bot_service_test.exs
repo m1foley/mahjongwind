@@ -310,7 +310,7 @@ defmodule MjwWeb.BotServiceTest do
       assert game.turn_seatno == 1
       assert Mjw.Game.state(game) == :discarding
       bot_seat = Enum.at(game.seats, 1)
-      assert bot_seat.concealed == ["b1-0", "n1-0", "n1-1"]
+      assert bot_seat.concealed == ["n1-0", "n1-1", "b1-0"]
       assert game.deck == ["b1-1", "b1-2"]
       assert Enum.at(game.event_log, 0) == {"#{bot_seat.player_name} drew from the deck.", nil}
       assert MjwWeb.BotService.list() == [{:discard, game.id, 1}]

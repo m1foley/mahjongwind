@@ -1586,7 +1586,7 @@ defmodule Mjw.GameTest do
       assert game.turn_seatno == 0
       assert game.turn_state == :discarding
       bot_seat = Enum.at(game.seats, 0)
-      assert bot_seat.concealed == ["c1-0", "n1-0", "n2-0", "n3-0"]
+      assert bot_seat.concealed == ["n1-0", "n2-0", "n3-0", "c1-0"]
       assert Enum.at(game.event_log, 0) == {"#{bot_seat.player_name} drew from the deck.", nil}
       assert game.undo_seatno == 3
     end
@@ -1607,7 +1607,7 @@ defmodule Mjw.GameTest do
         |> Map.update!(:seats, fn seats ->
           seats
           |> List.update_at(0, fn seat ->
-            %{seat | concealed: ["b1-0", "n1-1", "n1-2", "n3-0"]}
+            %{seat | concealed: ["n1-1", "n1-2", "n3-0", "b1-0"]}
           end)
         end)
         |> Mjw.Game.bot_draw(0)
@@ -1616,7 +1616,7 @@ defmodule Mjw.GameTest do
       assert game.turn_seatno == 0
       assert game.turn_state == :discarding
       bot_seat = Enum.at(game.seats, 0)
-      assert bot_seat.concealed == ["b1-0", "n3-0"]
+      assert bot_seat.concealed == ["n3-0", "b1-0"]
 
       assert Enum.at(game.event_log, 0) ==
                {"#{bot_seat.player_name} drew the discarded tile.", "n1-0"}

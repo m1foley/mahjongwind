@@ -612,12 +612,38 @@ defmodule Mjw.SeatTest do
   end
 
   describe "sort_concealed" do
-    test "sorts the concealed tiles" do
+    test "sorts the concealed tiles with special tiles last" do
       seat =
-        %Mjw.Seat{concealed: ["n1-0", "b1-0", "n1-3", "dp-0"], exposed: ["n1-2", "b1-1"]}
+        %Mjw.Seat{
+          concealed: [
+            "n1-0",
+            "we-0",
+            "we-1",
+            "b9-0",
+            "b9-1",
+            "n1-3",
+            "dp-0",
+            "ww-0",
+            "c1-0",
+            "b1-3"
+          ],
+          exposed: ["n1-2", "b1-1"]
+        }
         |> Mjw.Seat.sort_concealed()
 
-      assert seat.concealed == ["b1-0", "dp-0", "n1-0", "n1-3"]
+      assert seat.concealed == [
+               "n1-0",
+               "n1-3",
+               "c1-0",
+               "b1-3",
+               "b9-0",
+               "b9-1",
+               "we-0",
+               "we-1",
+               "ww-0",
+               "dp-0"
+             ]
+
       assert seat.exposed == ["n1-2", "b1-1"]
     end
   end
