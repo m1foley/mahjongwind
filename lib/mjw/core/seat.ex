@@ -111,19 +111,36 @@ defmodule Mjw.Seat do
   """
   def remove_from_hand(%__MODULE__{} = seat, tile) do
     seat
-    |> Map.update!(:exposed, &List.delete(&1, tile))
-    |> Map.update!(:concealed, &List.delete(&1, tile))
-    |> Map.update!(:hiddengongs, &List.delete(&1, tile))
-    |> Map.update!(:peektile, fn peektile -> if peektile == tile, do: nil, else: peektile end)
-    |> Map.update!(:wintile, fn wintile -> if wintile == tile, do: nil, else: wintile end)
+    |> remove_from_concealed(tile)
+    |> remove_from_exposed(tile)
+    |> remove_from_hiddengongs(tile)
+    |> remove_matching_peektile(tile)
+    |> remove_matching_wintile(tile)
   end
 
-  def remove_random_concealed_tile(%__MODULE__{} = seat) do
-    tile = Enum.random(seat.concealed)
-    seat = seat |> Map.update!(:concealed, &List.delete(&1, tile))
-
-    {tile, seat}
+  def remove_from_concealed(%__MODULE__{} = seat, tile) do
+    Map.update!(seat, :concealed, &List.delete(&1, tile))
   end
+
+  def remove_from_exposed(%__MODULE__{} = seat, tile) do
+    Map.update!(seat, :exposed, &List.delete(&1, tile))
+  end
+
+  def remove_from_hiddengongs(%__MODULE__{} = seat, tile) do
+    Map.update!(seat, :hiddengongs, &List.delete(&1, tile))
+  end
+
+  def remove_matching_peektile(%__MODULE__{peektile: tile} = seat, tile) do
+    %{seat | peektile: nil}
+  end
+
+  def remove_matching_peektile(%__MODULE__{} = seat, _tile), do: seat
+
+  def remove_matching_wintile(%__MODULE__{wintile: tile} = seat, tile) do
+    %{seat | wintile: nil}
+  end
+
+  def remove_matching_wintile(%__MODULE__{} = seat, _tile), do: seat
 
   def add_to_concealed(%__MODULE__{} = seat, tile) do
     %{seat | concealed: seat.concealed ++ [tile]}

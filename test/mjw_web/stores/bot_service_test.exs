@@ -82,7 +82,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Game.pick_random_available_wind(0)
         |> Mjw.Game.pick_random_available_wind(2)
         |> Mjw.Game.pick_random_available_wind(3)
-        |> Map.merge(%{turn_state: :drawing, turn_seatno: 1, dice: [1, 2, 3]})
+        |> Map.merge(%{turn_state: :drawing, turn_seatno: 1, dice: [1, 2, 3], discards: ["we-0"]})
 
       ^game = MjwWeb.BotService.optionally_enqueue_draw(game)
       assert MjwWeb.BotService.list() == [{:draw, game.id, 1}]
@@ -98,7 +98,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Game.pick_random_available_wind(0)
         |> Mjw.Game.pick_random_available_wind(2)
         |> Mjw.Game.pick_random_available_wind(3)
-        |> Map.merge(%{turn_state: :drawing, turn_seatno: 0, dice: [1, 2, 3]})
+        |> Map.merge(%{turn_state: :drawing, turn_seatno: 0, dice: [1, 2, 3], discards: ["we-0"]})
 
       ^game = MjwWeb.BotService.optionally_enqueue_draw(game)
       assert MjwWeb.BotService.list() == []
@@ -114,7 +114,12 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Game.pick_random_available_wind(0)
         |> Mjw.Game.pick_random_available_wind(2)
         |> Mjw.Game.pick_random_available_wind(3)
-        |> Map.merge(%{turn_state: :discarding, turn_seatno: 1, dice: [1, 2, 3]})
+        |> Map.merge(%{
+          turn_state: :discarding,
+          turn_seatno: 1,
+          dice: [1, 2, 3],
+          discards: ["we-0"]
+        })
 
       ^game = MjwWeb.BotService.optionally_enqueue_draw(game)
       assert MjwWeb.BotService.list() == []
@@ -285,6 +290,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Game.pick_random_available_wind(3)
         |> Map.merge(%{
           turn_state: :drawing,
+          discards: ["we-0"],
           turn_seatno: 1,
           dice: [1, 2, 3],
           deck: ["b1-0", "b1-1", "b1-2"]
@@ -322,6 +328,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Game.pick_random_available_wind(3)
         |> Map.merge(%{
           turn_state: :drawing,
+          discards: ["we-0"],
           turn_seatno: 1,
           dice: [1, 2, 3],
           deck: ["b1-0", "b1-1", "b1-2"]
@@ -351,6 +358,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Game.pick_random_available_wind(3)
         |> Map.merge(%{
           turn_state: :drawing,
+          discards: ["we-0"],
           turn_seatno: 1,
           dice: [1, 2, 3],
           deck: ["b1-0", "b1-1", "b1-2"]
@@ -380,6 +388,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Game.pick_random_available_wind(3)
         |> Map.merge(%{
           turn_state: :drawing,
+          discards: ["we-0"],
           turn_seatno: 1,
           dice: [1, 2, 3],
           deck: ["b1-0", "b1-1", "b1-2"]
