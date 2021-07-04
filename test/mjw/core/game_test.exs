@@ -411,7 +411,7 @@ defmodule Mjw.GameTest do
     end
   end
 
-  describe "roller_seat_with_relative_position" do
+  describe "current_or_most_recent_roller_seat_with_relative_position" do
     test "uses the player who picked the East wind when rolling for first dealer" do
       game = %Mjw.Game{
         turn_seatno: 0,
@@ -425,7 +425,11 @@ defmodule Mjw.GameTest do
       }
 
       {roller_seat, relative_position} =
-        Mjw.Game.roller_seat_with_relative_position(game, :rolling_for_first_dealer, 3)
+        Mjw.Game.current_or_most_recent_roller_seat_with_relative_position(
+          game,
+          :rolling_for_first_dealer,
+          3
+        )
 
       assert roller_seat.player_id == "id1"
       assert relative_position == 2
@@ -444,10 +448,61 @@ defmodule Mjw.GameTest do
       }
 
       {roller_seat, relative_position} =
-        Mjw.Game.roller_seat_with_relative_position(game, :rolling_for_deal, 3)
+        Mjw.Game.current_or_most_recent_roller_seat_with_relative_position(
+          game,
+          :rolling_for_deal,
+          3
+        )
 
       assert roller_seat.player_id == "id0"
       assert relative_position == 1
+    end
+  end
+
+  describe "current_roller_seatno" do
+    test "returns current roller seatno when in rolling_for_first_dealer state" do
+      game = %Mjw.Game{
+        turn_seatno: 0,
+        dealer_seatno: 0,
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      assert Mjw.Game.current_roller_seatno(game, :rolling_for_first_dealer) == 1
+    end
+
+    test "returns current roller seatno when in rolling_for_deal state" do
+      game = %Mjw.Game{
+        turn_seatno: 0,
+        dealer_seatno: 0,
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      assert Mjw.Game.current_roller_seatno(game, :rolling_for_deal) == 0
+    end
+
+    test "returns nil when in a non-rolling state" do
+      game = %Mjw.Game{
+        turn_seatno: 0,
+        dealer_seatno: 0,
+        seats:
+          ~w(ww we ws wn)
+          |> Enum.with_index()
+          |> Enum.map(fn {w, i} ->
+            %Mjw.Seat{picked_wind: w, player_id: "id#{i}", player_name: "name#{i}"}
+          end)
+      }
+
+      assert Mjw.Game.current_roller_seatno(game, :discarding) == nil
     end
   end
 

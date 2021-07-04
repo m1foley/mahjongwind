@@ -3,6 +3,8 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Pause bots button
+- Optionally enqueue bot action after undo
 - Slam/shake animation when current player discards
 - Visually indicate when another player drew from deck. Floating peektile?
 - Highlight discarding drop zone on hover

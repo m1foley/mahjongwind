@@ -18,7 +18,11 @@ defmodule MjwWeb.GameLive.DiceComponent do
     event = socket.assigns.event
 
     {roller_seat, roller_relative_position} =
-      Mjw.Game.roller_seat_with_relative_position(game, game_state, current_user_seatno)
+      Mjw.Game.current_or_most_recent_roller_seat_with_relative_position(
+        game,
+        game_state,
+        current_user_seatno
+      )
 
     previous_roller_relative_position =
       if event == :rolled_for_first_dealer do
