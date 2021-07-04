@@ -1,7 +1,8 @@
 defmodule MjwWeb.BotService do
   use GenServer
 
-  @action_delay :timer.seconds(7)
+  @default_action_delay :timer.seconds(11)
+  @discard_action_delay :timer.seconds(7)
 
   # Client
 
@@ -11,13 +12,10 @@ defmodule MjwWeb.BotService do
 
   def optionally_enqueue_roll(%Mjw.Game{} = game) do
     game_state = Mjw.Game.state(game)
+    roller_seatno = Mjw.Game.current_roller_seatno(game, game_state)
 
-    if game_state in [:rolling_for_first_dealer, :rolling_for_deal] do
-      roller_seatno = Mjw.Game.roller_seatno(game, game_state)
-
-      if bot_sitting_at?(game, roller_seatno) do
-        GenServer.cast(__MODULE__, {:enqueue_action, {game_state, game.id, roller_seatno}})
-      end
+    if roller_seatno && bot_sitting_at?(game, roller_seatno) do
+      enqueue_delayed_action(game_state, game.id, roller_seatno)
     end
 
     game
@@ -25,7 +23,7 @@ defmodule MjwWeb.BotService do
 
   def optionally_enqueue_draw(%Mjw.Game{} = game) do
     if bot_sitting_at?(game, game.turn_seatno) && Mjw.Game.state(game) == :drawing do
-      GenServer.cast(__MODULE__, {:enqueue_action, {:draw, game.id, game.turn_seatno}})
+      enqueue_delayed_action(:draw, game.id, game.turn_seatno)
     end
 
     game
@@ -40,7 +38,7 @@ defmodule MjwWeb.BotService do
   end
 
   def enqueue_discard(%Mjw.Game{turn_state: :discarding} = game) do
-    GenServer.cast(__MODULE__, {:enqueue_action, {:discard, game.id, game.turn_seatno}})
+    enqueue_delayed_action(:discard, game.id, game.turn_seatno)
     game
   end
 
@@ -54,8 +52,8 @@ defmodule MjwWeb.BotService do
   def init(queue), do: {:ok, queue}
 
   @impl true
-  def handle_cast({:enqueue_action, action}, queue) do
-    schedule_action()
+  def handle_cast({:enqueue_action, delay, action}, queue) do
+    Process.send_after(self(), :perform_action, delay)
     new_queue = :queue.in(action, queue)
     {:noreply, new_queue}
   end
@@ -84,11 +82,17 @@ defmodule MjwWeb.BotService do
     {:reply, queue, queue}
   end
 
+  # Private methods
+
   defp initial(), do: :queue.new()
 
-  defp schedule_action() do
-    Process.send_after(self(), :perform_action, @action_delay)
+  defp enqueue_delayed_action(action_type, game_id, bot_seatno) do
+    delay = action_delay(action_type)
+    GenServer.cast(__MODULE__, {:enqueue_action, delay, {action_type, game_id, bot_seatno}})
   end
+
+  defp action_delay(:discard), do: @discard_action_delay
+  defp action_delay(_action_type), do: @default_action_delay
 
   defp perform_action(:rolling_for_first_dealer, %Mjw.Game{} = game, bot_seatno) do
     if Mjw.Game.state(game) == :rolling_for_first_dealer && bot_sitting_at?(game, bot_seatno) do

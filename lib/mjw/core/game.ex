@@ -272,23 +272,40 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  The seat of the person currently rolling the dice, and their relative seat
-  position to the current player
+  The seat of the person rolling the dice (currently or most recent) and their
+  relative seat position to the current player
   """
-  def roller_seat_with_relative_position(%__MODULE__{} = game, game_state, relative_to_seatno) do
-    roller_seatno = roller_seatno(game, game_state)
+  def current_or_most_recent_roller_seat_with_relative_position(
+        %__MODULE__{} = game,
+        game_state,
+        relative_to_seatno
+      ) do
+    roller_seatno = current_or_most_recent_roller_seatno(game, game_state)
     seat_with_relative_position(game, roller_seatno, relative_to_seatno)
   end
 
-  def roller_seatno(%__MODULE__{} = game, :rolling_for_first_dealer) do
+  defp current_or_most_recent_roller_seatno(%__MODULE__{} = game, :rolling_for_first_dealer) do
     picked_east_wind_seatno(game)
   end
 
   # dealer_seatno should always equal turn_seatno when rolling for deal, so
   # either could get used
-  def roller_seatno(%__MODULE__{dealer_seatno: dealer_seatno}, _game_state) do
+  defp current_or_most_recent_roller_seatno(
+         %__MODULE__{dealer_seatno: dealer_seatno},
+         _game_state
+       ) do
     dealer_seatno
   end
+
+  @doc """
+  The seatno of the currently rolling player, or nil if nobody is rolling
+  """
+  def current_roller_seatno(%__MODULE__{} = game, game_state)
+      when game_state in [:rolling_for_first_dealer, :rolling_for_deal] do
+    current_or_most_recent_roller_seatno(game, game_state)
+  end
+
+  def current_roller_seatno(%__MODULE__{}, _game_state), do: nil
 
   # seatno of the player who picked the east wind
   defp picked_east_wind_seatno(%__MODULE__{} = game) do
@@ -889,19 +906,20 @@ defmodule Mjw.Game do
   end
 
   @bot_names [
-               "Flat Cabbage",
-               "Garlic",
-               "Ginger",
-               "Goji",
-               "Guava",
-               "Kohlrabi",
-               "Lychee",
-               "Papaya",
-               "Persimmon",
-               "Pomelo",
-               "Wax Apple"
-             ]
-             |> Enum.map(fn name -> "#{name} 🤖" end)
+    "Black Sesame 🤖",
+    "Dragonfruit 🤖",
+    "Garlic 🤖",
+    "Ginger 🤖",
+    "Goji 🤖",
+    "Guava 🤖",
+    "Lychee 🤖",
+    "Papaya 🤖",
+    "Passionfruit 🤖",
+    "Persimmon 🤖",
+    "Pomelo 🤖",
+    "Taro 🤖",
+    "Wax Apple 🤖"
+  ]
 
   defp generate_bot_name(%__MODULE__{} = game) do
     Enum.random(@bot_names -- seated_player_names(game))
