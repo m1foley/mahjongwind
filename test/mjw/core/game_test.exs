@@ -1679,4 +1679,36 @@ defmodule Mjw.GameTest do
       assert game.undo_seatno == 3
     end
   end
+
+  describe "bots_present?" do
+    test "returns true if any bots are present" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+
+      assert Mjw.Game.bots_present?(game)
+    end
+
+    test "returns false if no bots are present" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+
+      refute Mjw.Game.bots_present?(game)
+    end
+
+    test "returns false if no bots are present and game is partially filled" do
+      game =
+        %Mjw.Game{}
+        |> Mjw.Game.seat_player("id0", "name0")
+
+      refute Mjw.Game.bots_present?(game)
+    end
+  end
 end

@@ -66,13 +66,11 @@ defmodule MjwWeb.GameLive.Show do
   # Add bot player
   @impl true
   def handle_event("addbot", _params, socket) do
-    game = socket.assigns.game |> Mjw.Game.seat_bot()
-
-    # These might be necessary if a bot joins mid-game
-    game
-    |> MjwWeb.BotService.optionally_enqueue_roll()
-    |> MjwWeb.BotService.optionally_enqueue_draw()
-    |> MjwWeb.BotService.optionally_enqueue_discard()
+    game =
+      socket.assigns.game
+      |> Mjw.Game.seat_bot()
+      # might be necessary if a bot joins mid-game
+      |> optionally_enqueue_all_bot_actions()
 
     socket = socket |> update_game(game, :bot_added)
 
@@ -111,9 +109,34 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   @impl true
+  def handle_event("pausebots", _params, socket) do
+    game = Mjw.Game.pause_bots(socket.assigns.game)
+    socket = update_game(socket, game, :bots_paused)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("resumebots", _params, socket) do
+    game =
+      socket.assigns.game
+      |> Mjw.Game.resume_bots()
+      |> optionally_enqueue_all_bot_actions(socket)
+
+    socket = update_game(socket, game, :bots_resumed)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("undo", _params, socket)
       when socket.assigns.current_user_can_undo do
-    game = socket.assigns.game |> Mjw.Game.undo()
+    game =
+      socket.assigns.game
+      |> Mjw.Game.undo()
+      |> optionally_enqueue_bot_roll(socket)
+      |> optionally_enqueue_bot_draw(socket)
+
     socket = socket |> update_game(game, :undo)
 
     {:noreply, socket}
@@ -184,7 +207,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.discard(current_user_seatno, discarded_tile)
-      |> MjwWeb.BotService.optionally_enqueue_draw()
+      |> optionally_enqueue_bot_draw(socket)
 
     socket = socket |> update_game(game, :discarded)
 
@@ -558,7 +581,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.dq(dqseatno)
-      |> MjwWeb.BotService.optionally_enqueue_roll()
+      |> optionally_enqueue_bot_roll(socket)
 
     socket = socket |> update_game(game, :dq, %{dqseat: dqseat})
 
@@ -573,7 +596,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.confirm_win(current_user_seatno)
-      |> MjwWeb.BotService.optionally_enqueue_roll()
+      |> optionally_enqueue_bot_roll(socket)
 
     socket = socket |> update_game(game, :confirmed_win)
 
@@ -600,7 +623,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.reset()
-      |> MjwWeb.BotService.optionally_enqueue_roll()
+      |> optionally_enqueue_bot_roll(socket)
 
     socket = socket |> update_game(game, :reset)
 
@@ -613,7 +636,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.draw()
-      |> MjwWeb.BotService.optionally_enqueue_roll()
+      |> optionally_enqueue_bot_roll(socket)
 
     socket = socket |> update_game(game, :draw)
 
@@ -629,7 +652,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.dq(dqseatno)
-      |> MjwWeb.BotService.optionally_enqueue_roll()
+      |> optionally_enqueue_bot_roll(socket)
 
     socket = socket |> update_game(game, :dq, %{dqseat: dqseat})
 
@@ -684,10 +707,7 @@ defmodule MjwWeb.GameLive.Show do
       |> assign_game_info(game)
 
     # A player joining mid-game might trigger bot actions
-    game
-    |> MjwWeb.BotService.optionally_enqueue_roll()
-    |> MjwWeb.BotService.optionally_enqueue_draw()
-    |> MjwWeb.BotService.optionally_enqueue_discard()
+    optionally_enqueue_all_bot_actions(game, socket)
 
     {:noreply, socket}
   end
@@ -701,7 +721,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.pick_random_available_wind(current_user_seatno, picked_wind_idx)
-      |> MjwWeb.BotService.optionally_enqueue_roll()
+      |> optionally_enqueue_bot_roll(socket)
 
     socket = socket |> update_game(game, :picked_wind)
 
@@ -715,7 +735,7 @@ defmodule MjwWeb.GameLive.Show do
       socket.assigns.game
       |> Mjw.Game.roll_dice()
       |> Mjw.Game.reseat_players()
-      |> MjwWeb.BotService.optionally_enqueue_roll()
+      |> optionally_enqueue_bot_roll(socket)
 
     socket = socket |> update_game(game, :rolled_for_first_dealer)
     {:noreply, socket}
@@ -728,10 +748,50 @@ defmodule MjwWeb.GameLive.Show do
       socket.assigns.game
       |> Mjw.Game.roll_dice()
       |> Mjw.Game.deal()
-      |> MjwWeb.BotService.optionally_enqueue_draw()
+      |> optionally_enqueue_bot_draw(socket)
 
     socket = socket |> update_game(game, :rolled_for_deal)
     {:noreply, socket}
+  end
+
+  def optionally_enqueue_all_bot_actions(%Mjw.Game{} = game, socket)
+      when socket.assigns.bots_present do
+    optionally_enqueue_all_bot_actions(game)
+  end
+
+  def optionally_enqueue_all_bot_actions(%Mjw.Game{} = game, _socket), do: game
+
+  def optionally_enqueue_all_bot_actions(%Mjw.Game{} = game) do
+    game
+    |> optionally_enqueue_bot_roll()
+    |> optionally_enqueue_bot_draw()
+    |> optionally_enqueue_bot_discard()
+  end
+
+  defp optionally_enqueue_bot_draw(%Mjw.Game{} = game, socket)
+       when socket.assigns.bots_present do
+    optionally_enqueue_bot_draw(game)
+  end
+
+  defp optionally_enqueue_bot_draw(%Mjw.Game{} = game, _socket), do: game
+
+  defp optionally_enqueue_bot_draw(%Mjw.Game{} = game) do
+    MjwWeb.BotService.optionally_enqueue_draw(game)
+  end
+
+  defp optionally_enqueue_bot_discard(%Mjw.Game{} = game) do
+    MjwWeb.BotService.optionally_enqueue_discard(game)
+  end
+
+  defp optionally_enqueue_bot_roll(%Mjw.Game{} = game, socket)
+       when socket.assigns.bots_present do
+    optionally_enqueue_bot_roll(game)
+  end
+
+  defp optionally_enqueue_bot_roll(%Mjw.Game{} = game, _socket), do: game
+
+  defp optionally_enqueue_bot_roll(%Mjw.Game{} = game) do
+    MjwWeb.BotService.optionally_enqueue_roll(game)
   end
 
   defp game_not_found_redirect(socket) do
@@ -784,25 +844,19 @@ defmodule MjwWeb.GameLive.Show do
 
     current_user_seat = relative_game_seats |> Enum.at(0)
 
-    show_stick = game_state in [:waiting_for_players, :picking_winds]
+    winds_have_been_picked = game_state not in [:waiting_for_players, :picking_winds]
 
     show_wind_picking =
       game_state in [:picking_winds, :rolling_for_first_dealer] ||
         (game_state in [:rolling_for_deal, :discarding] && show_wind_picking_was)
 
-    show_wall =
-      game_state in [
-        :waiting_for_players,
-        :picking_winds,
-        :rolling_for_first_dealer,
-        :rolling_for_deal
-      ]
-
     rolling_dice = game_state in [:rolling_for_first_dealer, :rolling_for_deal]
+
+    show_wall = !winds_have_been_picked || rolling_dice
+
     rolled_dice = event in [:rolled_for_first_dealer, :rolled_for_deal]
 
-    player_seats_finalized =
-      game_state not in [:waiting_for_players, :picking_winds, :rolling_for_first_dealer]
+    player_seats_finalized = winds_have_been_picked && game_state != :rolling_for_first_dealer
 
     dq_confetti = event == :dq
     win_confetti = !dq_confetti && win_declared_seatno
@@ -838,6 +892,8 @@ defmodule MjwWeb.GameLive.Show do
 
     deck_remaining = length(game.deck)
 
+    bots_present = Mjw.Game.bots_present?(game)
+
     socket
     |> assign(:game, game)
     |> assign(:empty_seats_count, empty_seats_count)
@@ -847,10 +903,10 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_can_undo, current_user_can_undo)
     |> assign(:relative_game_seats, relative_game_seats)
     |> assign(:current_user_seat, current_user_seat)
-    |> assign(:show_stick, show_stick)
+    |> assign(:winds_have_been_picked, winds_have_been_picked)
     |> assign(:show_wind_picking, show_wind_picking)
-    |> assign(:show_wall, show_wall)
     |> assign(:rolling_dice, rolling_dice)
+    |> assign(:show_wall, show_wall)
     |> assign(:rolled_dice, rolled_dice)
     |> assign(:player_seats_finalized, player_seats_finalized)
     |> assign(:win_declared_seatno, win_declared_seatno)
@@ -864,6 +920,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:non_discard_glow_tile, non_discard_glow_tile)
     |> assign(:turn_glow_seatno, turn_glow_seatno)
     |> assign(:deck_remaining, deck_remaining)
+    |> assign(:bots_present, bots_present)
   end
 
   defp unjoinable_game_redirect(socket) do

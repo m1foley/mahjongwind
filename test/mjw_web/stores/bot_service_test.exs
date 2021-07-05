@@ -69,6 +69,25 @@ defmodule MjwWeb.BotServiceTest do
       ^game = MjwWeb.BotService.optionally_enqueue_draw(game)
       assert MjwWeb.BotService.list() == []
     end
+
+    test "does nothing when bots are paused" do
+      game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Map.update!(:seats, fn seats ->
+          seats |> List.update_at(1, fn seat -> %{seat | picked_wind: "we"} end)
+        end)
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Mjw.Game.pause_bots()
+
+      ^game = MjwWeb.BotService.optionally_enqueue_roll(game)
+      assert MjwWeb.BotService.list() == []
+    end
   end
 
   describe "optionally_enqueue_draw" do
@@ -122,6 +141,110 @@ defmodule MjwWeb.BotServiceTest do
         })
 
       ^game = MjwWeb.BotService.optionally_enqueue_draw(game)
+      assert MjwWeb.BotService.list() == []
+    end
+
+    test "does nothing when bots are paused" do
+      game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Map.merge(%{turn_state: :drawing, turn_seatno: 1, dice: [1, 2, 3], discards: ["we-0"]})
+        |> Mjw.Game.pause_bots()
+
+      ^game = MjwWeb.BotService.optionally_enqueue_draw(game)
+      assert MjwWeb.BotService.list() == []
+    end
+  end
+
+  describe "optionally_enqueue_discard" do
+    test "enqueues a discard when it's a bot's turn to discard" do
+      game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Map.merge(%{
+          turn_state: :discarding,
+          turn_seatno: 1,
+          dice: [1, 2, 3],
+          discards: ["we-0"]
+        })
+
+      ^game = MjwWeb.BotService.optionally_enqueue_discard(game)
+      assert MjwWeb.BotService.list() == [{:discard, game.id, 1}]
+    end
+
+    test "does nothing when the discarding player is not a bot" do
+      game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Map.merge(%{
+          turn_state: :discarding,
+          turn_seatno: 0,
+          dice: [1, 2, 3],
+          discards: ["we-0"]
+        })
+
+      ^game = MjwWeb.BotService.optionally_enqueue_discard(game)
+      assert MjwWeb.BotService.list() == []
+    end
+
+    test "does nothing when the game is not in a discarding state" do
+      game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Map.merge(%{
+          turn_state: :drawing,
+          turn_seatno: 1,
+          dice: [1, 2, 3],
+          discards: ["we-0"]
+        })
+
+      ^game = MjwWeb.BotService.optionally_enqueue_discard(game)
+      assert MjwWeb.BotService.list() == []
+    end
+
+    test "does nothing when bots are paused" do
+      game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Map.merge(%{
+          turn_state: :discarding,
+          turn_seatno: 1,
+          dice: [1, 2, 3],
+          discards: ["we-0"]
+        })
+        |> Mjw.Game.pause_bots()
+
+      ^game = MjwWeb.BotService.optionally_enqueue_discard(game)
       assert MjwWeb.BotService.list() == []
     end
   end
@@ -425,7 +548,7 @@ defmodule MjwWeb.BotServiceTest do
           seats |> List.update_at(1, fn seat -> %{seat | concealed: ["b1-0", "n1-0", "n1-1"]} end)
         end)
         |> MjwWeb.GameStore.persist()
-        |> MjwWeb.BotService.enqueue_discard()
+        |> MjwWeb.BotService.optionally_enqueue_discard()
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
@@ -465,7 +588,7 @@ defmodule MjwWeb.BotServiceTest do
           seats |> List.update_at(1, fn seat -> %{seat | concealed: ["n1-0", "n1-1"]} end)
         end)
         |> MjwWeb.GameStore.persist()
-        |> MjwWeb.BotService.enqueue_discard()
+        |> MjwWeb.BotService.optionally_enqueue_discard()
 
       send(MjwWeb.BotService, :perform_action)
       assert MjwWeb.GameStore.get(game.id) == game
@@ -492,7 +615,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Map.update!(:seats, fn seats ->
           seats |> List.update_at(1, fn seat -> %{seat | concealed: ["b1-0", "n1-0", "n1-1"]} end)
         end)
-        |> MjwWeb.BotService.enqueue_discard()
+        |> MjwWeb.BotService.optionally_enqueue_discard()
 
       send(MjwWeb.BotService, :perform_action)
       assert MjwWeb.GameStore.get(game.id) == nil
@@ -520,7 +643,7 @@ defmodule MjwWeb.BotServiceTest do
           seats |> List.update_at(1, fn seat -> %{seat | concealed: ["b1-0", "n1-0", "n1-1"]} end)
         end)
         |> MjwWeb.GameStore.persist()
-        |> MjwWeb.BotService.enqueue_discard()
+        |> MjwWeb.BotService.optionally_enqueue_discard()
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
