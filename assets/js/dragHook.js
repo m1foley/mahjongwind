@@ -42,7 +42,7 @@ export default {
           delay: 50,
           delayOnTouchOnly: true,
           onStart: function (evt) {
-            const hlSelector = '#wintile-0';
+            const hlSelector = '#wintile-0, #exposed-0';
             document.querySelectorAll(hlSelector).forEach((hlZone) => {
               hlZone.classList.add('with-description');
             });
@@ -82,7 +82,7 @@ export default {
           delay: 50,
           delayOnTouchOnly: true,
           onStart: function (evt) {
-            const hlSelector = '#hiddengongs-0, #wintile-0';
+            const hlSelector = '#hiddengongs-0, #wintile-0, #exposed-0';
             document.querySelectorAll(hlSelector).forEach((hlZone) => {
               hlZone.classList.add('with-description');
             });
