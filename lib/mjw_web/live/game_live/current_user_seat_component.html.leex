@@ -11,6 +11,7 @@
       <%= for tile <- @seat.exposed do %>
         <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile draggable" />
       <% end %>
+      <div class="dropzone-description">Exposed tiles</div>
     </div>
 
     <div id="wintile-0" phx-hook="Drag" phx-target="#game" class="wintile-tiles<%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno, do: " dropzone" %>">
