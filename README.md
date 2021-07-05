@@ -3,7 +3,6 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Pause bots button
 - Optionally enqueue bot action after undo
 - Slam/shake animation when current player discards
 - Visually indicate when another player drew from deck. Floating peektile?
@@ -13,12 +12,13 @@ Play mahjong with your friends online!
 - Label "discarding..." next to name
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
+- Put everyone's discards in front of their hand?
 - CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
 - Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
 - Experiment with more CSS animations: exposing a tile, taking from discards, dealing the tiles, etc.
 - Enforce that the winning tile was the last one picked up
 - Inform the player if their browser window is too small
-- Discards shift when 2nd tile is discarded
+- Minor bug: Discards shift when 2nd tile is discarded
 
 ## Long-term TODOs for public release
 - Real user accounts instead of just web sessions

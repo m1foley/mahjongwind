@@ -2,13 +2,15 @@ defmodule MjwWeb.BotService do
   use GenServer
 
   @default_action_delay :timer.seconds(11)
-  @discard_action_delay :timer.seconds(7)
+  @quick_discard_action_delay :timer.seconds(4)
 
   # Client
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, initial(), name: __MODULE__)
   end
+
+  def optionally_enqueue_roll(%Mjw.Game{pause_bots: true} = game), do: game
 
   def optionally_enqueue_roll(%Mjw.Game{} = game) do
     game_state = Mjw.Game.state(game)
@@ -21,6 +23,8 @@ defmodule MjwWeb.BotService do
     game
   end
 
+  def optionally_enqueue_draw(%Mjw.Game{pause_bots: true} = game), do: game
+
   def optionally_enqueue_draw(%Mjw.Game{} = game) do
     if bot_sitting_at?(game, game.turn_seatno) && Mjw.Game.state(game) == :drawing do
       enqueue_delayed_action(:draw, game.id, game.turn_seatno)
@@ -28,6 +32,8 @@ defmodule MjwWeb.BotService do
 
     game
   end
+
+  def optionally_enqueue_discard(%Mjw.Game{pause_bots: true} = game), do: game
 
   def optionally_enqueue_discard(%Mjw.Game{} = game) do
     if bot_sitting_at?(game, game.turn_seatno) && Mjw.Game.state(game) == :discarding do
@@ -37,8 +43,8 @@ defmodule MjwWeb.BotService do
     game
   end
 
-  def enqueue_discard(%Mjw.Game{turn_state: :discarding} = game) do
-    enqueue_delayed_action(:discard, game.id, game.turn_seatno)
+  defp enqueue_discard(%Mjw.Game{turn_state: :discarding} = game, delay \\ @default_action_delay) do
+    enqueue_delayed_action(:discard, game.id, game.turn_seatno, delay)
     game
   end
 
@@ -86,13 +92,12 @@ defmodule MjwWeb.BotService do
 
   defp initial(), do: :queue.new()
 
-  defp enqueue_delayed_action(action_type, game_id, bot_seatno) do
-    delay = action_delay(action_type)
+  defp enqueue_delayed_action(action_type, game_id, bot_seatno, delay \\ @default_action_delay) do
     GenServer.cast(__MODULE__, {:enqueue_action, delay, {action_type, game_id, bot_seatno}})
   end
 
-  defp action_delay(:discard), do: @discard_action_delay
-  defp action_delay(_action_type), do: @default_action_delay
+  # When bots are paused, dequeue without doing anything
+  defp perform_action(_action_type, %Mjw.Game{pause_bots: true}, _bot_seatno), do: nil
 
   defp perform_action(:rolling_for_first_dealer, %Mjw.Game{} = game, bot_seatno) do
     if Mjw.Game.state(game) == :rolling_for_first_dealer && bot_sitting_at?(game, bot_seatno) do
@@ -124,7 +129,7 @@ defmodule MjwWeb.BotService do
       game
       |> Mjw.Game.bot_draw(bot_seatno)
       |> MjwWeb.GameStore.update(:drew_from_deck)
-      |> enqueue_discard()
+      |> enqueue_discard(@quick_discard_action_delay)
     end
   end
 

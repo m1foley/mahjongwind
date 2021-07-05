@@ -33,7 +33,8 @@ defmodule Mjw.Game do
             dealer_win_count: 0,
             event_log: [],
             undo_seatno: nil,
-            undo_state: nil
+            undo_state: nil,
+            pause_bots: false
 
   @doc """
   Initialize a game with a random ID and a shuffled deck
@@ -757,6 +758,10 @@ defmodule Mjw.Game do
     update_seat(game, seatno, &Mjw.Seat.clear_peektile/1)
   end
 
+  def bots_present?(%__MODULE__{seats: seats}) do
+    Enum.any?(seats, &Mjw.Seat.bot?/1)
+  end
+
   @doc """
   Choose & draw a tile for a bot
   """
@@ -923,6 +928,14 @@ defmodule Mjw.Game do
 
   defp generate_bot_name(%__MODULE__{} = game) do
     Enum.random(@bot_names -- seated_player_names(game))
+  end
+
+  def pause_bots(%__MODULE__{} = game) do
+    %{game | pause_bots: true}
+  end
+
+  def resume_bots(%__MODULE__{} = game) do
+    %{game | pause_bots: false}
   end
 
   @doc """
