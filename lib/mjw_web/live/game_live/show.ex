@@ -3,7 +3,7 @@ defmodule MjwWeb.GameLive.Show do
 
   @impl true
   def mount(%{"id" => id}, session, socket) do
-    socket = socket |> assign_defaults(session)
+    socket = assign_defaults(socket, session)
     game = MjwWeb.GameStore.get(id)
 
     socket =
@@ -14,12 +14,12 @@ defmodule MjwWeb.GameLive.Show do
           |> assign_game_info(game)
 
         if game_joinable?(socket) do
-          socket |> subscribe_to_game_updates()
+          subscribe_to_game_updates(socket)
         else
-          socket |> unjoinable_game_redirect()
+          unjoinable_game_redirect(socket)
         end
       else
-        socket |> game_not_found_redirect()
+        game_not_found_redirect(socket)
       end
 
     {:ok, socket}
@@ -53,7 +53,7 @@ defmodule MjwWeb.GameLive.Show do
   # When another player updates the game, update the local assigns and redraw
   @impl true
   def handle_info({%Mjw.Game{} = game, event, event_details}, socket) do
-    game = game |> merge_updated_game(socket, event)
+    game = merge_updated_game(game, socket, event)
 
     socket =
       socket
@@ -72,7 +72,7 @@ defmodule MjwWeb.GameLive.Show do
       # might be necessary if a bot joins mid-game
       |> optionally_enqueue_all_bot_actions()
 
-    socket = socket |> update_game(game, :bot_added)
+    socket = update_game(socket, game, :bot_added)
 
     {:noreply, socket}
   end
@@ -80,9 +80,7 @@ defmodule MjwWeb.GameLive.Show do
   # Open game menu
   @impl true
   def handle_event("opengamemenu", _params, socket) do
-    socket =
-      socket
-      |> assign_event(:opened_game_menu)
+    socket = assign_event(socket, :opened_game_menu)
 
     {:noreply, socket}
   end
@@ -90,9 +88,7 @@ defmodule MjwWeb.GameLive.Show do
   # Close game menu
   @impl true
   def handle_event("closegamemenu", _params, socket) do
-    socket =
-      socket
-      |> assign_event(:closed_game_menu)
+    socket = assign_event(socket, :closed_game_menu)
 
     {:noreply, socket}
   end
@@ -101,9 +97,8 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event("peek", _params, socket) do
     current_user_seatno = socket.assigns.current_user_seatno
-    game = socket.assigns.game |> Mjw.Game.peek_deck_tile(current_user_seatno)
-
-    socket = socket |> update_game(game, :drew_from_deck)
+    game = Mjw.Game.peek_deck_tile(socket.assigns.game, current_user_seatno)
+    socket = update_game(socket, game, :drew_from_deck)
 
     {:noreply, socket}
   end
@@ -137,7 +132,7 @@ defmodule MjwWeb.GameLive.Show do
       |> optionally_enqueue_bot_roll(socket)
       |> optionally_enqueue_bot_draw(socket)
 
-    socket = socket |> update_game(game, :undo)
+    socket = update_game(socket, game, :undo)
 
     {:noreply, socket}
   end
@@ -157,12 +152,9 @@ defmodule MjwWeb.GameLive.Show do
     current_user_seat = socket.assigns.current_user_seat
     game_state = socket.assigns.game_state
 
-    game =
-      socket.assigns.game
-      |> Mjw.Game.update_concealed(current_user_seat.seatno, new_concealed)
-
+    game = Mjw.Game.update_concealed(socket.assigns.game, current_user_seat.seatno, new_concealed)
     local_only = game_state != :win_declared || !Mjw.Seat.win_expose?(current_user_seat)
-    socket = socket |> update_game(game, :concealed_sorted, %{local_only: local_only})
+    socket = update_game(socket, game, :concealed_sorted, %{local_only: local_only})
 
     {:noreply, socket}
   end
@@ -180,12 +172,8 @@ defmodule MjwWeb.GameLive.Show do
       )
       when length(new_exposed) == length(socket.assigns.current_user_seat.exposed) do
     current_user_seatno = socket.assigns.current_user_seatno
-
-    game =
-      socket.assigns.game
-      |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
-
-    socket = socket |> update_game(game, :exposed_sorted)
+    game = Mjw.Game.update_exposed(socket.assigns.game, current_user_seatno, new_exposed)
+    socket = update_game(socket, game, :exposed_sorted)
 
     {:noreply, socket}
   end
@@ -210,7 +198,7 @@ defmodule MjwWeb.GameLive.Show do
       |> optionally_enqueue_bot_try_win_out_of_turn(socket)
       |> optionally_enqueue_bot_draw(socket)
 
-    socket = socket |> update_game(game, :discarded)
+    socket = update_game(socket, game, :discarded)
 
     {:noreply, socket}
   end
@@ -232,9 +220,9 @@ defmodule MjwWeb.GameLive.Show do
     current_user_seatno = socket.assigns.current_user_seatno
     game = socket.assigns.game
 
-    game = game |> Mjw.Game.draw_discard(current_user_seatno, new_exposed, tile)
+    game = Mjw.Game.draw_discard(game, current_user_seatno, new_exposed, tile)
 
-    socket = socket |> update_game(game, :drew_discard, %{tile: tile})
+    socket = update_game(socket, game, :drew_discard, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -254,11 +242,8 @@ defmodule MjwWeb.GameLive.Show do
       when not socket.assigns.current_user_drawing and
              length(new_exposed) == length(socket.assigns.current_user_seat.exposed) + 1 do
     current_user_seatno = socket.assigns.current_user_seatno
-    game = socket.assigns.game
-
-    game = game |> Mjw.Game.pong(current_user_seatno, new_exposed, tile)
-
-    socket = socket |> update_game(game, :ponged, %{tile: tile})
+    game = Mjw.Game.pong(socket.assigns.game, current_user_seatno, new_exposed, tile)
+    socket = update_game(socket, game, :ponged, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -282,7 +267,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
       |> Mjw.Game.clear_peektile(current_user_seatno)
 
-    socket = socket |> update_game(game, :kept_peektile, %{local_only: true})
+    socket = update_game(socket, game, :kept_peektile, %{local_only: true})
 
     {:noreply, socket}
   end
@@ -306,7 +291,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_hiddengongs(current_user_seatno, new_hiddengongs)
       |> Mjw.Game.clear_peektile(current_user_seatno)
 
-    socket = socket |> update_game(game, :hiddengonged_tile)
+    socket = update_game(socket, game, :hiddengonged_tile)
 
     {:noreply, socket}
   end
@@ -333,7 +318,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
       |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
 
-    socket = socket |> update_game(game, :exposed_tile, %{tile: tile})
+    socket = update_game(socket, game, :exposed_tile, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -359,7 +344,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
       |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
 
-    socket = socket |> update_game(game, :unexposed_tile)
+    socket = update_game(socket, game, :unexposed_tile)
 
     {:noreply, socket}
   end
@@ -385,7 +370,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_hiddengongs(current_user_seatno, new_hiddengongs)
       |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
 
-    socket = socket |> update_game(game, :hiddengonged_tile)
+    socket = update_game(socket, game, :hiddengonged_tile)
 
     {:noreply, socket}
   end
@@ -406,11 +391,10 @@ defmodule MjwWeb.GameLive.Show do
     game_state = socket.assigns.game_state
 
     game =
-      socket.assigns.game
-      |> Mjw.Game.update_hiddengongs(current_user_seat.seatno, new_hiddengongs)
+      Mjw.Game.update_hiddengongs(socket.assigns.game, current_user_seat.seatno, new_hiddengongs)
 
     local_only = game_state != :win_declared || !Mjw.Seat.win_expose?(current_user_seat)
-    socket = socket |> update_game(game, :hiddengongs_sorted, %{local_only: local_only})
+    socket = update_game(socket, game, :hiddengongs_sorted, %{local_only: local_only})
 
     {:noreply, socket}
   end
@@ -436,7 +420,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_concealed(current_user_seatno, new_concealed)
       |> Mjw.Game.update_hiddengongs(current_user_seatno, new_hiddengongs)
 
-    socket = socket |> update_game(game, :unhiddengonged_tile)
+    socket = update_game(socket, game, :unhiddengonged_tile)
 
     {:noreply, socket}
   end
@@ -462,7 +446,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_hiddengongs(current_user_seatno, new_hiddengongs)
       |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
 
-    socket = socket |> update_game(game, :exposed_hiddengong_tile)
+    socket = update_game(socket, game, :exposed_hiddengong_tile)
 
     {:noreply, socket}
   end
@@ -488,7 +472,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.update_exposed(current_user_seatno, new_exposed)
       |> Mjw.Game.update_hiddengongs(current_user_seatno, new_hiddengongs)
 
-    socket = socket |> update_game(game, :hiddengonged_exposed_tile)
+    socket = update_game(socket, game, :hiddengonged_exposed_tile)
 
     {:noreply, socket}
   end
@@ -505,12 +489,12 @@ defmodule MjwWeb.GameLive.Show do
         socket
       )
       when length(new_concealed) == length(socket.assigns.current_user_seat.concealed) + 1 do
-    game = socket.assigns.game
     current_user_seatno = socket.assigns.current_user_seatno
 
-    {game, tile} = game |> Mjw.Game.draw_correction_tile(current_user_seatno, new_concealed)
+    {game, tile} =
+      Mjw.Game.draw_correction_tile(socket.assigns.game, current_user_seatno, new_concealed)
 
-    socket = socket |> update_game(game, :drew_correction_tile, %{tile: tile})
+    socket = update_game(socket, game, :drew_correction_tile, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -528,11 +512,8 @@ defmodule MjwWeb.GameLive.Show do
       )
       when dragged_from in ["peektile-0", "concealed-0", "exposed-0"] do
     current_user_seatno = socket.assigns.current_user_seatno
-    game = socket.assigns.game
-
-    game = game |> Mjw.Game.declare_win_from_hand(current_user_seatno, tile)
-
-    socket = socket |> update_game(game, :declared_win, %{tile: tile})
+    game = Mjw.Game.declare_win_from_hand(socket.assigns.game, current_user_seatno, tile)
+    socket = update_game(socket, game, :declared_win, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -549,12 +530,8 @@ defmodule MjwWeb.GameLive.Show do
         socket
       ) do
     current_user_seatno = socket.assigns.current_user_seatno
-
-    game =
-      socket.assigns.game
-      |> Mjw.Game.declare_win_from_discards(current_user_seatno, tile)
-
-    socket = socket |> update_game(game, :declared_win, %{tile: tile})
+    game = Mjw.Game.declare_win_from_discards(socket.assigns.game, current_user_seatno, tile)
+    socket = update_game(socket, game, :declared_win, %{tile: tile})
 
     {:noreply, socket}
   end
@@ -568,7 +545,8 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event("dropped", _params, socket) do
     game_id = socket.assigns.game.id
-    socket = socket |> push_redirect(to: Routes.game_show_path(socket, :show, game_id))
+    path = Routes.game_show_path(socket, :show, game_id)
+    socket = push_redirect(socket, to: path)
 
     {:noreply, socket}
   end
@@ -584,7 +562,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.dq(dqseatno)
       |> optionally_enqueue_bot_roll(socket)
 
-    socket = socket |> update_game(game, :dq, %{dqseat: dqseat})
+    socket = update_game(socket, game, :dq, %{dqseat: dqseat})
 
     {:noreply, socket}
   end
@@ -599,7 +577,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.confirm_win(current_user_seatno)
       |> optionally_enqueue_bot_roll(socket)
 
-    socket = socket |> update_game(game, :confirmed_win)
+    socket = update_game(socket, game, :confirmed_win)
 
     {:noreply, socket}
   end
@@ -607,13 +585,8 @@ defmodule MjwWeb.GameLive.Show do
   # Expose loser hand
   @impl true
   def handle_event("expose", _params, socket) do
-    current_user_seatno = socket.assigns.current_user_seatno
-
-    game =
-      socket.assigns.game
-      |> Mjw.Game.expose_loser_hand(current_user_seatno)
-
-    socket = socket |> update_game(game, :exposed_loser_hand)
+    game = Mjw.Game.expose_loser_hand(socket.assigns.game, socket.assigns.current_user_seatno)
+    socket = update_game(socket, game, :exposed_loser_hand)
 
     {:noreply, socket}
   end
@@ -626,7 +599,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.reset()
       |> optionally_enqueue_bot_roll(socket)
 
-    socket = socket |> update_game(game, :reset)
+    socket = update_game(socket, game, :reset)
 
     {:noreply, socket}
   end
@@ -639,7 +612,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.draw()
       |> optionally_enqueue_bot_roll(socket)
 
-    socket = socket |> update_game(game, :draw)
+    socket = update_game(socket, game, :draw)
 
     {:noreply, socket}
   end
@@ -648,14 +621,14 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event("dq", %{"seatno" => dqseatno}, socket) do
     dqseatno = String.to_integer(dqseatno)
-    dqseat = socket.assigns.game.seats |> Enum.at(dqseatno)
+    dqseat = Enum.at(socket.assigns.game.seats, dqseatno)
 
     game =
       socket.assigns.game
       |> Mjw.Game.dq(dqseatno)
       |> optionally_enqueue_bot_roll(socket)
 
-    socket = socket |> update_game(game, :dq, %{dqseat: dqseat})
+    socket = update_game(socket, game, :dq, %{dqseat: dqseat})
 
     {:noreply, socket}
   end
@@ -693,13 +666,8 @@ defmodule MjwWeb.GameLive.Show do
         socket
       ) do
     player_id = socket.assigns.current_user_id
-
-    game =
-      socket.assigns.game
-      |> Mjw.Game.seat_player(player_id, player_name)
-
-    seat = game |> Mjw.Game.seat(player_id)
-
+    game = Mjw.Game.seat_player(socket.assigns.game, player_id, player_name)
+    seat = Mjw.Game.seat(game, player_id)
     MjwWeb.GameStore.update_with_lobby_change(game, :player_seated, %{seat: seat})
 
     socket =
@@ -717,14 +685,13 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event("windpick", %{"picked-wind-idx" => picked_wind_idx}, socket) do
     picked_wind_idx = String.to_integer(picked_wind_idx)
-    current_user_seatno = socket.assigns.current_user_seatno
 
     game =
       socket.assigns.game
-      |> Mjw.Game.pick_random_available_wind(current_user_seatno, picked_wind_idx)
+      |> Mjw.Game.pick_random_available_wind(socket.assigns.current_user_seatno, picked_wind_idx)
       |> optionally_enqueue_bot_roll(socket)
 
-    socket = socket |> update_game(game, :picked_wind)
+    socket = update_game(socket, game, :picked_wind)
 
     {:noreply, socket}
   end
@@ -738,7 +705,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.reseat_players()
       |> optionally_enqueue_bot_roll(socket)
 
-    socket = socket |> update_game(game, :rolled_for_first_dealer)
+    socket = update_game(socket, game, :rolled_for_first_dealer)
     {:noreply, socket}
   end
 
@@ -751,7 +718,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Mjw.Game.deal()
       |> optionally_enqueue_bot_draw(socket)
 
-    socket = socket |> update_game(game, :rolled_for_deal)
+    socket = update_game(socket, game, :rolled_for_deal)
     {:noreply, socket}
   end
 
@@ -814,11 +781,7 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   defp subscribe_to_game_updates(socket) do
-    if connected?(socket) do
-      socket.assigns.game
-      |> MjwWeb.GameStore.subscribe_to_game_updates()
-    end
-
+    if connected?(socket), do: MjwWeb.GameStore.subscribe_to_game_updates(socket.assigns.game)
     socket
   end
 
@@ -828,12 +791,9 @@ defmodule MjwWeb.GameLive.Show do
     event_details = socket.assigns.event_details
     show_wind_picking_was = socket.assigns[:show_wind_picking]
 
-    empty_seats_count = Mjw.Game.empty_seats_count(game)
     current_user_seatno = Mjw.Game.sitting_at(game, current_user_id)
     game_state = Mjw.Game.state(game)
-    turn_player_name = Mjw.Game.turn_player_name(game)
     last_discarded_seatno = Mjw.Game.last_discarded_seatno(game)
-    current_user_can_undo = game.undo_seatno == current_user_seatno
 
     win_declared_seatno =
       if game_state == :win_declared, do: game |> Mjw.Game.win_declared_seatno()
@@ -855,7 +815,7 @@ defmodule MjwWeb.GameLive.Show do
         })
       end)
 
-    current_user_seat = relative_game_seats |> Enum.at(0)
+    current_user_seat = Enum.at(relative_game_seats, 0)
 
     winds_have_been_picked = game_state not in [:waiting_for_players, :picking_winds]
 
@@ -883,12 +843,12 @@ defmodule MjwWeb.GameLive.Show do
     available_discard_tile =
       if !win_declared_seatno && game_state == :drawing &&
            last_discarded_seatno != current_user_seatno do
-        game.discards |> Enum.at(0)
+        Enum.at(game.discards, 0)
       end
 
     discarded_by_relative_seatno =
       if available_discard_tile do
-        relative_game_seats |> Enum.find_index(&(&1.seatno == last_discarded_seatno))
+        Enum.find_index(relative_game_seats, &(&1.seatno == last_discarded_seatno))
       end
 
     current_user_discarding =
@@ -903,17 +863,10 @@ defmodule MjwWeb.GameLive.Show do
 
     turn_glow_seatno = unless win_declared_seatno, do: game.turn_seatno
 
-    deck_remaining = length(game.deck)
-
-    bots_present = Mjw.Game.bots_present?(game)
-
     socket
     |> assign(:game, game)
-    |> assign(:empty_seats_count, empty_seats_count)
     |> assign(:current_user_seatno, current_user_seatno)
     |> assign(:game_state, game_state)
-    |> assign(:turn_player_name, turn_player_name)
-    |> assign(:current_user_can_undo, current_user_can_undo)
     |> assign(:relative_game_seats, relative_game_seats)
     |> assign(:current_user_seat, current_user_seat)
     |> assign(:winds_have_been_picked, winds_have_been_picked)
@@ -932,8 +885,11 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:show_correction_tile, show_correction_tile)
     |> assign(:non_discard_glow_tile, non_discard_glow_tile)
     |> assign(:turn_glow_seatno, turn_glow_seatno)
-    |> assign(:deck_remaining, deck_remaining)
-    |> assign(:bots_present, bots_present)
+    |> assign(:deck_remaining, length(game.deck))
+    |> assign(:empty_seats_count, Mjw.Game.empty_seats_count(game))
+    |> assign(:turn_player_name, Mjw.Game.turn_player_name(game))
+    |> assign(:current_user_can_undo, game.undo_seatno == current_user_seatno)
+    |> assign(:bots_present, Mjw.Game.bots_present?(game))
   end
 
   defp unjoinable_game_redirect(socket) do
@@ -997,9 +953,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Map.delete(:local_only)
       |> Map.merge(%{seat: current_user_seat})
 
-    unless local_only do
-      MjwWeb.GameStore.update(game, event, event_details)
-    end
+    unless local_only, do: MjwWeb.GameStore.update(game, event, event_details)
 
     socket
     |> assign_event(event, event_details)
@@ -1028,7 +982,8 @@ defmodule MjwWeb.GameLive.Show do
   # tiles independently of the other players.
   defp merge_updated_game(%Mjw.Game{} = game, socket, _event) do
     current_user_seat = socket.assigns.current_user_seat
-    game |> Mjw.Game.replace_seat(current_user_seat.seatno, current_user_seat)
+    seatno = current_user_seat.seatno
+    Mjw.Game.replace_seat(game, seatno, current_user_seat)
   end
 
   @current_player_glow_tile_events [
@@ -1046,9 +1001,8 @@ defmodule MjwWeb.GameLive.Show do
 
   defp non_discard_glow_tile(event, %{seat: event_seatno, tile: event_tile}, current_user_seatno)
        when (event_seatno == current_user_seatno and event in @current_player_glow_tile_events) or
-              (event_seatno != current_user_seatno and event in @other_player_glow_tile_events) do
-    event_tile
-  end
+              (event_seatno != current_user_seatno and event in @other_player_glow_tile_events),
+       do: event_tile
 
   defp non_discard_glow_tile(_event, _event_details, _current_user_seatno), do: nil
 end
