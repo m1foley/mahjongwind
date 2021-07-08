@@ -40,6 +40,46 @@ defmodule Mjw.BotStrategyTest do
       assert Mjw.BotStrategy.draw(game) == :win_with_discard
     end
 
+    test "chooses discard if it can win the game and concealed only has 1" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 0,
+          turn_state: :drawing,
+          undo_seatno: 3,
+          discards: ["n9-1", "df-0"],
+          deck: ["c1-0", "c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Map.update!(:seats, fn seats ->
+          seats
+          |> List.update_at(0, fn seat ->
+            %{
+              seat
+              | concealed: ["n9-0"],
+                exposed: [
+                  "c7-0",
+                  "c8-0",
+                  "c9-1",
+                  "b1-0",
+                  "b2-0",
+                  "b3-1",
+                  "b4-0",
+                  "b5-0",
+                  "b6-0",
+                  "n1-0",
+                  "n2-0",
+                  "n3-0"
+                ]
+            }
+          end)
+        end)
+
+      assert Mjw.BotStrategy.draw(game) == :win_with_discard
+    end
+
     test "chooses discard if it can complete a run" do
       game =
         %Mjw.Game{

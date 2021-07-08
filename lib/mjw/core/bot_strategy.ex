@@ -29,6 +29,11 @@ defmodule Mjw.BotStrategy do
     winning_hand?([tile | concealed])
   end
 
+  # Efficient algorithm for a waiting scenario
+  defp winning_hand?([tile1, tile2]) do
+    Mjw.Tile.identical?(tile1, tile2)
+  end
+
   # The sum of a run is always divisible by 3.
   # Adding all the numbers in the hand is 3N + 2M, where M is the pair tile.
   # total % 3 tells us the possibilities of M:
@@ -131,47 +136,55 @@ defmodule Mjw.BotStrategy do
     if length(tiles) == 2 do
       most_occurrences_in_viewable_tiles(game, tiles)
     else
-      # For simplicity, only keep numeric tiles
-      non_numerics = Enum.reject(tiles, &Mjw.Tile.numeric?/1)
-
-      if !Enum.empty?(non_numerics) do
-        Enum.random(non_numerics)
-      else
-        without_contiguous = reject_contiguous(tiles)
-
-        if !Enum.empty?(without_contiguous) do
-          without_contiguous
-          |> filter_by_rarest_suit()
-          |> Enum.random()
-        else
-          tiles =
-            if length(tiles) == 5 do
-              # already verified all tiles are contiguous, so keep the pair if
-              # one exists so we'll be waiting
-              pair =
-                tiles
-                |> Enum.chunk_by(&Mjw.Tile.without_id/1)
-                |> Enum.filter(&(length(&1) >= 2))
-                |> Enum.map(&Enum.take(&1, 2))
-                |> Enum.at(0)
-
-              if pair do
-                reject_contiguous(tiles -- pair)
-              else
-                tiles
-              end
-            else
-              tiles
-            end
-
-          tiles
-          |> filter_by_highest_sibling_count()
-          |> filter_by_rarest_suit()
-          |> Enum.random()
-        end
-      end
+      # This logic should also use most_occurrences_in_viewable_tiles/2
+      find_non_numeric(tiles) ||
+        find_non_contiguous(tiles) ||
+        tiles
+        |> apply_small_hand_filters()
+        |> filter_by_highest_sibling_count()
+        |> filter_by_rarest_suit()
+        |> Enum.random()
     end
   end
+
+  # For simplicity, we only keep numeric tiles
+  defp find_non_numeric(tiles) do
+    non_numerics = Enum.reject(tiles, &Mjw.Tile.numeric?/1)
+
+    if !Enum.empty?(non_numerics) do
+      Enum.random(non_numerics)
+    end
+  end
+
+  defp find_non_contiguous(tiles) do
+    without_contiguous = reject_contiguous(tiles)
+
+    if !Enum.empty?(without_contiguous) do
+      without_contiguous
+      |> filter_by_rarest_suit()
+      |> Enum.random()
+    end
+  end
+
+  # Already verified all tiles are contiguous, so keep the pair if one
+  # exists so we'll be waiting. Assumes we already dealt with length 2.
+  defp apply_small_hand_filters(tiles)
+       when length(tiles) == 5 do
+    pair =
+      tiles
+      |> Enum.chunk_by(&Mjw.Tile.without_id/1)
+      |> Enum.filter(&(length(&1) >= 2))
+      |> Enum.map(&Enum.take(&1, 2))
+      |> Enum.at(0)
+
+    if pair do
+      reject_contiguous(tiles -- pair)
+    else
+      tiles
+    end
+  end
+
+  defp apply_small_hand_filters(tiles), do: tiles
 
   def most_occurrences_in_viewable_tiles(%Mjw.Game{} = game, tiles) do
     viewable_tiles =
