@@ -354,38 +354,16 @@ defmodule Mjw.Game do
   end
 
   @doc """
-  Discard a tile from the bot's hand. Try to keep the ones with multiple
-  occurrences in case we can pong later.
+  Discard a tile from the bot's hand
   """
-  def bot_discard(%__MODULE__{turn_state: :discarding, turn_seatno: seatno} = game, seatno) do
-    seat = Enum.at(game.seats, seatno)
-    tile = random_tile_with_least_number_of_siblings(seat.concealed)
-    discards = [tile | game.discards]
+  def bot_discard(%__MODULE__{turn_state: :discarding, turn_seatno: seatno} = game) do
+    tile = Mjw.BotStrategy.discard(game)
 
     game
     |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_concealed(&1, tile))
     |> advance_turn_seat()
-    |> Map.merge(%{discards: discards, turn_state: :drawing})
-  end
-
-  defp random_tile_with_least_number_of_siblings(tiles) do
-    sibling_counts =
-      Enum.reduce(tiles, %{}, fn tile, acc ->
-        base = String.slice(tile, 0..1)
-        Map.update(acc, base, [tile], fn siblings -> [tile | siblings] end)
-      end)
-      |> Enum.map(fn {_base, tiles} -> {Enum.at(tiles, 0), length(tiles)} end)
-
-    smallest_sibling_count =
-      sibling_counts
-      |> Enum.map(fn {_tile, sibling_count} -> sibling_count end)
-      |> Enum.min()
-
-    sibling_counts
-    |> Enum.filter(fn {_tile, sibling_count} -> sibling_count == smallest_sibling_count end)
-    |> Enum.map(fn {tile, _sibling_count} -> tile end)
-    |> Enum.random()
+    |> Map.merge(%{discards: [tile | game.discards], turn_state: :drawing})
   end
 
   @doc """
@@ -480,11 +458,13 @@ defmodule Mjw.Game do
   Declare a win from a player's hand
   """
   def declare_win_from_hand(%__MODULE__{} = game, seatno, wintile) do
-    declare_win(game, seatno, wintile, fn game ->
-      game
-      |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, wintile))
-      |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
-    end)
+    game
+    |> set_undo_state(seatno)
+    |> log_declared_win_event(seatno, wintile)
+    |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, wintile))
+    |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
+    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding})
+    |> update_seat(seatno, &Mjw.Seat.declare_win(&1, wintile))
   end
 
   @doc """
@@ -495,17 +475,20 @@ defmodule Mjw.Game do
         seatno,
         wintile
       ) do
-    declare_win(game, seatno, wintile, fn game ->
-      %{game | discards: remaining_discards}
-    end)
-  end
-
-  def declare_win(%__MODULE__{} = game, seatno, wintile, game_modifications) do
     game
     |> set_undo_state(seatno)
     |> log_declared_win_event(seatno, wintile)
-    |> game_modifications.()
-    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding})
+    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
+    |> update_seat(seatno, &Mjw.Seat.declare_win(&1, wintile))
+  end
+
+  def bot_declare_win_from_discards(
+        %__MODULE__{discards: [wintile | remaining_discards]} = game,
+        seatno
+      ) do
+    game
+    |> log_declared_win_event(seatno, wintile)
+    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
     |> update_seat(seatno, &Mjw.Seat.declare_win(&1, wintile))
   end
 
@@ -708,7 +691,7 @@ defmodule Mjw.Game do
     undo_state
     # event_log is preserved as a singleton at the top-level game
     |> Map.merge(%{event_log: game.event_log})
-    |> preserve_hand_rearranges_for_undo(game)
+    |> merge_seats_for_undo(game)
     # just in case undoing a declared win
     |> clear_all_seat_win_attributes()
     |> log_event("#{player_name} undid their action.")
@@ -716,14 +699,25 @@ defmodule Mjw.Game do
 
   # The undo player's hand will change after an undo, but try to preserve their
   # preferred tile order
-  defp preserve_hand_rearranges_for_undo(%__MODULE__{} = undo_state, %__MODULE__{} = game) do
-    undo_state_seat = undo_state.seats |> Enum.at(game.undo_seatno)
+  defp merge_seats_for_undo(%__MODULE__{} = undo_state, %__MODULE__{} = game) do
+    seats =
+      game.seats
+      |> Enum.with_index()
+      |> Enum.map(fn {seat, idx} ->
+        if idx == game.undo_seatno do
+          undo_state_seat = Enum.at(undo_state.seats, idx)
+          Mjw.Seat.merge_for_undo(seat, undo_state_seat)
+        else
+          if Mjw.Seat.bot?(seat) do
+            # bot seats can have multiple changes between undos
+            Enum.at(undo_state.seats, idx)
+          else
+            seat
+          end
+        end
+      end)
 
-    undo_state
-    |> Map.merge(%{seats: game.seats})
-    |> update_seat(game.undo_seatno, fn seat ->
-      seat |> Mjw.Seat.preserve_hand_rearranges_for_undo(undo_state_seat)
-    end)
+    %{undo_state | seats: seats}
   end
 
   defp clear_all_seat_win_attributes(%__MODULE__{} = game) do
@@ -765,10 +759,19 @@ defmodule Mjw.Game do
   @doc """
   Choose & draw a tile for a bot
   """
-  def bot_draw(%__MODULE__{turn_seatno: seatno, turn_state: :drawing} = game, seatno) do
-    case bot_draw_discard(game, seatno) do
-      {:ok, game} -> game
-      :invalid_move -> bot_draw_deck_tile(game, seatno)
+  def bot_draw(%__MODULE__{turn_state: :drawing, turn_seatno: bot_seatno} = game) do
+    case Mjw.BotStrategy.draw(game) do
+      {:draw_discard, new_concealed, new_exposed} ->
+        bot_draw_discard(game, new_concealed, new_exposed)
+
+      :win_with_discard ->
+        bot_declare_win_from_discards(game, bot_seatno)
+
+      :zimo ->
+        bot_declare_win_from_zimo(game, bot_seatno)
+
+      :draw_deck_tile ->
+        bot_draw_deck_tile(game)
     end
   end
 
@@ -778,49 +781,46 @@ defmodule Mjw.Game do
            turn_state: :drawing,
            discards: [discarded_tile | remaining_discards]
          } = game,
-         seatno
+         new_concealed,
+         new_exposed
        ) do
-    seat = Enum.at(game.seats, seatno)
-    siblings = find_siblings(seat.concealed, discarded_tile)
-
-    if length(siblings) < 2 do
-      :invalid_move
-    else
-      # limit at 2 to avoid picking a correction tile
-      siblings = Enum.take(siblings, 2)
-      new_concealed = seat.concealed -- siblings
-      new_exposed = seat.exposed ++ [discarded_tile | siblings]
-
-      game =
-        game
-        |> log_draw_discard_event(seatno, discarded_tile)
-        |> update_seat(seatno, fn seat ->
-          %{seat | concealed: new_concealed, exposed: new_exposed}
-        end)
-        |> Map.merge(%{turn_state: :discarding, discards: remaining_discards})
-
-      {:ok, game}
-    end
-  end
-
-  defp find_siblings(tiles, match_tile) do
-    match_base = String.slice(match_tile, 0..1)
-    Enum.filter(tiles, fn tile -> String.slice(tile, 0..1) == match_base end)
+    game
+    |> log_draw_discard_event(seatno, discarded_tile)
+    |> update_seat(seatno, fn seat ->
+      %{seat | concealed: new_concealed, exposed: new_exposed}
+    end)
+    |> Map.merge(%{turn_state: :discarding, discards: remaining_discards})
   end
 
   # Draw a tile from the deck into the bot's concealed tiles.
   # Sorts the concealed tiles so it's easier to read at the end of the game.
   defp bot_draw_deck_tile(
          %__MODULE__{turn_seatno: seatno, turn_state: :drawing, deck: [tile | remaining_deck]} =
-           game,
-         seatno
+           game
        ) do
     game
     |> log_drew_from_deck_event(seatno)
     |> update_seat(seatno, fn seat ->
-      seat |> Mjw.Seat.add_to_concealed(tile) |> Mjw.Seat.sort_concealed()
+      seat
+      |> Mjw.Seat.add_to_concealed(tile)
+      |> Mjw.Seat.sort_concealed()
     end)
     |> Map.merge(%{deck: remaining_deck, turn_state: :discarding})
+  end
+
+  # Bot picks themselves to win
+  defp bot_declare_win_from_zimo(%__MODULE__{deck: [tile | remaining_deck]} = game, seatno) do
+    game
+    |> log_zimo_event(seatno, tile)
+    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding, deck: remaining_deck})
+    |> update_seat(seatno, &Mjw.Seat.declare_win(&1, tile))
+  end
+
+  def bots_try_win_out_of_turn(%__MODULE__{turn_state: :drawing} = game) do
+    case Mjw.BotStrategy.find_win_out_of_turn(game) do
+      {:ok, seatno} -> {:ok, bot_declare_win_from_discards(game, seatno)}
+      :no_wins -> :no_wins
+    end
   end
 
   defp log_discard_event(%__MODULE__{} = game, seatno, tile) do
@@ -831,6 +831,11 @@ defmodule Mjw.Game do
   defp log_declared_win_event(%__MODULE__{} = game, seatno, tile) do
     player_name = player_name_at(game, seatno)
     log_event(game, "#{player_name} went out!", tile)
+  end
+
+  defp log_zimo_event(%__MODULE__{} = game, seatno, tile) do
+    player_name = player_name_at(game, seatno)
+    log_event(game, "#{player_name} picked themselves to win!", tile)
   end
 
   defp log_draw_discard_event(%__MODULE__{} = game, seatno, tile) do

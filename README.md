@@ -7,6 +7,7 @@ Play mahjong with your friends online!
 - Visually indicate when another player drew from deck. Floating peektile?
 - Change drag cursor on "remaining deck"
 - Label "roll" on hand
+- Button to sort hand on deal
 - Label "discarding..." next to name
 - Refactor: Try extracting code and/or assigns from show.ex into components
 - Check if there's needlessly glowing tiles when the player's tiles are already glowing from turn indication
