@@ -452,7 +452,7 @@ defmodule Mjw.SeatTest do
     end
   end
 
-  describe "preserve_hand_rearranges_for_undo" do
+  describe "merge_for_undo" do
     test "doesn't modify seat when hands are identical" do
       seat = %Mjw.Seat{
         concealed: ["n1-0", "n1-1"],
@@ -461,7 +461,7 @@ defmodule Mjw.SeatTest do
         peektile: "n4-0"
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, seat)
+      result = Mjw.Seat.merge_for_undo(seat, seat)
 
       assert result == seat
     end
@@ -481,7 +481,7 @@ defmodule Mjw.SeatTest do
         peektile: nil
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+      result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
       assert result == seat
     end
@@ -501,7 +501,7 @@ defmodule Mjw.SeatTest do
         peektile: nil
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+      result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
       assert result == %{seat | exposed: ["n2-0", "n2-1", "n1-1", "n1-0", "n3-1"]}
     end
@@ -521,7 +521,7 @@ defmodule Mjw.SeatTest do
         peektile: "dz-0"
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+      result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
       assert result == %{seat | peektile: nil}
     end
@@ -543,7 +543,7 @@ defmodule Mjw.SeatTest do
         wintile: "n4-0"
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+      result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
       assert result == %{seat | wintile: nil, hiddengongs: ["n3-1", "n4-0"]}
     end
@@ -565,7 +565,7 @@ defmodule Mjw.SeatTest do
         wintile: "dz-0"
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+      result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
       assert result == %{seat | wintile: nil}
     end
@@ -585,7 +585,7 @@ defmodule Mjw.SeatTest do
         peektile: nil
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+      result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
       assert result == %{seat | hiddengongs: ["n3-0", "n4-0", "n3-1"]}
     end
@@ -605,7 +605,7 @@ defmodule Mjw.SeatTest do
         peektile: nil
       }
 
-      result = Mjw.Seat.preserve_hand_rearranges_for_undo(seat, undo_state_seat)
+      result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
       assert result == %{seat | peektile: "n4-0"}
     end

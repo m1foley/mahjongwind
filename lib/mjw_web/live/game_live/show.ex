@@ -207,6 +207,7 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Mjw.Game.discard(current_user_seatno, discarded_tile)
+      |> optionally_enqueue_bot_try_win_out_of_turn(socket)
       |> optionally_enqueue_bot_draw(socket)
 
     socket = socket |> update_game(game, :discarded)
@@ -764,6 +765,7 @@ defmodule MjwWeb.GameLive.Show do
   def optionally_enqueue_all_bot_actions(%Mjw.Game{} = game) do
     game
     |> optionally_enqueue_bot_roll()
+    |> optionally_enqueue_bot_try_win_out_of_turn()
     |> optionally_enqueue_bot_draw()
     |> optionally_enqueue_bot_discard()
   end
@@ -777,6 +779,17 @@ defmodule MjwWeb.GameLive.Show do
 
   defp optionally_enqueue_bot_draw(%Mjw.Game{} = game) do
     MjwWeb.BotService.optionally_enqueue_draw(game)
+  end
+
+  defp optionally_enqueue_bot_try_win_out_of_turn(%Mjw.Game{} = game, socket)
+       when socket.assigns.bots_present do
+    optionally_enqueue_bot_try_win_out_of_turn(game)
+  end
+
+  defp optionally_enqueue_bot_try_win_out_of_turn(%Mjw.Game{} = game, _socket), do: game
+
+  defp optionally_enqueue_bot_try_win_out_of_turn(%Mjw.Game{} = game) do
+    MjwWeb.BotService.optionally_enqueue_try_win_out_of_turn(game)
   end
 
   defp optionally_enqueue_bot_discard(%Mjw.Game{} = game) do
@@ -838,7 +851,8 @@ defmodule MjwWeb.GameLive.Show do
       |> Enum.map(fn {{seat, _relative_position}, i} ->
         Map.merge(seat, %{
           seatno: i,
-          win_expose: win_declared_seatno && Mjw.Seat.win_expose?(seat)
+          # TODO: win_declared_seatno && Mjw.Seat.win_expose?(seat)
+          win_expose: true
         })
       end)
 

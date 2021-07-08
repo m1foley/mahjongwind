@@ -591,7 +591,7 @@ defmodule Mjw.GameTest do
   end
 
   describe "bot_discard" do
-    test "discards a concealed tile with the least number of siblings and advances turn" do
+    test "discards a concealed tile and advances turn" do
       game =
         %Mjw.Game{
           turn_seatno: 3,
@@ -608,15 +608,17 @@ defmodule Mjw.GameTest do
             %{seat | concealed: ["b1-0", "b1-1", "n1-1", "c1-0", "c1-1"]}
           end)
         end)
-        |> Mjw.Game.bot_discard(3)
+        |> Mjw.Game.bot_discard()
 
       assert length(game.discards) == 2
       assert game.turn_state == :drawing
       assert game.turn_seatno == 0
-      bot_seat = Enum.at(game.seats, 3)
-      assert bot_seat.concealed == ["b1-0", "b1-1", "c1-0", "c1-1"]
-      assert Enum.at(game.event_log, 0) == {"#{bot_seat.player_name} discarded.", "n1-1"}
       assert game.undo_seatno == 2
+      bot_seat = Enum.at(game.seats, 3)
+      assert length(bot_seat.concealed) == 4
+
+      assert game.event_log |> Enum.at(0) |> Kernel.elem(0) ==
+               "#{bot_seat.player_name} discarded."
     end
   end
 
@@ -738,6 +740,34 @@ defmodule Mjw.GameTest do
       assert game.event_log |> Enum.at(0) == {"name1 went out!", "n1-0"}
       assert game.undo_seatno == 1
       assert game.undo_state.turn_seatno == 3
+    end
+  end
+
+  describe "bot_declare_win_from_discards" do
+    test "updates the winning tile for the given seat number and removes it from discards" do
+      game =
+        %Mjw.Game{
+          discards: ["n1-0", "n2-0", "n3-0"],
+          turn_seatno: 3,
+          turn_state: :drawing,
+          undo_seatno: 1
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_bot()
+        |> Map.update!(:seats, fn seats ->
+          List.update_at(seats, 2, fn seat -> %{seat | player_name: "Mr. Bot"} end)
+        end)
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Mjw.Game.bot_declare_win_from_discards(2)
+
+      assert game.seats |> Enum.map(& &1.wintile) == [nil, nil, "n1-0", nil]
+      assert game.seats |> Enum.map(& &1.winreaction) == [nil, nil, :expose, nil]
+      assert game.discards == ["n2-0", "n3-0"]
+      assert game.turn_seatno == 2
+      assert game.turn_state == :discarding
+      assert game.event_log |> Enum.at(0) == {"Mr. Bot went out!", "n1-0"}
+      assert game.undo_seatno == 1
     end
   end
 
@@ -1503,6 +1533,50 @@ defmodule Mjw.GameTest do
       expected_event_log = [{"name1 undid their action.", nil}, {"name1 went out!", "n3-1"}]
       assert game == %{orig_game | event_log: expected_event_log}
     end
+
+    test "bot seats are rolled back too" do
+      orig_game =
+        %Mjw.Game{
+          turn_seatno: 0,
+          turn_state: :discarding,
+          undo_seatno: 3,
+          discards: ["c1-3", "n3-0", "df-0"],
+          deck: ["c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_bot()
+        |> Map.update!(:seats, fn seats ->
+          seats
+          |> List.update_at(0, fn seat ->
+            %{seat | concealed: ["b5-0"]}
+          end)
+          |> List.update_at(1, fn seat ->
+            %{
+              seat
+              | player_name: "bot1",
+                concealed: ["b3-1", "b4-0", "c1-0"],
+                exposed: ["b1-0", "b2-0", "b3-0", "n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+            }
+          end)
+        end)
+        |> Map.merge(%{event_log: []})
+
+      game =
+        orig_game
+        |> Mjw.Game.discard(0, "b5-0")
+        |> Mjw.Game.bot_draw()
+        |> Mjw.Game.undo()
+
+      expected_event_log = [
+        {"name0 undid their action.", nil},
+        {"bot1 drew the discarded tile.", "b5-0"},
+        {"name0 discarded.", "b5-0"}
+      ]
+
+      assert game == %{orig_game | event_log: expected_event_log}
+    end
   end
 
   describe "peek_deck_tile" do
@@ -1619,7 +1693,7 @@ defmodule Mjw.GameTest do
   end
 
   describe "bot_draw" do
-    test "moves next tile from deck to the bot's concealed tiles" do
+    test "draws from deck" do
       game =
         %Mjw.Game{
           turn_seatno: 0,
@@ -1635,7 +1709,7 @@ defmodule Mjw.GameTest do
         |> Map.update!(:seats, fn seats ->
           seats |> List.update_at(0, fn seat -> %{seat | concealed: ["n1-0", "n2-0", "n3-0"]} end)
         end)
-        |> Mjw.Game.bot_draw(0)
+        |> Mjw.Game.bot_draw()
 
       assert game.deck == ["c2-0", "c3-0"]
       assert game.turn_seatno == 0
@@ -1646,13 +1720,13 @@ defmodule Mjw.GameTest do
       assert game.undo_seatno == 3
     end
 
-    test "draws from discards if it has matching tiles" do
+    test "draws from discards" do
       game =
         %Mjw.Game{
           turn_seatno: 0,
           turn_state: :drawing,
           undo_seatno: 3,
-          discards: ["n1-0", "df-0"],
+          discards: ["n3-0", "df-0"],
           deck: ["c1-0", "c2-0", "c3-0"]
         }
         |> Mjw.Game.seat_bot()
@@ -1662,21 +1736,187 @@ defmodule Mjw.GameTest do
         |> Map.update!(:seats, fn seats ->
           seats
           |> List.update_at(0, fn seat ->
-            %{seat | concealed: ["n1-1", "n1-2", "n3-0", "b1-0"]}
+            %{seat | concealed: ["n1-0", "n2-0", "b1-0", "b2-0"]}
           end)
         end)
-        |> Mjw.Game.bot_draw(0)
+        |> Mjw.Game.bot_draw()
 
       assert game.deck == ["c1-0", "c2-0", "c3-0"]
       assert game.turn_seatno == 0
       assert game.turn_state == :discarding
+      assert game.undo_seatno == 3
       bot_seat = Enum.at(game.seats, 0)
-      assert bot_seat.concealed == ["n3-0", "b1-0"]
+      assert bot_seat.concealed == ["b1-0", "b2-0"]
+      assert bot_seat.exposed == ["n1-0", "n3-0", "n2-0"]
 
       assert Enum.at(game.event_log, 0) ==
-               {"#{bot_seat.player_name} drew the discarded tile.", "n1-0"}
+               {"#{bot_seat.player_name} drew the discarded tile.", "n3-0"}
+    end
 
+    test "zimo" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 0,
+          turn_state: :drawing,
+          undo_seatno: 3,
+          discards: ["n3-0", "df-0"],
+          deck: ["c1-3", "c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Map.update!(:seats, fn seats ->
+          List.update_at(seats, 0, fn seat ->
+            %{
+              seat
+              | concealed: ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"],
+                exposed: ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+            }
+          end)
+        end)
+        |> Mjw.Game.bot_draw()
+
+      assert game.deck == ["c2-0", "c3-0"]
+      assert game.turn_seatno == 0
+      assert game.turn_state == :discarding
       assert game.undo_seatno == 3
+      bot_seat = Enum.at(game.seats, 0)
+
+      assert bot_seat.concealed == ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"]
+      assert bot_seat.exposed == ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+      assert bot_seat.wintile == "c1-3"
+
+      assert Enum.at(game.event_log, 0) ==
+               {"#{bot_seat.player_name} picked themselves to win!", "c1-3"}
+    end
+
+    test "wins with discard" do
+      game =
+        %Mjw.Game{
+          turn_seatno: 0,
+          turn_state: :drawing,
+          undo_seatno: 3,
+          discards: ["c1-3", "n3-0", "df-0"],
+          deck: ["c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Map.update!(:seats, fn seats ->
+          List.update_at(seats, 0, fn seat ->
+            %{
+              seat
+              | concealed: ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"],
+                exposed: ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+            }
+          end)
+        end)
+        |> Mjw.Game.bot_draw()
+
+      assert game.deck == ["c2-0", "c3-0"]
+      assert game.turn_seatno == 0
+      assert game.turn_state == :discarding
+      assert game.undo_seatno == 3
+      bot_seat = Enum.at(game.seats, 0)
+
+      assert bot_seat.concealed == ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"]
+      assert bot_seat.exposed == ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+      assert bot_seat.wintile == "c1-3"
+      assert Enum.at(game.event_log, 0) == {"#{bot_seat.player_name} went out!", "c1-3"}
+    end
+  end
+
+  describe "bots_try_win_out_of_turn" do
+    test "no wins when no bots are out of turn" do
+      result =
+        %Mjw.Game{
+          turn_seatno: 0,
+          turn_state: :drawing,
+          undo_seatno: 3,
+          discards: ["c1-3", "n3-0", "df-0"],
+          deck: ["c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Map.update!(:seats, fn seats ->
+          List.update_at(seats, 0, fn seat ->
+            %{
+              seat
+              | concealed: ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"],
+                exposed: ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+            }
+          end)
+        end)
+        |> Mjw.Game.bots_try_win_out_of_turn()
+
+      assert result == :no_wins
+    end
+
+    test "no wins when bots are out of turn but cannot win" do
+      result =
+        %Mjw.Game{
+          turn_seatno: 1,
+          turn_state: :drawing,
+          undo_seatno: 3,
+          discards: ["df-3", "n3-0", "df-0"],
+          deck: ["c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Map.update!(:seats, fn seats ->
+          List.update_at(seats, 0, fn seat ->
+            %{
+              seat
+              | concealed: ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"],
+                exposed: ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+            }
+          end)
+        end)
+        |> Mjw.Game.bots_try_win_out_of_turn()
+
+      assert result == :no_wins
+    end
+
+    test "a bot wins out of turn" do
+      {:ok, game} =
+        %Mjw.Game{
+          turn_seatno: 1,
+          turn_state: :drawing,
+          undo_seatno: 3,
+          discards: ["c1-3", "n3-0", "df-0"],
+          deck: ["c2-0", "c3-0"]
+        }
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_player("id3", "name3")
+        |> Map.update!(:seats, fn seats ->
+          List.update_at(seats, 0, fn seat ->
+            %{
+              seat
+              | concealed: ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"],
+                exposed: ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+            }
+          end)
+        end)
+        |> Mjw.Game.bots_try_win_out_of_turn()
+
+      assert game.deck == ["c2-0", "c3-0"]
+      assert game.turn_seatno == 0
+      assert game.turn_state == :discarding
+      assert game.undo_seatno == 3
+      bot_seat = Enum.at(game.seats, 0)
+
+      assert bot_seat.concealed == ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"]
+      assert bot_seat.exposed == ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
+      assert bot_seat.wintile == "c1-3"
+      assert Enum.at(game.event_log, 0) == {"#{bot_seat.player_name} went out!", "c1-3"}
     end
   end
 

@@ -2,14 +2,14 @@
   <div class="tiles flex-wrap turn-glow-<%= if @turn_glow_seatno == @seat.seatno, do: "t" %>">
     <div class="exposed-tiles">
       <%= for tile <- @seat.exposed do %>
-        <img id="<%= tile %>" src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile" />
+        <img id="<%= tile %>" src="/images/tiles/<%= Mjw.Tile.without_id(tile) %>.png" alt="" class="tile" />
       <% end %>
     </div>
 
     <div class="hiddengong-tiles">
       <%= if @seat.win_expose do %>
         <%= for tile <- @seat.hiddengongs do %>
-          <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile opacity-50" />
+          <img src="/images/tiles/<%= Mjw.Tile.without_id(tile) %>.png" alt="" class="tile opacity-50" />
         <% end %>
       <% else %>
         <%= for _tile <- @seat.hiddengongs do %>
@@ -23,7 +23,7 @@
     <div class="concealed-tiles">
       <%= if @seat.win_expose do %>
         <%= for tile <- @seat.concealed do %>
-          <img src="/images/tiles/<%= String.slice(tile, 0..1) %>.png" alt="" class="tile" />
+          <img src="/images/tiles/<%= Mjw.Tile.without_id(tile) %>.png" alt="" class="tile" />
         <% end %>
       <% else %>
         <%= for _tile <- @seat.concealed do %>
@@ -34,7 +34,7 @@
 
     <%= if @seat.wintile do %>
       <div class="wintile-tiles">
-        <img id="<%= @seat.wintile %>" src="/images/tiles/<%= String.slice(@seat.wintile, 0..1) %>.png" alt="" class="tile ml-8" />
+        <img id="<%= @seat.wintile %>" src="/images/tiles/<%= Mjw.Tile.without_id(@seat.wintile) %>.png" alt="" class="tile ml-8" />
       </div>
     <% end %>
   </div>

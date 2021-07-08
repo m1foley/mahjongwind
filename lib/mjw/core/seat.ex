@@ -146,18 +146,8 @@ defmodule Mjw.Seat do
     %{seat | concealed: seat.concealed ++ [tile]}
   end
 
-  @suit_sort_order ~w(n c b w d)
-
-  @doc """
-  Sort according to beauty, with special tiles last
-  """
   def sort_concealed(%__MODULE__{} = seat) do
-    Map.update!(seat, :concealed, fn concealed ->
-      Enum.sort_by(concealed, fn tile ->
-        suit = String.at(tile, 0)
-        {Enum.find_index(@suit_sort_order, &(&1 == suit)), tile}
-      end)
-    end)
+    Map.update!(seat, :concealed, &Mjw.Tile.sort/1)
   end
 
   def peek(%__MODULE__{} = seat, tile) do
@@ -190,7 +180,7 @@ defmodule Mjw.Seat do
   Assumes that any undoable action can add or remove at most 1 tile, and can't
   do both at once.
   """
-  def preserve_hand_rearranges_for_undo(%__MODULE__{} = seat, %__MODULE__{} = undo_state_seat) do
+  def merge_for_undo(%__MODULE__{} = seat, %__MODULE__{} = undo_state_seat) do
     # There is no situation where we end up with a wintile present, because an
     # undo_state can never be a win state. Doing it this way is the easiest way
     # to rollback declare_win_from_hand, which appears as if it's "rearranging"
@@ -214,7 +204,7 @@ defmodule Mjw.Seat do
     end
   end
 
-  defp all_tiles_in_hand(%__MODULE__{} = seat) do
+  def all_tiles_in_hand(%__MODULE__{} = seat) do
     seat.exposed ++
       seat.concealed ++
       seat.hiddengongs ++
