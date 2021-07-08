@@ -851,8 +851,7 @@ defmodule MjwWeb.GameLive.Show do
       |> Enum.map(fn {{seat, _relative_position}, i} ->
         Map.merge(seat, %{
           seatno: i,
-          # TODO: win_declared_seatno && Mjw.Seat.win_expose?(seat)
-          win_expose: true
+          win_expose: win_declared_seatno && Mjw.Seat.win_expose?(seat)
         })
       end)
 
