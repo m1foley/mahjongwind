@@ -46,11 +46,19 @@ defmodule Mjw.BotStrategy do
   # Algorithm adapted from: https://stackoverflow.com/a/4155177/899389
   #
   # For simplicity, only runs are used (no pongs) and only numeric tiles.
+  # This algorithm doesn't require all 14 tiles because exposed tiles are
+  # assumed to be correct and ignored.
   defp winning_hand?(tiles) do
     Enum.all?(tiles, &Mjw.Tile.numeric?/1) &&
       tiles
       |> possible_pairs_for_winning_hand()
       |> Enum.any?(fn possible_pair -> winning_hand?(tiles, possible_pair) end)
+  end
+
+  # Remove the pair and then remove all runs.
+  # If this exhausts all tiles then it's a winning hand.
+  defp winning_hand?(tiles, pair) do
+    (tiles -- pair) |> remove_runs() |> Enum.empty?()
   end
 
   defp possible_pairs_for_winning_hand(tiles) do
@@ -71,37 +79,27 @@ defmodule Mjw.BotStrategy do
     |> Enum.map(&Enum.take(&1, 2))
   end
 
-  # Remove the pair and then remove all runs.
-  # If this exhausts all tiles then it's a winning hand.
-  defp winning_hand?(tiles, pair) do
-    (tiles -- pair)
-    |> remove_runs()
-    |> Enum.empty?()
-  end
-
   defp remove_runs(tiles) do
-    tiles
-    |> Mjw.Tile.sort()
-    |> remove_runs_from_sorted()
+    tiles |> Mjw.Tile.sort() |> remove_runs_from_sorted()
   end
 
+  # recursion base case
   defp remove_runs_from_sorted(tiles) when length(tiles) < 3, do: tiles
 
   defp remove_runs_from_sorted([first_tile | tail]) do
     middle_tile_idx = Enum.find_index(tail, &Mjw.Tile.contiguous_in_suit?(first_tile, &1))
 
-    if middle_tile_idx do
-      middle_tile = Enum.at(tail, middle_tile_idx)
-      last_tile_idx = Enum.find_index(tail, &Mjw.Tile.contiguous_in_suit?(middle_tile, &1))
-
-      if last_tile_idx do
-        tail
-        |> List.delete_at(last_tile_idx)
-        |> List.delete_at(middle_tile_idx)
-        |> remove_runs_from_sorted()
-      else
-        [first_tile | remove_runs_from_sorted(tail)]
+    last_tile_idx =
+      if middle_tile_idx do
+        middle_tile = Enum.at(tail, middle_tile_idx)
+        Enum.find_index(tail, &Mjw.Tile.contiguous_in_suit?(middle_tile, &1))
       end
+
+    if last_tile_idx do
+      tail
+      |> List.delete_at(last_tile_idx)
+      |> List.delete_at(middle_tile_idx)
+      |> remove_runs_from_sorted()
     else
       [first_tile | remove_runs_from_sorted(tail)]
     end
@@ -109,7 +107,7 @@ defmodule Mjw.BotStrategy do
 
   defp eat_discard(%Mjw.Seat{concealed: concealed, exposed: exposed}, tile) do
     if Mjw.Tile.numeric?(tile) do
-      run_pool = remove_runs(concealed)
+      run_pool = remove_runs_from_sorted(concealed)
       reduced = remove_runs([tile | run_pool])
 
       if length(reduced) != length(run_pool) + 1 do
@@ -131,12 +129,12 @@ defmodule Mjw.BotStrategy do
   Determine tile to discard
   """
   def discard(%Mjw.Game{turn_state: :discarding} = game) do
-    tiles = remove_runs(turn_seat(game).concealed)
+    tiles = remove_runs_from_sorted(turn_seat(game).concealed)
 
     if length(tiles) == 2 do
       most_occurrences_in_viewable_tiles(game, tiles)
     else
-      # This logic should also use most_occurrences_in_viewable_tiles/2
+      # The fallback logic should also use most_occurrences_in_viewable_tiles/2
       find_non_numeric(tiles) ||
         find_non_contiguous(tiles) ||
         tiles
@@ -149,33 +147,25 @@ defmodule Mjw.BotStrategy do
 
   # For simplicity, we only keep numeric tiles
   defp find_non_numeric(tiles) do
-    non_numerics = Enum.reject(tiles, &Mjw.Tile.numeric?/1)
-
-    if !Enum.empty?(non_numerics) do
-      Enum.random(non_numerics)
-    end
+    tiles
+    |> Enum.reject(&Mjw.Tile.numeric?/1)
+    |> Enum.take_random(1)
+    |> Enum.at(0)
   end
 
   defp find_non_contiguous(tiles) do
-    without_contiguous = reject_contiguous(tiles)
-
-    if !Enum.empty?(without_contiguous) do
-      without_contiguous
-      |> filter_by_rarest_suit()
-      |> Enum.random()
-    end
+    tiles
+    |> reject_contiguous()
+    |> filter_by_rarest_suit()
+    |> Enum.take_random(1)
+    |> Enum.at(0)
   end
 
-  # Already verified all tiles are contiguous, so keep the pair if one
-  # exists so we'll be waiting. Assumes we already dealt with length 2.
+  # Already verified all tiles are contiguous, so keep the pair if one exists
+  # so the hand will be waiting. Assumes we already handled length 2.
   defp apply_small_hand_filters(tiles)
        when length(tiles) == 5 do
-    pair =
-      tiles
-      |> Enum.chunk_by(&Mjw.Tile.without_id/1)
-      |> Enum.filter(&(length(&1) >= 2))
-      |> Enum.map(&Enum.take(&1, 2))
-      |> Enum.at(0)
+    pair = find_identical_pair(tiles)
 
     if pair do
       reject_contiguous(tiles -- pair)
@@ -185,6 +175,14 @@ defmodule Mjw.BotStrategy do
   end
 
   defp apply_small_hand_filters(tiles), do: tiles
+
+  defp find_identical_pair(tiles) do
+    tiles
+    |> Enum.chunk_by(&Mjw.Tile.without_id/1)
+    |> Enum.filter(&(length(&1) >= 2))
+    |> Enum.map(&Enum.take(&1, 2))
+    |> Enum.at(0)
+  end
 
   def most_occurrences_in_viewable_tiles(%Mjw.Game{} = game, tiles) do
     viewable_tiles =
@@ -234,7 +232,7 @@ defmodule Mjw.BotStrategy do
     |> List.flatten()
   end
 
-  defp filter_by_rarest_suit([tile | []]), do: [tile]
+  defp filter_by_rarest_suit(tiles) when length(tiles) < 2, do: tiles
 
   # filter to contain only the tiles with the rarest suit
   defp filter_by_rarest_suit(tiles) do
