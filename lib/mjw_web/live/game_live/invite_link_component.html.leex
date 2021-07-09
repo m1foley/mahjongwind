@@ -1,6 +1,6 @@
 <div id="<%= @id %>" class="text-gray-800 text-base font-semibold py-2 px-4 my-4" phx-hook="CopyToClipboard">
   Invite link:
-  <input type="text" value="<%= Routes.game_show_url(@socket, :show, @game.id) %>" size="<%= Routes.game_show_url(@socket, :show, @game.id) |> String.length() %>" class="game-url text-gray-800 bg-white ml-3 mr-1 px-1" />
+  <input type="text" class="game-url" value="<%= Routes.game_show_url(@socket, :show, @game.id) %>" size="<%= String.length(Routes.game_show_url(@socket, :show, @game.id)) %>" />
   <span class="copy-to-clipboard" style="cursor:pointer;">📋</span>
 
   <%= if @game_state == :waiting_for_players do %>
