@@ -15,7 +15,7 @@
     </div>
   <% end %>
 
-  <div class="gamelog flex flex-col-reverse flex-nowrap px-2 border rounded">
+  <div class="gamelog">
     <%= for {event, icon} <- @game.event_log do %>
       <div class="event py-1 flex-grow">
         <span class="desc align-middle"><%= event %></span>

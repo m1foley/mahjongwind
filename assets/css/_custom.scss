@@ -54,6 +54,10 @@
   @apply rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-6 my-16 mx-auto shadow-md w-6/12 content-center text-center;
 }
 
+.gamemenu-content {
+  @apply rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-6 my-16 mx-auto shadow-md w-6/12 content-center text-center;
+}
+
 .sit-button {
   @apply bg-green-700 text-gray-100 text-lg font-sans font-bold border border-transparent rounded-lg py-3 px-16 my-3 shadow-md;
 }
@@ -213,24 +217,24 @@
   }
 }
 
-#player-name-1 {
+#player-name-1, #player-name-3 {
   position: fixed;
-  right: 6rem;
-  top: 11rem;
+  top: 10%;
   opacity: 0.7;
+}
+
+#player-name-1 {
+  right: 6rem;
+}
+
+#player-name-3 {
+  left: 6rem;
 }
 
 #player-name-2 {
   position: fixed;
   top: 0;
   width: 100%;
-}
-
-#player-name-3 {
-  position: fixed;
-  left: 6rem;
-  top: 11rem;
-  opacity: 0.7;
 }
 
 .player-name {
@@ -300,7 +304,7 @@
   top: 6rem;
   max-height: 9rem;
   border-color: #aaa;
-  @apply text-gray-200 text-xs;
+  @apply text-gray-200 text-xs flex flex-col-reverse flex-nowrap px-2 border rounded;
   .event {
     display: block;
     border-top: 1px #aaa dashed;
@@ -651,34 +655,73 @@ $tile-types: b1, b2, b3, b4, b5, b6, b7, b8, b9, c1, c2, c3, c4, c5, c6, c7, c8,
   }
 }
 
-#smallwarn {
-  display: none;
-}
-
-$small-width: 48rem;
-$small-height: 30rem;
+$small-width: 45rem;
 $med-width: 67rem;
-$med-height: 50rem;
 
-@media (max-width: $small-width), (max-height: $small-height) {
-  .phx-connected {
+@media (max-width: $small-width)  {
+  .tile {
+    height: 1.5rem;
+  }
+  .walltile {
+    height: 1.5rem;
+  }
+  .wall-tiles-1 {
+    top: 1.8rem;
+  }
+  .largetile {
+    height: 2.6rem;
+  }
+  #peektile-0 {
+    bottom: 4rem;
+    height: 5rem;
+    width: 4rem;
+  }
+  .dropzone {
+    min-height: 1.5rem;
+    min-width: 3rem;
+  }
+  #exposed-0 {
+    min-width: 28rem;
+  }
+  #discards {
+    top: 0.5rem;
+    bottom: 6rem;
+    left: 3.2rem;
+    right: 3.2rem;
+    padding-bottom: 4rem;
+    .tile {
+      height: 1rem;
+    }
+  }
+  .game-url {
+    font-size: 0.5rem;
+  }
+  .gamelog {
     display: none;
   }
-  #smallwarn {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    left: 0;
+  .gamemenu-content {
     width: 100%;
-    height: 100%;
-    color: #dde;
-    background: linear-gradient(#222, #445);
+  }
+  .player-name {
+    font-size: 0.5rem;
+    @apply py-0 px-2;
+  }
+  #player-name-1 {
+    right: 10%;
+    top: 10%;
+  }
+  #player-name-3 {
+    left: 10%;
+  }
+  #seat-2, #walltiles-2, #player-name-2 {
+    top: 3rem;
+  }
+  .icons {
+    top: 0;
   }
 }
 
-@media (min-width: $small-width) and (max-width: $med-width), (max-height: $med-height) {
+@media (min-width: $small-width) and (max-width: $med-width) {
   .tile {
     height: 4rem;
   }
@@ -704,13 +747,31 @@ $med-height: 50rem;
     min-width: 38rem;
   }
   #discards {
-    transform: scale(0.8);
-    top: -4rem;
-    bottom: 4.5rem;
-    left: 4rem;
-    right: 4rem;
+    top: 2rem;
+    bottom: 10rem;
+    left: 8.5rem;
+    right: 8.5rem;
+    padding-bottom: 4rem;
+    .tile {
+      height: 1.8rem;
+    }
   }
   .game-url {
     font-size: 0.7rem;
+  }
+  .gamelog {
+    min-width: 14rem;
+    max-width: 20rem;
+    right: 12rem;
+    top: 6rem;
+    font-size: 0.7rem;
+    .event {
+      .tile, .icon {
+        margin-left: 0.1rem;
+      }
+      .tile {
+        height: 1rem;
+      }
+    }
   }
 }
