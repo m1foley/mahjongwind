@@ -3,7 +3,7 @@ defmodule MjwWeb.BotService do
 
   @default_action_delay :timer.seconds(11)
   @quick_discard_action_delay :timer.seconds(4)
-  @zimo_action_delay :timer.seconds(2)
+  @win_out_of_turn_action_delay :timer.seconds(1)
 
   # Client
 
@@ -42,7 +42,7 @@ defmodule MjwWeb.BotService do
         :try_win_out_of_turn,
         game.id,
         game.turn_seatno,
-        @zimo_action_delay
+        @win_out_of_turn_action_delay
       )
     end
 
