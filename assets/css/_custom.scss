@@ -145,7 +145,7 @@
 #wintile-0 {
   position: absolute;
   right: 0;
-  height: 7rem;
+  @apply largetile;
 }
 
 .dropzone-description {
@@ -727,12 +727,20 @@ $med-width: 67rem;
       display: none;
     }
   }
-  #wintile-0 {
-    height: 2.6rem;
-  }
   #table-center {
+    top: 2rem;
     left: 0;
     right: 0;
+  }
+  .hand {
+    font-size: 6rem;
+  }
+  #dicecomponent {
+    margin-top: 10rem;
+  }
+  .die {
+    margin: 0 0.4rem 0 0.4rem;
+    max-height: 3rem;
   }
 }
 
@@ -757,6 +765,12 @@ $med-width: 67rem;
   .dropzone {
     min-height: 5rem;
     min-width: 5rem;
+  }
+  .with-description {
+    .dropzone-description {
+      top: 1rem;
+      @apply text-base;
+    }
   }
   #exposed-0 {
     min-width: 38rem;
@@ -789,5 +803,17 @@ $med-width: 67rem;
         height: 1rem;
       }
     }
+  }
+  #table-center {
+    top: 4rem;
+    left: 0;
+    right: 0;
+  }
+  .hand {
+    font-size: 8rem;
+  }
+  .die {
+    margin: 0 0.5rem 0 0.5rem;
+    max-height: 4rem;
   }
 }
