@@ -656,9 +656,9 @@ $tile-types: b1, b2, b3, b4, b5, b6, b7, b8, b9, c1, c2, c3, c4, c5, c6, c7, c8,
 }
 
 $small-width: 48rem;
-$small-height: 50rem;
+$small-height: 30rem;
 $med-width: 67rem;
-$med-height: 71rem;
+$med-height: 50rem;
 
 @media (max-width: $small-width), (max-height: $small-height) {
   .phx-connected {
