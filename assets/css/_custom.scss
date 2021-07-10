@@ -198,7 +198,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  .tiles, .player-name {
+  .tiles, .player-name-container {
     transform: rotate(180deg);
   }
 }
@@ -237,20 +237,24 @@
   @apply inline-block text-gray-100 text-xl font-light font-serif opacity-40;
 }
 
+.dealer-indicator {
+  @apply inline-block text-gray-100 text-base font-extrabold opacity-50;
+}
+
 .stickpomelo {
   position: fixed;
-  left: 50%;
-  bottom: 7rem;
-  transform: translate(-50%, 0);
-  max-height: 50rem;
+  left: 60%;
+  transform: translate(-60%, 0);
+  bottom: 10%;
+  max-height: 60%
 }
 
 #table-center {
   position: fixed;
   display: block;
   top: 11rem;
-  left: 11rem;
-  right: 11rem;
+  left: 0;
+  right: 0;
 }
 
 .pickable-wind {
@@ -259,7 +263,7 @@
 
 .windtiles {
   .windandname {
-    width: 7rem;
+    width: 10rem;
   }
   .tile {
     @apply largetile mx-auto;
@@ -292,7 +296,7 @@
   max-width: 40rem;
   width: fit-content;
   right: 11rem;
-  top: 4.5rem;
+  top: 5.5rem;
   max-height: 9rem;
   border-color: #aaa;
   @apply text-gray-200 text-xs flex flex-col-reverse flex-nowrap px-2 border rounded;
@@ -698,6 +702,11 @@ $med-width: 67rem;
   #seat-0 {
     bottom: 3rem;
   }
+  #seat-2 {
+    .player-name-container {
+      right: 0;
+    }
+  }
   .icons {
     top: 0;
   }
@@ -708,14 +717,12 @@ $med-width: 67rem;
   }
   #table-center {
     top: 2rem;
-    left: 0;
-    right: 0;
   }
   .hand {
     font-size: 6rem;
   }
   #dicecomponent {
-    margin-top: 10rem;
+    margin-top: 5rem;
   }
   .die {
     margin: 0 0.4rem 0 0.4rem;
@@ -728,6 +735,25 @@ $med-width: 67rem;
     font-size: 0.5rem;
     line-height: 1rem;
     @apply border py-0 px-2 rounded-lg;
+  }
+  .firstdealer-indicator {
+    @apply text-xs;
+  }
+  .dealer-indicator {
+    font-size: 0.5rem;
+    line-height: 1rem;
+  }
+  .windtiles {
+    .windandname {
+      width: 5rem;
+    }
+    @apply text-xs;
+  }
+  .hand-2 {
+    top: -1.5rem;
+  }
+  #undo, #pausebots, #resumebots, .addbot {
+    @apply text-xs py-1;
   }
 }
 
@@ -793,8 +819,6 @@ $med-width: 67rem;
   }
   #table-center {
     top: 4rem;
-    left: 0;
-    right: 0;
   }
   .hand {
     font-size: 8rem;
@@ -805,5 +829,11 @@ $med-width: 67rem;
   }
   .player-name-container {
     @apply mb-3;
+  }
+  .windtiles {
+    @apply text-base;
+    .windandname {
+      width: 8rem;
+    }
   }
 }

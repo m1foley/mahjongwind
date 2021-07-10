@@ -9,7 +9,7 @@
 
         <%= unless @show_wall do %>
           <%= if @seat.seatno == @game.dealer_seatno do %>
-            <div class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50" title="Dealer<%= if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})" %>">
+            <div class="dealer-indicator" title="Dealer<%= if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})" %>">
               Dealer<%= if @game.dealer_win_count > 0 do %><sup><%= @game.dealer_win_count + 1 %></sup><% end %>
             </div>
           <% end %>
