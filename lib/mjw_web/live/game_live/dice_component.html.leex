@@ -45,12 +45,12 @@
 <%= if @rolling_dice do %>
   <%= case @roller_relative_position do %>
   <% 0 -> %>
-    <div class="hand hand-0" phx-target="#game" phx-click="roll">🤛</div>
+    <div class="hand hand-0" phx-target="#game" phx-click="roll" title="Click to roll dice">🤛</div>
   <% 1 -> %>
-    <div class="hand hand-1">🤛</div>
+    <div class="hand hand-1" title="Rolling dice">🤛</div>
   <% 2 -> %>
-    <div class="hand hand-2">👊</div>
+    <div class="hand hand-2" title="Rolling dice">👊</div>
   <% 3 -> %>
-    <div class="hand hand-3">🤜</div>
+    <div class="hand hand-3" title="Rolling dice">🤜</div>
   <% end %>
 <% end %>
