@@ -198,7 +198,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  .tiles {
+  .tiles, .player-name {
     transform: rotate(180deg);
   }
 }
@@ -217,33 +217,24 @@
   }
 }
 
-#player-name-1, #player-name-3 {
-  position: fixed;
-  top: 10%;
-  opacity: 0.7;
-}
-
-#player-name-1 {
-  right: 6rem;
-}
-
-#player-name-3 {
-  left: 6rem;
-}
-
-#player-name-2 {
-  position: fixed;
-  top: 0;
-  width: 100%;
+.player-name-container {
+  position: absolute;
+  bottom: 0;
+  @apply mb-5 text-center justify-center items-center;
 }
 
 .player-name {
   display: inline-block;
-  opacity: 0.6;
-  @apply bg-gray-100 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 rounded-full py-1 px-4 mb-2 shadow-md;
-  &.glow {
-    opacity: 0.8;
-  }
+  opacity: 0.5;
+  @apply bg-gray-100 text-gray-700 text-base font-sans font-bold border-2 border-gray-800 rounded-full py-1 px-4 shadow-md;
+}
+
+.player-icons {
+  display: inline-block;
+}
+
+.firstdealer-indicator {
+  @apply inline-block text-gray-100 text-xl font-light font-serif opacity-40;
 }
 
 .stickpomelo {
@@ -301,7 +292,7 @@
   max-width: 40rem;
   width: fit-content;
   right: 11rem;
-  top: 6rem;
+  top: 4.5rem;
   max-height: 9rem;
   border-color: #aaa;
   @apply text-gray-200 text-xs flex flex-col-reverse flex-nowrap px-2 border rounded;
@@ -580,6 +571,13 @@ $discard-animation-translates: (
 }
 
 #winmenu-inner {
+  @apply inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-8 mt-2 mx-auto shadow-md content-center text-center cursor-move;
+  .tile {
+    cursor: not-allowed;
+  }
+}
+
+#winmenu-inner {
   max-width: 80%;
   .tile {
     height: 3.1rem;
@@ -588,11 +586,6 @@ $discard-animation-translates: (
 
 .no-text-shadow {
   text-shadow: none;
-}
-
-.playericons {
-  height: 1.5rem;
-  @apply mt-2;
 }
 
 .dealpickstaircase {
@@ -702,20 +695,6 @@ $med-width: 67rem;
   .gamemenu-content, .seat-offering-modal-content {
     width: 100%;
   }
-  .player-name {
-    font-size: 0.5rem;
-    @apply py-0 px-2;
-  }
-  #player-name-1 {
-    right: 10%;
-    top: 10%;
-  }
-  #player-name-3 {
-    left: 10%;
-  }
-  #seat-2, #player-name-2 {
-    top: 3rem;
-  }
   #seat-0 {
     bottom: 3rem;
   }
@@ -741,6 +720,14 @@ $med-width: 67rem;
   .die {
     margin: 0 0.4rem 0 0.4rem;
     max-height: 3rem;
+  }
+  .player-name-container {
+    @apply mb-0;
+  }
+  .player-name {
+    font-size: 0.5rem;
+    line-height: 1rem;
+    @apply border py-0 px-2 rounded-lg;
   }
 }
 
@@ -792,8 +779,8 @@ $med-width: 67rem;
     min-width: 12rem;
     max-width: 18rem;
     max-height: 6rem;
-    right: 12rem;
-    top: 6rem;
+    right: 9rem;
+    top: 5rem;
     font-size: 0.7rem;
     .event {
       .tile, .icon {
@@ -815,5 +802,8 @@ $med-width: 67rem;
   .die {
     margin: 0 0.5rem 0 0.5rem;
     max-height: 4rem;
+  }
+  .player-name-container {
+    @apply mb-3;
   }
 }
