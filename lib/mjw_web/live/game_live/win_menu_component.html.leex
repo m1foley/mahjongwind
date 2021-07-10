@@ -1,6 +1,5 @@
 <div id="<%= @id %>">
-  <div id="winmenu-inner" class="inline-block rounded-lg bg-gray-100 text-gray-700 text-lg font-sans font-bold border border-green-900 p-2 px-8 mt-2 mx-auto shadow-md content-center text-center cursor-move" phx-hook="Simpledrag">
-
+  <div id="winmenu-inner" phx-hook="Simpledrag">
     <%= if Mjw.Seat.confirmed_win?(@current_user_seat) do %>
       <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4">
         Waiting for everyone to shuffle... 👋
