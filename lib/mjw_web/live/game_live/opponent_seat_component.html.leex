@@ -1,7 +1,7 @@
 <div id="<%= @id %>">
-  <div class="tiles flex-wrap turn-glow-<%= if @turn_glow_seatno == @seat.seatno, do: "t" %>">
+  <div class="tiles flex-wrap">
     <div class="player-name-container">
-      <div class="player-name"><%= @seat.player_name %></div>
+      <div class="player-name turn-glow-<%= if @turn_glow_seatno == @seat.seatno, do: "t" %>"><%= @seat.player_name %></div>
       <div class="player-icons">
         <%= if @seat.seatno == 0 && @player_seats_finalized do %>
           <div class="firstdealer-indicator" title="First dealer. Game wind changes when the deal circles back to them.">庄</div>
