@@ -2,35 +2,11 @@
   <%= if @show_wind_picking do %>
     <%= live_component @socket, MjwWeb.GameLive.WindPickComponent, id: "windpick", current_user_id: @current_user_id, game: @game %>
   <% end %>
+
   <%= if @rolling_dice || @rolled_dice do %>
     <%= live_component @socket, MjwWeb.GameLive.DiceComponent, id: "dicecomponent", current_user_id: @current_user_id, game: @game, game_state: @game_state, current_user_seatno: @current_user_seatno, event: @event, raw_event: @raw_event, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice %>
   <% end %>
 
-  <%= unless @show_wall do %>
-    <div id="discards" phx-hook="Drag" phx-target="#game" class="dglow-<%= @available_discard_tile %> discardedby-<%= if @raw_event == :discarded, do: @discarded_by_relative_seatno %> current-user-discarding-<%= if @current_user_discarding, do: "t" %> enable-pull-from-discards-<%= if @available_discard_tile, do: "t" %>">
-      <%# Every tile isn't really draggable, but dynamic code like `available_discard_tile == tile` marks it dirty in the LiveView diffs, even if an action didn't modify it. This causes too much information to be sent over the wire. Instead we use CSS & JS to determine draggability, glowing, and animations. %>
-      <%= for tile <- @game.discards |> Enum.reverse() do %>
-        <img id="<%= tile %>" src="/images/tiles/<%= Mjw.Tile.without_id(tile) %>.png" alt="" class="tile draggable">
-      <% end %>
-    </div>
-  <% end %>
-
-  <div class="gamelog">
-    <%= for {event, icon} <- @game.event_log do %>
-      <div class="event py-1 flex-grow">
-        <span class="desc align-middle"><%= event %></span>
-        <%= if icon do %>
-          <%= if Mjw.Tile.tile_format?(icon) do %>
-            <img src="/images/tiles/<%= Mjw.Tile.without_id(icon) %>.png" alt="" class="tile align-middle" />
-          <% else %>
-            <span class="icon text-xl align-middle"><%= icon %></span>
-          <% end %>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
-  <%# Placed after discards so it's higher in z-index %>
   <%= case @game_state do %>
     <% :waiting_for_players -> %>
       <div class="state-description">
@@ -47,15 +23,5 @@
       </div>
       <%= live_component @socket, MjwWeb.GameLive.WinMenuComponent, id: "winmenu", game: @game, win_declared_seatno: @win_declared_seatno, current_user_seat: @current_user_seat %>
     <% _ -> %>
-  <% end %>
-
-  <%= if @current_user_drawing || @current_user_seat.peektile do %>
-    <div id="peektile-0" phx-hook="Drag" phx-target="#game">
-      <%= if @current_user_seat.peektile do %>
-        <img id="<%= @current_user_seat.peektile %>" src="/images/tiles/<%= Mjw.Tile.without_id(@current_user_seat.peektile) %>.png" alt="" class="tile draggable" />
-      <% else %>
-        <img src="/images/tiles/concealed.png" alt="" class="tile cursor-pointer" phx-target="#game" phx-click="peek" />
-      <% end %>
-    </div>
   <% end %>
 </div>
