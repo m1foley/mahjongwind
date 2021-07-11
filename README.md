@@ -3,7 +3,8 @@
 Play mahjong with your friends online!
 
 ## TODO
-- Slam/shake animation when current player discards
+- Shrink everything to fit more discards by default
+- Animation when current player discards: slide, shake, slam
 - Visually indicate when another player drew from deck. Floating peektile?
 - Change drag cursor on "remaining deck"
 - Button to sort hand on deal

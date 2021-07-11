@@ -38,8 +38,6 @@
     </div>
   <% end %>
 
-  <%= live_component @socket, MjwWeb.GameLive.TableCenterComponent, id: "table-center", game: @game, current_user_id: @current_user_id, event: @event, raw_event: @raw_event, event_details: @event_details, show_wind_picking: @show_wind_picking, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, game_state: @game_state, current_user_seatno: @current_user_seatno, win_declared_seatno: @win_declared_seatno, current_user_seat: @current_user_seat, relative_game_seats: @relative_game_seats, empty_seats_count: @empty_seats_count %>
-
   <div class="gamelog">
     <%= for {event, icon} <- @game.event_log do %>
       <div class="event py-1 flex-grow">
@@ -54,6 +52,8 @@
       </div>
     <% end %>
   </div>
+
+  <%= live_component @socket, MjwWeb.GameLive.TableCenterComponent, id: "table-center", game: @game, current_user_id: @current_user_id, event: @event, raw_event: @raw_event, event_details: @event_details, show_wind_picking: @show_wind_picking, rolling_dice: @rolling_dice, rolled_dice: @rolled_dice, game_state: @game_state, current_user_seatno: @current_user_seatno, win_declared_seatno: @win_declared_seatno, current_user_seat: @current_user_seat, relative_game_seats: @relative_game_seats, empty_seats_count: @empty_seats_count %>
 
   <%= if @current_user_drawing || @current_user_seat.peektile do %>
     <div id="peektile-0" phx-hook="Drag" phx-target="#game">
