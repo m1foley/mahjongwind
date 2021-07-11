@@ -430,13 +430,13 @@
   position: fixed;
   top: 2rem;
   bottom: 14rem;
-  left: 11rem;
+  left: 10.8rem;
   right: 11rem;
   padding-bottom: 6rem;
-  @apply flex flex-row flex-wrap place-content-center justify-start space-y-32 dropzone;
+  @apply flex flex-row flex-wrap place-content-center justify-start space-y-24 dropzone;
   .tile {
     cursor: not-allowed; // overridden by dglow classes
-    height: 2.5rem;
+    height: 2.3rem;
     position: relative;
     &.sortable-ghost {
       animation: none;
@@ -584,16 +584,16 @@
 @include discard-calculations((
   "nth-child(9n+0)": (top: 0.6rem,  left: 0,      rotation: rotate(12deg)),
   "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
-  "nth-child(9n+2)": (top: 4rem,    left: 0,      rotation: rotate(-40deg)),
+  "nth-child(9n+2)": (top: 3rem,    left: 0,      rotation: rotate(-40deg)),
   "nth-child(9n+3)": (top: -1.2rem, left: 0,      rotation: none),
-  "nth-child(9n+4)": (top: 4rem,    left: 0,      rotation: none),
+  "nth-child(9n+4)": (top: 3rem,    left: 0,      rotation: none),
   "nth-child(9n+5)": (top: -1.5rem, left: 0.5rem, rotation: rotate(50deg)),
-  "nth-child(9n+6)": (top: 2rem,    left: 0,      rotation: rotate(-24deg)),
-  "nth-child(9n+7)": (top: 5.0rem,  left: 0.5rem, rotation: rotate(73deg)),
-  "nth-child(9n+8)": (top: -2.5rem, left: 0,      rotation: rotate(30deg)),
-  // not sure why but space-y-32 (which provides good spacing when new rows
-  // are created) makes the first child appear way off to the upper left
-      "first-child": (top: 7rem,   left: 0,       rotation: rotate(14deg))
+  "nth-child(9n+6)": (top: 1.5rem,    left: 0,      rotation: rotate(-24deg)),
+  "nth-child(9n+7)": (top: 3.5rem,  left: 0.5rem, rotation: rotate(73deg)),
+  "nth-child(9n+8)": (top: -1.7rem, left: 0,      rotation: rotate(30deg)),
+  // for some reason space-y-24 (which provides vertical spacing when new rows
+  // are added) makes the first-child appear way off to the upper left
+      "first-child": (top: 6rem,   left: 0,       rotation: rotate(14deg))
 ));
 
 $small-width: 45rem;
@@ -601,16 +601,16 @@ $med-width: 67rem;
 
 @media (max-width: $small-width)  {
   @include discard-calculations((
-    "nth-child(9n+0)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+1)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+2)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+3)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+4)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+5)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+6)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+7)": (top: 0, left: 0, rotation: none),
-    "nth-child(9n+8)": (top: 0, left: 0, rotation: none),
-        "first-child": (top: 0, left: 0, rotation: none)
+    "nth-child(9n+0)": (top: 0.6rem,  left: 0,      rotation: rotate(12deg)),
+    "nth-child(9n+1)": (top: -2.3rem, left: 0.6rem, rotation: rotate(-20deg)),
+    "nth-child(9n+2)": (top: 1rem,    left: 0,      rotation: rotate(-40deg)),
+    "nth-child(9n+3)": (top: -1.2rem, left: 0,      rotation: none),
+    "nth-child(9n+4)": (top: 1rem,    left: 0,      rotation: none),
+    "nth-child(9n+5)": (top: -1.5rem, left: 0.5rem, rotation: rotate(50deg)),
+    "nth-child(9n+6)": (top: 2rem,    left: 0,      rotation: rotate(-24deg)),
+    "nth-child(9n+7)": (top: 0,       left: 0.5rem, rotation: rotate(73deg)),
+    "nth-child(9n+8)": (top: -2.2rem, left: 0,      rotation: rotate(30deg)),
+        "first-child": (top: 3rem,    left: 0,      rotation: rotate(14deg))
   ));
   .tile {
     height: 1.5rem;
@@ -643,7 +643,7 @@ $med-width: 67rem;
     right: 3.2rem;
     padding-bottom: 4rem;
     .tile {
-      height: 1rem;
+      height: 0.8rem;
     }
     @apply space-y-0;
   }
@@ -673,7 +673,7 @@ $med-width: 67rem;
     }
   }
   #table-center {
-    top: 2rem;
+    top: 3rem;
   }
   .hand {
     font-size: 6rem;
@@ -711,6 +711,9 @@ $med-width: 67rem;
   }
   #undo, #pausebots, #resumebots, .addbot {
     @apply text-xs py-1;
+  }
+  .stickpomelo {
+    display: none;
   }
 }
 
