@@ -349,8 +349,8 @@ defmodule Mjw.Game do
     |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
     |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
-    |> advance_turn_seat()
     |> Map.merge(%{discards: new_discards, turn_state: :drawing})
+    |> advance_turn_seat_or_declare_draw()
   end
 
   @doc """
@@ -362,8 +362,17 @@ defmodule Mjw.Game do
     game
     |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_concealed(&1, tile))
-    |> advance_turn_seat()
     |> Map.merge(%{discards: [tile | game.discards], turn_state: :drawing})
+    |> advance_turn_seat_or_declare_draw()
+  end
+
+  defp advance_turn_seat_or_declare_draw(%__MODULE__{deck: []} = game) do
+    {:declared_draw, draw(game)}
+  end
+
+  defp advance_turn_seat_or_declare_draw(%__MODULE__{} = game) do
+    game = %{game | turn_seatno: increment_seatno(game.turn_seatno)}
+    {:ok, game}
   end
 
   @doc """
@@ -374,10 +383,6 @@ defmodule Mjw.Game do
   end
 
   def last_discarded_seatno(%__MODULE__{} = _game), do: nil
-
-  defp advance_turn_seat(%__MODULE__{} = game) do
-    %{game | turn_seatno: increment_seatno(game.turn_seatno)}
-  end
 
   defp advance_dealer(%__MODULE__{} = game) do
     dealer_seatno = increment_seatno(game.dealer_seatno)

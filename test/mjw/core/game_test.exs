@@ -185,8 +185,8 @@ defmodule Mjw.GameTest do
     end
 
     test "drawing" do
-      game =
-        %Mjw.Game{}
+      {:ok, game} =
+        Mjw.Game.new()
         |> Mjw.Game.seat_player("id0", "name0")
         |> Mjw.Game.seat_player("id1", "name1")
         |> Mjw.Game.seat_player("id2", "name2")
@@ -508,11 +508,12 @@ defmodule Mjw.GameTest do
 
   describe "discard" do
     test "moves tile to discards and changes turn to the next player" do
-      game =
+      {:ok, game} =
         %Mjw.Game{
           turn_seatno: 3,
           turn_state: :discarding,
           discards: ["dp-0"],
+          deck: ["wn-1"],
           seats:
             0..3
             |> Enum.map(fn i ->
@@ -534,10 +535,11 @@ defmodule Mjw.GameTest do
     end
 
     test "discarding from exposed" do
-      game =
+      {:ok, game} =
         %Mjw.Game{
           turn_seatno: 3,
           turn_state: :discarding,
+          deck: ["wn-1"],
           discards: ["dp-0"],
           seats:
             0..3
@@ -562,11 +564,12 @@ defmodule Mjw.GameTest do
     end
 
     test "discarding from concealed when peektile is present" do
-      game =
+      {:ok, game} =
         %Mjw.Game{
           turn_seatno: 3,
           turn_state: :discarding,
           discards: ["dp-0"],
+          deck: ["wn-0"],
           seats:
             0..3
             |> Enum.map(fn i ->
@@ -588,14 +591,52 @@ defmodule Mjw.GameTest do
       assert game.undo_seatno == 3
       assert game.undo_state.turn_seatno == 3
     end
+
+    test "declares draw if the deck is empty" do
+      {:declared_draw, game} =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :discarding,
+          dealer_seatno: 1,
+          discards: ["dp-0"],
+          deck: [],
+          dice: [1, 2, 3],
+          wind: "wn",
+          seats:
+            ~w(ww we ws wn)
+            |> Enum.with_index()
+            |> Enum.map(fn {w, i} ->
+              %Mjw.Seat{
+                player_id: "id#{i}",
+                player_name: "Player #{i}",
+                picked_wind: w,
+                concealed: ["c1-#{i}", "c2-#{i}", "c3-#{i}", "c4-#{i}"]
+              }
+            end)
+        }
+        |> Mjw.Game.discard(3, "c2-3")
+
+      assert length(game.deck) == 136
+      assert game.discards == []
+      assert game.wind == "wn"
+      assert game.turn_state == :rolling
+      assert game.dealer_seatno == 1
+      assert game.dealer_win_count == 1
+      assert game.turn_seatno == 1
+      assert game.undo_seatno == nil
+      assert game.undo_state == nil
+      assert game.event_log == [{"The game was declared a draw.", "🤝"}]
+      assert Mjw.Game.state(game) == :rolling_for_deal
+    end
   end
 
   describe "bot_discard" do
     test "discards a concealed tile and advances turn" do
-      game =
+      {:ok, game} =
         %Mjw.Game{
           turn_seatno: 3,
           turn_state: :discarding,
+          deck: ["wn-0"],
           discards: ["dp-0"],
           undo_seatno: 2
         }
@@ -619,6 +660,45 @@ defmodule Mjw.GameTest do
 
       assert game.event_log |> Enum.at(0) |> Kernel.elem(0) ==
                "#{bot_seat.player_name} discarded."
+    end
+
+    test "declares draw if the deck is empty" do
+      {:declared_draw, game} =
+        %Mjw.Game{
+          turn_seatno: 3,
+          turn_state: :discarding,
+          deck: [],
+          wind: "wn",
+          dice: [1, 2, 3],
+          dealer_seatno: 1,
+          discards: ["dp-0"],
+          undo_seatno: 2
+        }
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(1)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.seat_bot()
+        |> Map.update!(:seats, fn seats ->
+          List.update_at(seats, 3, fn seat ->
+            %{seat | concealed: ["b1-0", "b1-1", "n1-1", "c1-0", "c1-1"]}
+          end)
+        end)
+        |> Mjw.Game.bot_discard()
+
+      assert length(game.deck) == 136
+      assert game.discards == []
+      assert game.wind == "wn"
+      assert game.turn_state == :rolling
+      assert game.dealer_seatno == 1
+      assert game.dealer_win_count == 1
+      assert game.turn_seatno == 1
+      assert game.undo_seatno == nil
+      assert game.undo_state == nil
+      assert game.event_log == [{"The game was declared a draw.", "🤝"}]
+      assert Mjw.Game.state(game) == :rolling_for_deal
     end
   end
 
@@ -1331,6 +1411,7 @@ defmodule Mjw.GameTest do
         turn_seatno: 3,
         turn_state: :discarding,
         discards: ["dp-0", "df-0"],
+        deck: ["wn-1"],
         seats:
           ~w(ww we ws wn)
           |> Enum.with_index()
@@ -1344,10 +1425,8 @@ defmodule Mjw.GameTest do
           end)
       }
 
-      game =
-        orig_game
-        |> Mjw.Game.discard(3, "n3-3")
-        |> Mjw.Game.undo()
+      {:ok, game} = Mjw.Game.discard(orig_game, 3, "n3-3")
+      game = Mjw.Game.undo(game)
 
       expected_event_log = [{"name3 undid their action.", nil}, {"name3 discarded.", "n3-3"}]
       assert game == %{orig_game | event_log: expected_event_log}
@@ -1563,9 +1642,10 @@ defmodule Mjw.GameTest do
         end)
         |> Map.merge(%{event_log: []})
 
+      {:ok, game} = Mjw.Game.discard(orig_game, 0, "b5-0")
+
       game =
-        orig_game
-        |> Mjw.Game.discard(0, "b5-0")
+        game
         |> Mjw.Game.bot_draw()
         |> Mjw.Game.undo()
 
@@ -1642,10 +1722,11 @@ defmodule Mjw.GameTest do
     end
 
     test "returns the seatno of the player who just discarded" do
-      game =
+      {:ok, game} =
         %Mjw.Game{
           turn_state: :discarding,
           turn_seatno: 3,
+          deck: ["dp-1"],
           seats:
             ~w(we ws ww wn)
             |> Enum.with_index()

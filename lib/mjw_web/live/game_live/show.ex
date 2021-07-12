@@ -190,15 +190,24 @@ defmodule MjwWeb.GameLive.Show do
         socket
       )
       when dragged_from in ["concealed-0", "exposed-0", "peektile-0"] do
-    current_user_seatno = socket.assigns.current_user_seatno
+    socket =
+      case Mjw.Game.discard(
+             socket.assigns.game,
+             socket.assigns.current_user_seatno,
+             discarded_tile
+           ) do
+        {:ok, game} ->
+          game
+          |> optionally_enqueue_bot_try_win_out_of_turn(socket)
+          |> optionally_enqueue_bot_draw(socket)
 
-    game =
-      socket.assigns.game
-      |> Mjw.Game.discard(current_user_seatno, discarded_tile)
-      |> optionally_enqueue_bot_try_win_out_of_turn(socket)
-      |> optionally_enqueue_bot_draw(socket)
+          update_game(socket, game, :discarded)
 
-    socket = update_game(socket, game, :discarded)
+        # Discarding with an empty deck results in a draw game
+        {:declared_draw, game} ->
+          optionally_enqueue_bot_roll(game, socket)
+          update_game(socket, game, :draw)
+      end
 
     {:noreply, socket}
   end
