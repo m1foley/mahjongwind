@@ -173,10 +173,18 @@ defmodule MjwWeb.BotService do
          bot_seatno
        ) do
     if Mjw.Game.state(game) == :discarding && bot_sitting_at?(game, bot_seatno) do
-      game
-      |> Mjw.Game.bot_discard()
-      |> MjwWeb.GameStore.update(:discarded)
-      |> optionally_enqueue_draw()
+      case Mjw.Game.bot_discard(game) do
+        {:ok, game} ->
+          game
+          |> MjwWeb.GameStore.update(:discarded)
+          |> optionally_enqueue_draw()
+
+        # Discarding with an empty deck results in a draw game
+        {:declared_draw, game} ->
+          game
+          |> MjwWeb.GameStore.update(:draw)
+          |> optionally_enqueue_roll()
+      end
     end
   end
 
