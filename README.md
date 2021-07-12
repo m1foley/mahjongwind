@@ -5,14 +5,9 @@ Play mahjong with your friends online!
 ## TODO
 - Visually indicate when another player drew from deck. Floating peektile?
 - Button to sort hand on deal
-- Label "discarding..." next to name
-- Refactor: Try extracting code and/or assigns from show.ex into components
-- Put everyone's discards in front of their hand?
-- CSS: Is it possible to vertically spread the discards if only 1 flexbox row? Make it less obvious that it's a jerry-rigged plain flexbox row.
-- Experiment: Put hidden gong next to exposed if not empty, so it doesn't cover seat-3
+- Indicate when deck is running low
 - Experiment with more CSS animations: exposing a tile, taking from discards, dealing the tiles, etc.
-- Enforce that the winning tile was the last one picked up
-- Minor bug: Discards shift when 2nd tile is discarded
+- Put everyone's discards in front of their hand?
 
 ## Long-term TODOs for public release
 - Real user accounts instead of just web sessions
@@ -24,6 +19,9 @@ Play mahjong with your friends online!
 - Mobile support
 - Automatically expire games
 - Think of a better domain name?
+
+## Future rule enforcement?
+- Winning tile was the last one picked up
 
 ## Instructions
 

@@ -166,16 +166,33 @@ defmodule Mjw.Game do
     end)
   end
 
-  def roll_dice(%__MODULE__{} = game) do
+  @doc """
+  Roll dice and reseat the players according to the first dealer roll and the
+  picked winds. Sets first dealer (possessor of the special stick) in seat 0.
+  """
+  def roll_dice_and_reseat_players(%__MODULE__{dice: []} = game) do
+    game
+    |> roll_dice()
+    |> reseat_players()
+    |> log_first_dealer_event()
+  end
+
+  @doc """
+  Roll dice and deal the deck. The dealer will have 14 tiles and others will
+  have 13. Set dealpick_seatno and change turn_state to discarding.
+  """
+  def roll_dice_and_deal(%__MODULE__{turn_state: :rolling} = game) do
+    game
+    |> roll_dice()
+    |> deal()
+  end
+
+  defp roll_dice(%__MODULE__{} = game) do
     dice = Enum.map(0..2, fn _ -> Enum.random(1..6) end)
     %{game | dice: dice}
   end
 
-  @doc """
-  Reseat the players according to the first dealer roll and the picked winds.
-  Sets the first dealer (possessor of the special stick) as seat index 0.
-  """
-  def reseat_players(%__MODULE__{} = game) do
+  defp reseat_players(%__MODULE__{} = game) do
     first_dealer_picked_wind =
       game
       |> dice_total()
@@ -230,11 +247,7 @@ defmodule Mjw.Game do
     Enum.at(@wind_tiles, rem(start_idx + count, 4))
   end
 
-  @doc """
-  Deal the deck. The dealer will have 14 tiles and others will have 13.
-  Set dealpick_seatno and change turn_state to discarding.
-  """
-  def deal(%__MODULE__{} = game) do
+  defp deal(%__MODULE__{} = game) do
     new_seats =
       game.seats
       |> Enum.with_index()
@@ -442,11 +455,16 @@ defmodule Mjw.Game do
 
     # advance the game if all players have confirmed the win
     if confirmed_win?(game) do
-      if win_declared_seatno(game) == game.dealer_seatno do
-        advance_game(game, :same_dealer)
-      else
-        advance_game(game, :advance_dealer)
-      end
+      dealer_advancement =
+        if win_declared_seatno(game) == game.dealer_seatno do
+          :same_dealer
+        else
+          :advance_dealer
+        end
+
+      game
+      |> advance_game(dealer_advancement)
+      |> log_dealer_event()
     else
       game
     end
@@ -639,8 +657,7 @@ defmodule Mjw.Game do
     |> log_dq_event(seatno)
   end
 
-  defp advance_game(%__MODULE__{} = game, dealer_advancement)
-       when dealer_advancement in [:same_dealer, :advance_dealer] do
+  defp advance_game(%__MODULE__{} = game, dealer_advancement) do
     game =
       game
       |> clear_all_seat_tiles()
@@ -653,11 +670,13 @@ defmodule Mjw.Game do
         turn_state: :rolling
       })
 
-    if dealer_advancement == :advance_dealer do
-      game |> advance_dealer()
-    else
-      # dealer_win_count gets incremented even on draws and DQs
-      %{game | dealer_win_count: game.dealer_win_count + 1, turn_seatno: game.dealer_seatno}
+    case dealer_advancement do
+      :advance_dealer ->
+        advance_dealer(game)
+
+      :same_dealer ->
+        # dealer_win_count gets incremented even on draws and DQs
+        %{game | dealer_win_count: game.dealer_win_count + 1, turn_seatno: game.dealer_seatno}
     end
   end
 
@@ -865,7 +884,37 @@ defmodule Mjw.Game do
 
   defp log_dq_event(%__MODULE__{} = game, seatno) do
     player_name = player_name_at(game, seatno)
-    log_event(game, "#{player_name} has been disqualified.", "🙅🏻‍♀️")
+
+    game
+    |> log_event("#{player_name} has been disqualified.", "🙅🏻‍♀️")
+    |> log_dealer_event()
+  end
+
+  defp log_first_dealer_event(%__MODULE__{} = game) do
+    dealer_name = turn_player_name(game)
+    log_event(game, "#{dealer_name} is the first dealer.")
+  end
+
+  defp log_dealer_event(%__MODULE__{} = game) do
+    dealer_name = turn_player_name(game)
+
+    event =
+      "#{dealer_name} is the dealer" <>
+        case game.dealer_win_count do
+          0 -> "."
+          1 -> " for the second time."
+          2 -> " for the third time."
+          3 -> " for the fourth time."
+          4 -> " for the fifth time."
+          5 -> " for the sixth time."
+          6 -> " for the seventh time."
+          7 -> " for the eighth time."
+          8 -> " for the ninth time."
+          9 -> " for the tenth time."
+          dealer_win_count -> " (x#{dealer_win_count + 1})"
+        end
+
+    log_event(game, event)
   end
 
   defp log_player_joined_event(%__MODULE__{} = game, player_name) do
@@ -881,7 +930,9 @@ defmodule Mjw.Game do
   end
 
   defp log_draw_event(%__MODULE__{} = game) do
-    log_event(game, "The game was declared a draw.", "🤝")
+    game
+    |> log_event("The game was declared a draw.", "🤝")
+    |> log_dealer_event()
   end
 
   defp log_reset_event(%__MODULE__{} = game) do

@@ -710,8 +710,7 @@ defmodule MjwWeb.GameLive.Show do
       when socket.assigns.game_state == :rolling_for_first_dealer do
     game =
       socket.assigns.game
-      |> Mjw.Game.roll_dice()
-      |> Mjw.Game.reseat_players()
+      |> Mjw.Game.roll_dice_and_reseat_players()
       |> optionally_enqueue_bot_roll(socket)
 
     socket = update_game(socket, game, :rolled_for_first_dealer)
@@ -723,8 +722,7 @@ defmodule MjwWeb.GameLive.Show do
       when socket.assigns.game_state == :rolling_for_deal do
     game =
       socket.assigns.game
-      |> Mjw.Game.roll_dice()
-      |> Mjw.Game.deal()
+      |> Mjw.Game.roll_dice_and_deal()
       |> optionally_enqueue_bot_draw(socket)
 
     socket = update_game(socket, game, :rolled_for_deal)

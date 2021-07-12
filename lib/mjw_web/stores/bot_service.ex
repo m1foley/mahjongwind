@@ -118,8 +118,7 @@ defmodule MjwWeb.BotService do
   defp perform_action(:rolling_for_first_dealer, %Mjw.Game{} = game, bot_seatno) do
     if Mjw.Game.state(game) == :rolling_for_first_dealer && bot_sitting_at?(game, bot_seatno) do
       game
-      |> Mjw.Game.roll_dice()
-      |> Mjw.Game.reseat_players()
+      |> Mjw.Game.roll_dice_and_reseat_players()
       |> MjwWeb.GameStore.update(:rolled_for_first_dealer)
       |> optionally_enqueue_roll()
     end
@@ -128,8 +127,7 @@ defmodule MjwWeb.BotService do
   defp perform_action(:rolling_for_deal, %Mjw.Game{} = game, bot_seatno) do
     if Mjw.Game.state(game) == :rolling_for_deal && bot_sitting_at?(game, bot_seatno) do
       game
-      |> Mjw.Game.roll_dice()
-      |> Mjw.Game.deal()
+      |> Mjw.Game.roll_dice_and_deal()
       |> MjwWeb.GameStore.update(:rolled_for_deal)
       |> optionally_enqueue_discard()
     end
