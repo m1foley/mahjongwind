@@ -71,12 +71,16 @@
   position: fixed;
   top: 1rem;
   right: 1rem;
+  gap: 1.5rem;
+  @apply flex flex-row text-center justify-center items-center;
 }
 
 .seat-0-icons {
   position: fixed;
   bottom: 0.7rem;
   right: 0.7rem;
+  gap: 0.5rem;
+  @apply flex flex-row text-center justify-center items-center;
 }
 
 .gamewind {
@@ -428,15 +432,15 @@
 
 #discards {
   position: fixed;
-  top: 2rem;
+  top: 0;
   bottom: 14rem;
   left: 10.8rem;
   right: 11rem;
-  padding-bottom: 6rem;
-  @apply flex flex-row flex-wrap place-content-center justify-start space-y-24 dropzone;
+  row-gap: 5.5rem;
+  @apply flex flex-row flex-wrap place-content-center justify-start dropzone;
   .tile {
     cursor: not-allowed; // overridden by dglow classes
-    height: 2.3rem;
+    height: 2.8rem;
     position: relative;
     &.sortable-ghost {
       animation: none;
@@ -582,18 +586,15 @@
 }
 
 @include discard-calculations((
-  "nth-child(9n+0)": (top: 0.6rem,  left: 0,      rotation: rotate(12deg)),
-  "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
-  "nth-child(9n+2)": (top: 3rem,    left: 0,      rotation: rotate(-40deg)),
-  "nth-child(9n+3)": (top: -1.2rem, left: 0,      rotation: none),
-  "nth-child(9n+4)": (top: 3rem,    left: 0,      rotation: none),
-  "nth-child(9n+5)": (top: -1.5rem, left: 0.5rem, rotation: rotate(50deg)),
-  "nth-child(9n+6)": (top: 1.5rem,    left: 0,      rotation: rotate(-24deg)),
-  "nth-child(9n+7)": (top: 3.5rem,  left: 0.5rem, rotation: rotate(73deg)),
-  "nth-child(9n+8)": (top: -1.7rem, left: 0,      rotation: rotate(30deg)),
-  // for some reason space-y-24 (which provides vertical spacing when new rows
-  // are added) makes the first-child appear way off to the upper left
-      "first-child": (top: 6rem,   left: 0,       rotation: rotate(14deg))
+  "nth-child(9n+0)": (top: 0.6rem,  left: 0,       rotation: rotate(12deg)),
+  "nth-child(9n+1)": (top: -1.5rem, left: 0.6rem,  rotation: rotate(-20deg)),
+  "nth-child(9n+2)": (top: 3rem,    left: 0,       rotation: rotate(-40deg)),
+  "nth-child(9n+3)": (top: -1.2rem, left: 0,       rotation: none),
+  "nth-child(9n+4)": (top: 3rem,    left: 0,       rotation: none),
+  "nth-child(9n+5)": (top: -1.5rem, left: 0.5rem,  rotation: rotate(50deg)),
+  "nth-child(9n+6)": (top: 1.5rem,  left: 0,       rotation: rotate(-24deg)),
+  "nth-child(9n+7)": (top: 3.5rem,  left: 1.4rem,  rotation: rotate(73deg)),
+  "nth-child(9n+8)": (top: -1.6rem, left: -0.5rem, rotation: rotate(30deg))
 ));
 
 $small-width: 45rem;
@@ -601,51 +602,42 @@ $med-width: 67rem;
 
 @media (max-width: $small-width)  {
   @include discard-calculations((
-    "nth-child(9n+0)": (top: 0.6rem,  left: 0,      rotation: rotate(12deg)),
-    "nth-child(9n+1)": (top: -2.3rem, left: 0.6rem, rotation: rotate(-20deg)),
+    "nth-child(9n+0)": (top: 0.5rem,  left: 0.2rem, rotation: rotate(12deg)),
+    "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
     "nth-child(9n+2)": (top: 1rem,    left: 0,      rotation: rotate(-40deg)),
-    "nth-child(9n+3)": (top: -1.2rem, left: 0,      rotation: none),
+    "nth-child(9n+3)": (top: -1.7rem, left: 0.4rem, rotation: none),
     "nth-child(9n+4)": (top: 1rem,    left: 0,      rotation: none),
     "nth-child(9n+5)": (top: -1.5rem, left: 0.5rem, rotation: rotate(50deg)),
-    "nth-child(9n+6)": (top: 2rem,    left: 0,      rotation: rotate(-24deg)),
+    "nth-child(9n+6)": (top: 1.2rem,  left: 0,      rotation: rotate(-24deg)),
     "nth-child(9n+7)": (top: 0,       left: 0.5rem, rotation: rotate(73deg)),
-    "nth-child(9n+8)": (top: -2.2rem, left: 0,      rotation: rotate(30deg)),
-        "first-child": (top: 3rem,    left: 0,      rotation: rotate(14deg))
+    "nth-child(9n+8)": (top: -2.2rem, left: 0,      rotation: rotate(30deg))
   ));
-  .tile {
-    height: 1.5rem;
-  }
-  .walltile {
-    height: 1.5rem;
+  .tile, .walltile {
+    height: 2rem;
   }
   .wall-tiles-1 {
     top: 1.8rem;
   }
   .largetile {
-    height: 2.6rem;
+    height: 4rem;
   }
   #peektile-0 {
-    bottom: 6rem;
-    height: 5rem;
-    width: 4rem;
+    bottom: 12rem;
+    height: 6rem;
+    width: 5.5rem;
   }
   .dropzone {
-    min-height: 2.6rem;
-    min-width: 2rem;
-  }
-  #exposed-0 {
-    min-width: 22rem;
+    min-height: 4rem;
+    min-width: 3.5rem;
   }
   #discards {
-    top: 0.5rem;
-    bottom: 6rem;
-    left: 3.2rem;
-    right: 3.2rem;
-    padding-bottom: 4rem;
+    left: 4.2rem;
+    right: 4.2rem;
+    bottom: 12rem;
+    row-gap: 3.7rem;
     .tile {
-      height: 0.8rem;
+      height: 1.5rem;
     }
-    @apply space-y-0;
   }
   .game-url {
     font-size: 0.5rem;
@@ -656,8 +648,16 @@ $med-width: 67rem;
   .gamemenu-content, .seat-offering-modal-content {
     width: 100%;
   }
-  #seat-0 {
-    bottom: 3rem;
+  #hiddengongs-0, #wintile-0 {
+    top: -4rem;
+    min-width: 4rem;
+  }
+  #exposed-0 {
+    opacity: 0.7;
+    background: rgba(0, 0, 0, 0.1);
+  }
+  #concealed-0, #exposed-0 {
+    @apply flex-wrap;
   }
   #seat-2 {
     .player-name-container {
@@ -666,10 +666,12 @@ $med-width: 67rem;
   }
   .icons {
     top: 0;
+    gap: 0.5rem;
   }
   .with-description {
     .dropzone-description {
-      display: none;
+      top: 1rem;
+      @apply text-base;
     }
   }
   #table-center {
@@ -719,16 +721,15 @@ $med-width: 67rem;
 
 @media (min-width: $small-width) and (max-width: $med-width) {
   @include discard-calculations((
-    "nth-child(9n+0)": (top: 0.6rem,  left: 0,      rotation: rotate(12deg)),
-    "nth-child(9n+1)": (top: -2.3rem, left: 0.6rem, rotation: rotate(-20deg)),
+    "nth-child(9n+0)": (top: 1rem,    left: 0,      rotation: rotate(12deg)),
+    "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
     "nth-child(9n+2)": (top: 1rem,    left: 0,      rotation: rotate(-40deg)),
     "nth-child(9n+3)": (top: -1.2rem, left: 0,      rotation: none),
     "nth-child(9n+4)": (top: 1rem,    left: 0,      rotation: none),
     "nth-child(9n+5)": (top: -1.5rem, left: 0.5rem, rotation: rotate(50deg)),
-    "nth-child(9n+6)": (top: 2rem,    left: 0,      rotation: rotate(-24deg)),
+    "nth-child(9n+6)": (top: 1.2rem,  left: 0,      rotation: rotate(-24deg)),
     "nth-child(9n+7)": (top: 0,       left: 0.5rem, rotation: rotate(73deg)),
-    "nth-child(9n+8)": (top: -2.2rem, left: 0,      rotation: rotate(30deg)),
-        "first-child": (top: 3rem,    left: 0,      rotation: rotate(14deg))
+    "nth-child(9n+8)": (top: -2.2rem, left: 0,      rotation: rotate(30deg))
   ));
   .tile {
     height: 4rem;
@@ -761,15 +762,13 @@ $med-width: 67rem;
     min-width: 38rem;
   }
   #discards {
-    top: 2rem;
-    bottom: 10rem;
     left: 8.5rem;
     right: 8.5rem;
-    padding-bottom: 4rem;
+    bottom: 10rem;
+    row-gap: 3.8rem;
     .tile {
       height: 1.8rem;
     }
-    @apply space-y-20;
   }
   .game-url {
     font-size: 0.7rem;
@@ -807,6 +806,14 @@ $med-width: 67rem;
     @apply text-base;
     .windandname {
       width: 8rem;
+    }
+  }
+  .icons {
+    gap: 0.5rem;
+  }
+  #seat-2 {
+    .player-name-container {
+      right: 10%;
     }
   }
 }

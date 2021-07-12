@@ -39,8 +39,6 @@ export default {
           swapThreshold: 1,
           animation: 0,
           emptyInsertThreshold: 0,
-          delay: 50,
-          delayOnTouchOnly: true,
           onStart: function (evt) {
             const hlSelector = '#wintile-0, #exposed-0';
             document.querySelectorAll(hlSelector).forEach((hlZone) => {
@@ -79,8 +77,6 @@ export default {
           swapThreshold: 0.2,
           animation: 100,
           emptyInsertThreshold: 0,
-          delay: 50,
-          delayOnTouchOnly: true,
           onStart: function (evt) {
             const hlSelector = '#hiddengongs-0, #wintile-0, #exposed-0';
             document.querySelectorAll(hlSelector).forEach((hlZone) => {
@@ -140,8 +136,6 @@ export default {
           swapThreshold: 0.2,
           animation: 100,
           emptyInsertThreshold: 0,
-          delay: 50,
-          delayOnTouchOnly: true,
           onStart: function (evt) {
             const hlSelector = '#hiddengongs-0, #wintile-0';
             document.querySelectorAll(hlSelector).forEach((hlZone) => {
@@ -196,8 +190,6 @@ export default {
           swapThreshold: 0.2,
           animation: 100,
           emptyInsertThreshold: 0,
-          delay: 50,
-          delayOnTouchOnly: true,
           onSort: function (evt) {
             // Interactions with concealed, exposed, and peektile are handled
             // in their respective onSort hooks. That should leave just
@@ -234,8 +226,6 @@ export default {
           draggable: '.draggable',
           ghostClass: 'sortable-ghost',
           animation: 0,
-          delay: 50,
-          delayOnTouchOnly: true,
           onStart: function (evt) {
             const hlSelector = '#hiddengongs-0, #wintile-0';
             document.querySelectorAll(hlSelector).forEach((hlZone) => {
@@ -284,8 +274,6 @@ export default {
           ghostClass: 'sortable-ghost',
           animation: 0,
           emptyInsertThreshold: 0,
-          delay: 50,
-          delayOnTouchOnly: true
         });
         break;
       case 'wintile-0':
@@ -301,8 +289,6 @@ export default {
           swapThreshold: 0.2,
           animation: 100,
           emptyInsertThreshold: 0,
-          delay: 50,
-          delayOnTouchOnly: true,
           onSort: function (evt) {
             // Interactions with concealed, exposed, and peektiles are handled
             // in their respective onSort hooks. That should leave just
