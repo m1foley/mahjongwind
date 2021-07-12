@@ -643,7 +643,21 @@ $med-width: 67rem;
     font-size: 0.5rem;
   }
   .gamelog {
-    display: none;
+    min-width: 12rem;
+    max-width: 18rem;
+    max-height: 4.5rem;
+    right: 0rem;
+    top: 4.5rem;
+    font-size: 0.7rem;
+    background: rgba(30, 60, 30, 0.4);
+    .event {
+      .tile, .icon {
+        margin-left: 0.1rem;
+      }
+      .tile {
+        height: 1rem;
+      }
+    }
   }
   .gamemenu-content, .seat-offering-modal-content {
     width: 100%;
