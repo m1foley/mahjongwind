@@ -847,17 +847,16 @@ defmodule MjwWeb.GameLive.Show do
       !win_declared_seatno && game_state == :drawing &&
         game.turn_seatno == current_user_seatno
 
-    # because of pongs, discards are available to everyone except
-    # last_discarded_seatno
-    available_discard_tile =
-      if !win_declared_seatno && game_state == :drawing &&
-           last_discarded_seatno != current_user_seatno do
-        Enum.at(game.discards, 0)
+    discarded_by_relative_seatno =
+      if last_discarded_seatno && !win_declared_seatno && game_state == :drawing do
+        Enum.find_index(relative_game_seats, &(&1.seatno == last_discarded_seatno))
       end
 
-    discarded_by_relative_seatno =
-      if available_discard_tile do
-        Enum.find_index(relative_game_seats, &(&1.seatno == last_discarded_seatno))
+    # because of pongs, discards are available to everyone except the player
+    # who discarded
+    available_discard_tile =
+      if discarded_by_relative_seatno && discarded_by_relative_seatno != 0 do
+        Enum.at(game.discards, 0)
       end
 
     current_user_discarding =
