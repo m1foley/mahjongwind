@@ -65,7 +65,7 @@
     </div>
   <% end %>
 
-  <div class="icons flex flex-row text-center justify-center items-center space-x-6">
+  <div class="icons">
     <%= if @winds_have_been_picked && @bots_present do %>
       <%= if @game.pause_bots do %>
         <div id="resumebots" phx-click="resumebots">Resume bots</div>
@@ -88,7 +88,7 @@
   </div>
 
   <%= if @player_seats_finalized do %>
-    <div class="seat-0-icons flex flex-row text-center justify-center items-center space-x-2">
+    <div class="seat-0-icons">
       <%= if @current_user_seatno == 0 do %>
         <div class="firstdealer-indicator inline-block text-gray-100 text-xl font-light font-serif opacity-50" title="First dealer. Game wind changes when the deal circles back to you.">庄</div>
       <% end %>
