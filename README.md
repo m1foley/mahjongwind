@@ -3,6 +3,7 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Hide gamelog when waiting for players & picking winds
 - xl screen size with bigger discards
 - Visually indicate when another player drew from deck. Floating peektile?
 - Button to sort hand on deal
