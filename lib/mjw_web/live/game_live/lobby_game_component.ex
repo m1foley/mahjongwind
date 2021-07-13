@@ -19,7 +19,6 @@ defmodule MjwWeb.GameLive.LobbyGameComponent do
       |> Mjw.Game.seated_player_names()
       |> Enum.join(", ")
 
-    socket
-    |> assign(:seated_player_names, seated_player_names)
+    assign(socket, :seated_player_names, seated_player_names)
   end
 end
