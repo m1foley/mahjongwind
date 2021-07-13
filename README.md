@@ -3,24 +3,22 @@
 Play mahjong with your friends online!
 
 ## TODO
+- xl screen size with bigger discards
 - Visually indicate when another player drew from deck. Floating peektile?
 - Button to sort hand on deal
 - Indicate when deck is running low
 - Experiment with more CSS animations: exposing a tile, taking from discards, dealing the tiles, etc.
 - Put everyone's discards in front of their hand?
-
-## Long-term TODOs for public release
 - Real user accounts instead of just web sessions
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)
 - Support more Mahjong rule sets (flower tiles, no game wind, etc.)
 - Instructions
 - Protect games from being erased during deploys
 - Test Internet Explorer
-- Mobile support
 - Automatically expire games
 - Think of a better domain name?
 
-## Future rule enforcement?
+## Future rule enforcement
 - Winning tile was the last one picked up
 
 ## Instructions

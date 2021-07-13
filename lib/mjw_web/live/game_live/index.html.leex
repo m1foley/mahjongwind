@@ -1,18 +1,23 @@
 <div class="lobby">
-  <h2 class="lobbytitle">Mahjong Wind</h2>
-
-  <div class="lobbygames">
-    <%= if Enum.empty?(@games) do %>
-      <div class="empty-tables">
-        The tables are silent. Start a new game and invite a friend!
-      </div>
-    <% end %>
-    <%= for game <- @games do %>
-      <%= live_component @socket, MjwWeb.GameLive.LobbyGameComponent, id: game.id, game: game %>
-    <% end %>
-  </div>
+  <img src="/images/cursive.png" alt="Mahjong Wind" class="lobbytitle" />
 
   <%= form_for :game, Routes.game_path(@socket, :create), fn _ -> %>
-    <%= submit("Start #{unless Enum.empty?(@games), do: "a new"} game", class: "new-game") %>
+    <%= submit("Start a game", class: "new-game") %>
   <% end %>
+
+  <div class="lobbygames">
+    <%= unless Enum.empty?(@games) do %>
+      <div class="py-8 text-xl font-semibold">or join a game in progress:</div>
+      <%= for game <- @games do %>
+        <%= live_component @socket, MjwWeb.GameLive.LobbyGameComponent, id: "join-#{game.id}", game: game %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Email:</span>
+  <span class="pl-1">hello&#64;<span class="hidden">REMOVE</span>mahjongwind.com</span>
+  <span class="pl-4">Twitter:</span>
+  <span class="pl-1"><a href="https://www.twitter.com/m1foley">@m1foley</a></span>
 </div>
