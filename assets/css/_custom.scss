@@ -753,6 +753,9 @@ $med-width: 67rem;
   .stickpomelo {
     display: none;
   }
+  .lobbytitle {
+    max-width: 100%;
+  }
 }
 
 @media (min-width: $small-width) and (max-width: $med-width) {
