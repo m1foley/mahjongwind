@@ -7,7 +7,7 @@
 
   <div class="lobbygames">
     <%= unless Enum.empty?(@games) do %>
-      <div class="py-12 text-xl font-semibold">or join a game in progress:</div>
+      <div class="pt-12 pb-10 text-xl font-semibold">or join a game in progress:</div>
       <%= for game <- @games do %>
         <%= live_component @socket, MjwWeb.GameLive.LobbyGameComponent, id: "join-#{game.id}", game: game %>
       <% end %>
