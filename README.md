@@ -4,7 +4,6 @@ Play mahjong with your friends online!
 
 ## TODO
 - Adjustable bot time
-- Too many open games don't fit. Change to invite code system?
 - Point out game menu on first load
 - Make seating less confusing
 - Hide gamelog when waiting for players & picking winds
