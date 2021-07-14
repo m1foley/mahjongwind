@@ -16,6 +16,7 @@
   background-image: url("/images/splashbg.jpg");
   background-size: cover;
   background-repeat: no-repeat;
+  overflow-y: auto;
   @apply text-center text-gray-200 font-sans text-lg p-8 m-0;
 }
 
@@ -33,7 +34,6 @@
 
 .lobbygames {
   align-items: center;
-  padding: 1rem;
 }
 
 .lobbygame {
