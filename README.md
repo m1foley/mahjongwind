@@ -3,6 +3,10 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Adjustable bot time
+- Too many open games don't fit. Change to invite code system?
+- Point out game menu on first load
+- Make seating less confusing
 - Hide gamelog when waiting for players & picking winds
 - xl screen size with bigger discards
 - Visually indicate when another player drew from deck. Floating peektile?
@@ -48,6 +52,7 @@ git push heroku main:main
 ## Misc. development notes
 
 ### Research/similar sites
+- <https://www.reddit.com/r/Mahjong/comments/ogl4yf/best_way_to_play_hk_mahjong_online/>
 - <http://mahjongbuddy.com>
 - <https://www.reddit.com/r/Mahjong/comments/jsbsve/i_created_online_hong_kong_mahjong_web_app/>
 - <https://www.reddit.com/r/Mahjong/>
