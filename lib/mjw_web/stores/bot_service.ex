@@ -1,9 +1,9 @@
 defmodule MjwWeb.BotService do
   use GenServer
 
-  @default_action_delay :timer.seconds(11)
-  @quick_discard_action_delay :timer.seconds(4)
-  @win_out_of_turn_action_delay :timer.seconds(1)
+  @action_delay_default :timer.seconds(5)
+  @action_delay_quick_discard :timer.seconds(2)
+  @action_delay_win_out_of_turn :timer.seconds(1)
 
   # Client
 
@@ -42,7 +42,7 @@ defmodule MjwWeb.BotService do
         :try_win_out_of_turn,
         game.id,
         game.turn_seatno,
-        @win_out_of_turn_action_delay
+        @action_delay_win_out_of_turn
       )
     end
 
@@ -59,7 +59,7 @@ defmodule MjwWeb.BotService do
     game
   end
 
-  defp enqueue_discard(%Mjw.Game{turn_state: :discarding} = game, delay \\ @default_action_delay) do
+  defp enqueue_discard(%Mjw.Game{turn_state: :discarding} = game, delay \\ @action_delay_default) do
     enqueue_delayed_action(:discard, game.id, game.turn_seatno, delay)
     game
   end
@@ -108,7 +108,7 @@ defmodule MjwWeb.BotService do
 
   defp initial(), do: :queue.new()
 
-  defp enqueue_delayed_action(action_type, game_id, bot_seatno, delay \\ @default_action_delay) do
+  defp enqueue_delayed_action(action_type, game_id, bot_seatno, delay \\ @action_delay_default) do
     GenServer.cast(__MODULE__, {:enqueue_action, delay, {action_type, game_id, bot_seatno}})
   end
 
@@ -143,7 +143,7 @@ defmodule MjwWeb.BotService do
       game
       |> Mjw.Game.bot_draw()
       |> MjwWeb.GameStore.update(:drew_from_deck)
-      |> enqueue_discard(@quick_discard_action_delay)
+      |> enqueue_discard(@action_delay_quick_discard)
     end
   end
 
