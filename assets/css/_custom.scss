@@ -274,7 +274,7 @@
 
 #table-center {
   position: fixed;
-  top: 8rem;
+  top: 12rem;
   left: 0;
   right: 0;
 }
@@ -451,15 +451,15 @@
 
 #discards {
   position: fixed;
-  top: 0;
   bottom: 14rem;
-  left: 10.8rem;
-  right: 11rem;
+  left: 11.5rem;
+  right: 12rem;
+  top: 6rem;
   row-gap: 5.5rem;
   @apply flex flex-row flex-wrap place-content-center justify-start dropzone;
   .tile {
     cursor: not-allowed; // overridden by dglow classes
-    height: 2.8rem;
+    height: 3.5rem;
     position: relative;
     &.sortable-ghost {
       animation: none;
@@ -607,22 +607,16 @@
   }
 }
 
-@include discard-calculations((
-  "nth-child(9n+0)": (top: 0.6rem,  left: 0,       rotation: rotate(12deg)),
-  "nth-child(9n+1)": (top: -1.5rem, left: 0.6rem,  rotation: rotate(-20deg)),
-  "nth-child(9n+2)": (top: 3rem,    left: 0,       rotation: rotate(-40deg)),
-  "nth-child(9n+3)": (top: -1.2rem, left: 0,       rotation: none),
-  "nth-child(9n+4)": (top: 3rem,    left: 0,       rotation: none),
-  "nth-child(9n+5)": (top: -1.5rem, left: 0.5rem,  rotation: rotate(50deg)),
-  "nth-child(9n+6)": (top: 1.5rem,  left: 0,       rotation: rotate(-24deg)),
-  "nth-child(9n+7)": (top: 3.5rem,  left: 1.4rem,  rotation: rotate(73deg)),
-  "nth-child(9n+8)": (top: -1.6rem, left: -0.5rem, rotation: rotate(30deg))
-));
+$small-min-height: 33rem;
+$medium-min-height: 55rem;
+$large-min-height: 67rem;
 
-$small-width: 45rem;
-$med-width: 67rem;
+$small-min-width: 55rem;
+$medium-min-width: 80rem;
+$large-min-width: 132rem;
 
-@media (max-width: $small-width)  {
+// mobile
+@media (max-width: $small-min-width), (max-height: $small-min-height) {
   @include discard-calculations((
     "nth-child(9n+0)": (top: 0.5rem,  left: 0.2rem, rotation: rotate(12deg)),
     "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
@@ -653,9 +647,10 @@ $med-width: 67rem;
     min-width: 3.5rem;
   }
   #discards {
-    left: 4.2rem;
-    right: 4.2rem;
+    left: 3.8rem;
+    right: 3.8rem;
     bottom: 12rem;
+    top: 5rem;
     row-gap: 3.7rem;
     .tile {
       height: 1.5rem;
@@ -710,9 +705,6 @@ $med-width: 67rem;
       @apply text-base;
     }
   }
-  #table-center {
-    top: 3rem;
-  }
   .hand {
     font-size: 6rem;
   }
@@ -758,7 +750,8 @@ $med-width: 67rem;
   }
 }
 
-@media (min-width: $small-width) and (max-width: $med-width) {
+// small
+@media (min-width: $small-min-width) and (min-height: $small-min-height) and (max-width: $medium-min-width), (min-width: $small-min-width) and (min-height: $small-min-height) and (max-height: $medium-min-height) {
   @include discard-calculations((
     "nth-child(9n+0)": (top: 1rem,    left: 0,      rotation: rotate(12deg)),
     "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
@@ -804,6 +797,7 @@ $med-width: 67rem;
     left: 8.5rem;
     right: 8.5rem;
     bottom: 10rem;
+    top: 9rem;
     row-gap: 3.8rem;
     .tile {
       height: 1.8rem;
@@ -828,9 +822,6 @@ $med-width: 67rem;
       }
     }
   }
-  #table-center {
-    top: 4rem;
-  }
   .hand {
     font-size: 8rem;
   }
@@ -853,6 +844,46 @@ $med-width: 67rem;
   #seat-2 {
     .player-name-container {
       right: 10%;
+    }
+  }
+}
+
+// medium
+@media (min-width: $medium-min-width) and (min-height: $medium-min-height) and (max-width: $large-min-width), (min-width: $medium-min-width) and (min-height: $medium-min-height) and (max-height: $large-min-height) {
+  @include discard-calculations((
+    "nth-child(9n+0)": (top: 1.0rem,  left: 0,       rotation: rotate(12deg)),
+    "nth-child(9n+1)": (top: -1.5rem, left: 0.6rem,  rotation: rotate(-20deg)),
+    "nth-child(9n+2)": (top: 3rem,    left: 0,       rotation: rotate(-40deg)),
+    "nth-child(9n+3)": (top: -1.2rem, left: 0,       rotation: none),
+    "nth-child(9n+4)": (top: 3rem,    left: 0,       rotation: none),
+    "nth-child(9n+5)": (top: -2.0rem, left: 0,       rotation: rotate(50deg)),
+    "nth-child(9n+6)": (top: 1.5rem,  left: -0.4rem, rotation: rotate(-24deg)),
+    "nth-child(9n+7)": (top: 3.9rem,  left: 1.4rem,  rotation: rotate(73deg)),
+    "nth-child(9n+8)": (top: -1.0rem, left: -0.5rem, rotation: rotate(30deg))
+  ));
+}
+
+// large
+@media (min-width: $large-min-width) and (min-height: $large-min-height) {
+  @include discard-calculations((
+    "nth-child(9n+0)": (top: 5.0rem,  left: 0,       rotation: rotate(12deg)),
+    "nth-child(9n+1)": (top: -2.5rem, left: -1.5rem, rotation: rotate(-20deg)),
+    "nth-child(9n+2)": (top: 3.0rem,  left: 0,       rotation: rotate(-40deg)),
+    "nth-child(9n+3)": (top: -3.2rem, left: 0,       rotation: none),
+    "nth-child(9n+4)": (top: 5.0rem,  left: 0,       rotation: none),
+    "nth-child(9n+5)": (top: -2.5rem, left: 0.5rem,  rotation: rotate(50deg)),
+    "nth-child(9n+6)": (top: 5.5rem,  left: 0,       rotation: rotate(-24deg)),
+    "nth-child(9n+7)": (top: 3.0rem,  left: 2.0rem,  rotation: rotate(73deg)),
+    "nth-child(9n+8)": (top: -3rem,   left: -3.0rem, rotation: rotate(30deg))
+  ));
+  #discards {
+    top: 0;
+    left: 14rem;
+    right: 12.9rem;
+    padding-top: 6rem;
+    row-gap: 10rem;
+    .tile {
+      height: 5rem;
     }
   }
 }

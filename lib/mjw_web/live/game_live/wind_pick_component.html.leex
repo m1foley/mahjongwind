@@ -1,6 +1,8 @@
 <div id="<%= @id %>">
   <div class="state-description">
-    <%= unless @picked_wind do %>
+    <%= if @picked_wind do %>
+      &nbsp;
+    <% else %>
       Pick a wind to choose your seat:
     <% end %>
   </div>
