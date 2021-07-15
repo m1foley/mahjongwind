@@ -5,10 +5,9 @@ Play mahjong with your friends online!
 ## TODO
 - Point out game menu on first load
 - Make seating less confusing
-- Hide gamelog when waiting for players & picking winds
 - Sound
 - Visually indicate when another player drew from deck. Floating peektile?
-- Button to sort hand on deal
+- Sort hand on deal
 - Indicate when deck is running low
 - Experiment with more CSS animations: exposing a tile, taking from discards, dealing the tiles, etc.
 - Put everyone's discards in front of their hand?
@@ -19,7 +18,6 @@ Play mahjong with your friends online!
 - Protect games from being erased during deploys
 - Test Internet Explorer
 - Automatically expire games
-- Think of a better domain name?
 
 ## Future rule enforcement
 - Winning tile was the last one picked up
