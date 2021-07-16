@@ -119,7 +119,7 @@ defmodule MjwWeb.BotService do
     if Mjw.Game.state(game) == :rolling_for_first_dealer && bot_sitting_at?(game, bot_seatno) do
       game
       |> Mjw.Game.roll_dice_and_reseat_players()
-      |> MjwWeb.GameStore.update(:rolled_for_first_dealer)
+      |> update_game(:rolled_for_first_dealer, bot_seatno)
       |> optionally_enqueue_roll()
     end
   end
@@ -128,7 +128,7 @@ defmodule MjwWeb.BotService do
     if Mjw.Game.state(game) == :rolling_for_deal && bot_sitting_at?(game, bot_seatno) do
       game
       |> Mjw.Game.roll_dice_and_deal()
-      |> MjwWeb.GameStore.update(:rolled_for_deal)
+      |> update_game(:rolled_for_deal, bot_seatno)
       |> optionally_enqueue_discard()
     end
   end
@@ -140,10 +140,23 @@ defmodule MjwWeb.BotService do
          bot_seatno
        ) do
     if Mjw.Game.state(game) == :drawing && bot_sitting_at?(game, bot_seatno) do
-      game
-      |> Mjw.Game.bot_draw()
-      |> MjwWeb.GameStore.update(:drew_from_deck)
-      |> enqueue_discard(@action_delay_quick_discard)
+      case Mjw.Game.bot_draw(game) do
+        {:draw_deck_tile, game} ->
+          game
+          |> update_game(:drew_from_deck, bot_seatno)
+          |> enqueue_discard(@action_delay_quick_discard)
+
+        {:draw_discard, game} ->
+          game
+          |> update_game(:drew_discard, bot_seatno)
+          |> enqueue_discard(@action_delay_quick_discard)
+
+        {:win_with_discard, game} ->
+          update_game(game, :declared_win, bot_seatno)
+
+        {:zimo, game} ->
+          update_game(game, :zimo, bot_seatno)
+      end
     end
   end
 
@@ -156,8 +169,8 @@ defmodule MjwWeb.BotService do
        ) do
     if Mjw.Game.state(game) == :drawing && bots_out_of_turn?(game) do
       case Mjw.Game.bots_try_win_out_of_turn(game) do
-        {:ok, won_game} ->
-          MjwWeb.GameStore.update(won_game, :declared_win, %{tile: discard_tile})
+        {:ok, won_game, win_declared_seatno} ->
+          update_game(won_game, :declared_win, win_declared_seatno, %{tile: discard_tile})
 
         :no_wins ->
           nil
@@ -174,13 +187,13 @@ defmodule MjwWeb.BotService do
       case Mjw.Game.bot_discard(game) do
         {:ok, game} ->
           game
-          |> MjwWeb.GameStore.update(:discarded)
+          |> update_game(:discarded, bot_seatno)
           |> optionally_enqueue_draw()
 
         # Discarding with an empty deck results in a draw game
         {:declared_draw, game} ->
           game
-          |> MjwWeb.GameStore.update(:draw)
+          |> update_game(:draw, bot_seatno)
           |> optionally_enqueue_roll()
       end
     end
@@ -196,5 +209,15 @@ defmodule MjwWeb.BotService do
     game.seats
     |> Enum.with_index()
     |> Enum.any?(fn {seat, idx} -> idx != game.turn_seatno && Mjw.Seat.bot?(seat) end)
+  end
+
+  defp update_game(%Mjw.Game{} = game, event, bot_seatno, event_details \\ %{}) do
+    seat =
+      game.seats
+      |> Enum.at(bot_seatno)
+      |> Map.merge(%{seatno: bot_seatno})
+
+    event_details = Map.merge(event_details, %{seat: seat})
+    MjwWeb.GameStore.update(game, event, event_details)
   end
 end

@@ -552,6 +552,21 @@
   display: inline-block;
 }
 
+.drew-from-deck-1 #seat-1, .drew-from-deck-2 #seat-2, .drew-from-deck-3 #seat-3 {
+  .concealed-tiles .tile:last-child {
+    animation: deck-pick-animation 1s ease;
+  }
+}
+.zimo-1 #seat-1, .zimo-2 #seat-2, .zimo-3 #seat-3 {
+  .wintile-tiles .tile:last-child {
+    animation: deck-pick-animation 1s ease;
+  }
+}
+@keyframes deck-pick-animation {
+  0% { transform: translate(10rem, -10rem) rotate(35deg); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+
 @mixin discard-calculations($discard-positions) {
   #discards {
     .tile {
@@ -586,9 +601,24 @@
     }
   }
 
+  @keyframes drew-from-discards-animation {
+    0% { transform: translate(0, -20rem); }
+    100% { transform: translate(0, 0); }
+  }
+  @keyframes exposed-tile-animation {
+    0% { transform: translate(0, 10rem); }
+    100% { transform: translate(0, 0); }
+  }
+
   $tileids: b1-0,b1-1,b1-2,b1-3,b2-0,b2-1,b2-2,b2-3,b3-0,b3-1,b3-2,b3-3,b4-0,b4-1,b4-2,b4-3,b5-0,b5-1,b5-2,b5-3,b6-0,b6-1,b6-2,b6-3,b7-0,b7-1,b7-2,b7-3,b8-0,b8-1,b8-2,b8-3,b9-0,b9-1,b9-2,b9-3,c1-0,c1-1,c1-2,c1-3,c2-0,c2-1,c2-2,c2-3,c3-0,c3-1,c3-2,c3-3,c4-0,c4-1,c4-2,c4-3,c5-0,c5-1,c5-2,c5-3,c6-0,c6-1,c6-2,c6-3,c7-0,c7-1,c7-2,c7-3,c8-0,c8-1,c8-2,c8-3,c9-0,c9-1,c9-2,c9-3,n1-0,n1-1,n1-2,n1-3,n2-0,n2-1,n2-2,n2-3,n3-0,n3-1,n3-2,n3-3,n4-0,n4-1,n4-2,n4-3,n5-0,n5-1,n5-2,n5-3,n6-0,n6-1,n6-2,n6-3,n7-0,n7-1,n7-2,n7-3,n8-0,n8-1,n8-2,n8-3,n9-0,n9-1,n9-2,n9-3,df-0,df-1,df-2,df-3,dp-0,dp-1,dp-2,dp-3,dz-0,dz-1,dz-2,dz-3,we-0,we-1,we-2,we-3,ws-0,ws-1,ws-2,ws-3,ww-0,ww-1,ww-2,ww-3,wn-0,wn-1,wn-2,wn-3;
 
   @each $tileid in $tileids {
+    .drew-from-discards-#{$tileid} ##{$tileid} {
+      animation: drew-from-discards-animation 1s ease;
+    }
+    .exposed-tile-#{$tileid} ##{$tileid} {
+      animation: exposed-tile-animation 1s ease;
+    }
     .glow-#{$tileid} ##{$tileid} {
       @apply glow;
     }
