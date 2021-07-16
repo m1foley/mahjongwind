@@ -867,6 +867,16 @@ defmodule MjwWeb.GameLive.Show do
 
     non_discard_glow_tile = non_discard_glow_tile(event, event_details, current_user_seatno)
 
+    drew_from_discards_tile = drew_from_discards_tile(event, event_details, current_user_seatno)
+
+    exposed_tile = exposed_tile(event, event_details, current_user_seatno)
+
+    drew_from_deck_relative_seatno =
+      relative_seatno_for_event(:drew_from_deck, event, event_details, relative_game_seats)
+
+    zimo_relative_seatno =
+      relative_seatno_for_event(:zimo, event, event_details, relative_game_seats)
+
     turn_glow_seatno = unless win_declared_seatno, do: game.turn_seatno
 
     socket
@@ -890,6 +900,10 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:current_user_discarding, current_user_discarding)
     |> assign(:show_correction_tile, show_correction_tile)
     |> assign(:non_discard_glow_tile, non_discard_glow_tile)
+    |> assign(:drew_from_discards_tile, drew_from_discards_tile)
+    |> assign(:exposed_tile, exposed_tile)
+    |> assign(:drew_from_deck_relative_seatno, drew_from_deck_relative_seatno)
+    |> assign(:zimo_relative_seatno, zimo_relative_seatno)
     |> assign(:turn_glow_seatno, turn_glow_seatno)
     |> assign(:deck_remaining, length(game.deck))
     |> assign(:empty_seats_count, Mjw.Game.empty_seats_count(game))
@@ -952,7 +966,7 @@ defmodule MjwWeb.GameLive.Show do
   # conditions when everyone is sorting their tiles at the same time.
   defp update_game(socket, game, event, event_details \\ %{}) do
     current_user_seat = socket.assigns.current_user_seat
-    local_only = event_details |> Map.get(:local_only)
+    local_only = Map.get(event_details, :local_only)
 
     event_details =
       event_details
@@ -1005,10 +1019,53 @@ defmodule MjwWeb.GameLive.Show do
     :declared_win
   ]
 
-  defp non_discard_glow_tile(event, %{seat: event_seatno, tile: event_tile}, current_user_seatno)
-       when (event_seatno == current_user_seatno and event in @current_player_glow_tile_events) or
-              (event_seatno != current_user_seatno and event in @other_player_glow_tile_events),
-       do: event_tile
+  defp non_discard_glow_tile(event, %{seat: seat, tile: event_tile}, current_user_seatno) do
+    event_seatno = Map.get(seat, :seatno)
+
+    if (event_seatno == current_user_seatno && event in @current_player_glow_tile_events) ||
+         (event_seatno != current_user_seatno && event in @other_player_glow_tile_events) do
+      event_tile
+    end
+  end
 
   defp non_discard_glow_tile(_event, _event_details, _current_user_seatno), do: nil
+
+  defp drew_from_discards_tile(
+         event,
+         %{seat: seat, tile: event_tile},
+         current_user_seatno
+       )
+       when event in [:drew_from_discards_tile, :ponged] do
+    event_seatno = Map.get(seat, :seatno)
+    if event_seatno != current_user_seatno, do: event_tile
+  end
+
+  defp drew_from_discards_tile(_event, _event_details, _current_user_seatno), do: nil
+
+  defp exposed_tile(
+         :exposed_tile,
+         %{seat: seat, tile: event_tile},
+         current_user_seatno
+       ) do
+    event_seatno = Map.get(seat, :seatno)
+    if event_seatno != current_user_seatno, do: event_tile
+  end
+
+  defp exposed_tile(_event, _event_details, _current_user_seatno), do: nil
+
+  defp relative_seatno_for_event(
+         event,
+         event,
+         %{seat: event_seat},
+         relative_game_seats
+       ) do
+    event_seatno = Map.get(event_seat, :seatno)
+
+    if event_seatno do
+      Enum.find_index(relative_game_seats, &(&1.seatno == event_seatno))
+    end
+  end
+
+  defp relative_seatno_for_event(_for_event, _event, _event_details, _relative_game_seats),
+    do: nil
 end

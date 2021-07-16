@@ -6,7 +6,7 @@
   <%= live_component @socket, MjwWeb.GameLive.GameMenuComponent, id: "gamemenu", game: @game, relative_game_seats: @relative_game_seats, player_seats_finalized: @player_seats_finalized, game_state: @game_state %>
 <% end %>
 
-<div id="game" class="glow-<%= @non_discard_glow_tile %><%= unless @current_user_seatno, do: " blurred" %>">
+<div id="game" class="glow-<%= @non_discard_glow_tile %> drew-from-discards-<%= @drew_from_discards_tile %> drew-from-deck-<%= @drew_from_deck_relative_seatno %> exposed-tile-<%= @exposed_tile %> zimo-<%= @zimo_relative_seatno %><%= unless @current_user_seatno, do: " blurred" %>">
   <%= unless @winds_have_been_picked do %>
     <img src="/images/stickpomelo.png" alt="" class="stickpomelo" />
   <% end %>

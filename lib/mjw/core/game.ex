@@ -785,17 +785,17 @@ defmodule Mjw.Game do
   """
   def bot_draw(%__MODULE__{turn_state: :drawing, turn_seatno: bot_seatno} = game) do
     case Mjw.BotStrategy.draw(game) do
+      :draw_deck_tile ->
+        {:draw_deck_tile, bot_draw_deck_tile(game)}
+
       {:draw_discard, new_concealed, new_exposed} ->
-        bot_draw_discard(game, new_concealed, new_exposed)
+        {:draw_discard, bot_draw_discard(game, new_concealed, new_exposed)}
 
       :win_with_discard ->
-        bot_declare_win_from_discards(game, bot_seatno)
+        {:win_with_discard, bot_declare_win_from_discards(game, bot_seatno)}
 
       :zimo ->
-        bot_declare_win_from_zimo(game, bot_seatno)
-
-      :draw_deck_tile ->
-        bot_draw_deck_tile(game)
+        {:zimo, bot_declare_win_from_zimo(game, bot_seatno)}
     end
   end
 
@@ -842,7 +842,7 @@ defmodule Mjw.Game do
 
   def bots_try_win_out_of_turn(%__MODULE__{turn_state: :drawing} = game) do
     case Mjw.BotStrategy.find_win_out_of_turn(game) do
-      {:ok, seatno} -> {:ok, bot_declare_win_from_discards(game, seatno)}
+      {:ok, seatno} -> {:ok, bot_declare_win_from_discards(game, seatno), seatno}
       :no_wins -> :no_wins
     end
   end

@@ -340,7 +340,7 @@ defmodule MjwWeb.BotServiceTest do
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
-      assert_receive {_game, :rolled_for_first_dealer, %{}}
+      assert_receive {_game, :rolled_for_first_dealer, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
       game = MjwWeb.GameStore.get(game.id)
@@ -418,7 +418,7 @@ defmodule MjwWeb.BotServiceTest do
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
-      assert_receive {_game, :rolled_for_deal, %{}}
+      assert_receive {_game, :rolled_for_deal, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
       game = MjwWeb.GameStore.get(game.id)
@@ -498,7 +498,7 @@ defmodule MjwWeb.BotServiceTest do
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
-      assert_receive {_game, :drew_from_deck, %{}}
+      assert_receive {_game, :drew_from_deck, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
       game = MjwWeb.GameStore.get(game.id)
@@ -632,7 +632,7 @@ defmodule MjwWeb.BotServiceTest do
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
-      assert_receive {_game, :declared_win, %{tile: "c1-3"}}
+      assert_receive {_game, :declared_win, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
       game = MjwWeb.GameStore.get(game.id)
@@ -780,7 +780,7 @@ defmodule MjwWeb.BotServiceTest do
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
-      assert_receive {_game, :discarded, %{}}
+      assert_receive {_game, :discarded, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
       game = MjwWeb.GameStore.get(game.id)
@@ -875,7 +875,7 @@ defmodule MjwWeb.BotServiceTest do
 
       :ok = MjwWeb.GameStore.subscribe_to_game_updates(game)
       send(MjwWeb.BotService, :perform_action)
-      assert_receive {_game, :discarded, %{}}
+      assert_receive {_game, :discarded, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
       assert MjwWeb.BotService.list() == [{:draw, game.id, 2}]
     end

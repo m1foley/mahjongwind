@@ -3,13 +3,13 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Refactor: Denormalize seatno as a seat attribute
 - Point out game menu on first load
 - Make seating less confusing
 - Sound
-- Visually indicate when another player drew from deck. Floating peektile?
 - Sort hand on deal
 - Indicate when deck is running low
-- Experiment with more CSS animations: exposing a tile, taking from discards, dealing the tiles, etc.
+- Experiment with more CSS animations: dealing the tiles, etc.
 - Put everyone's discards in front of their hand?
 - Real user accounts instead of just web sessions
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)

@@ -1614,10 +1614,8 @@ defmodule Mjw.GameTest do
 
       {:ok, game} = Mjw.Game.discard(orig_game, 0, "b5-0")
 
-      game =
-        game
-        |> Mjw.Game.bot_draw()
-        |> Mjw.Game.undo()
+      {:draw_discard, game} = Mjw.Game.bot_draw(game)
+      game = Mjw.Game.undo(game)
 
       expected_event_log = [
         {"name0 undid their action.", nil},
@@ -1745,7 +1743,7 @@ defmodule Mjw.GameTest do
 
   describe "bot_draw" do
     test "draws from deck" do
-      game =
+      {:draw_deck_tile, game} =
         %Mjw.Game{
           turn_seatno: 0,
           turn_state: :drawing,
@@ -1772,7 +1770,7 @@ defmodule Mjw.GameTest do
     end
 
     test "draws from discards" do
-      game =
+      {:draw_discard, game} =
         %Mjw.Game{
           turn_seatno: 0,
           turn_state: :drawing,
@@ -1805,7 +1803,7 @@ defmodule Mjw.GameTest do
     end
 
     test "zimo" do
-      game =
+      {:zimo, game} =
         %Mjw.Game{
           turn_seatno: 0,
           turn_state: :drawing,
@@ -1843,7 +1841,7 @@ defmodule Mjw.GameTest do
     end
 
     test "wins with discard" do
-      game =
+      {:win_with_discard, game} =
         %Mjw.Game{
           turn_seatno: 0,
           turn_state: :drawing,
@@ -1935,7 +1933,7 @@ defmodule Mjw.GameTest do
     end
 
     test "a bot wins out of turn" do
-      {:ok, game} =
+      {:ok, game, win_declared_seatno} =
         %Mjw.Game{
           turn_seatno: 1,
           turn_state: :drawing,
@@ -1958,6 +1956,7 @@ defmodule Mjw.GameTest do
         end)
         |> Mjw.Game.bots_try_win_out_of_turn()
 
+      assert win_declared_seatno == 0
       assert game.deck == ["c2-0", "c3-0"]
       assert game.turn_seatno == 0
       assert game.turn_state == :discarding
