@@ -616,7 +616,7 @@ $medium-min-width: 80rem;
 $large-min-width: 132rem;
 
 // mobile
-@media (max-width: $small-min-width), (max-height: $small-min-height) {
+@media (max-width: $small-min-width) and (max-height: $large-min-height), (max-height: $small-min-height) and (max-width: $large-min-width) {
   @include discard-calculations((
     "nth-child(9n+0)": (top: 0.5rem,  left: 0.2rem, rotation: rotate(12deg)),
     "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
@@ -751,7 +751,7 @@ $large-min-width: 132rem;
 }
 
 // small
-@media (min-width: $small-min-width) and (min-height: $small-min-height) and (max-width: $medium-min-width), (min-width: $small-min-width) and (min-height: $small-min-height) and (max-height: $medium-min-height) {
+@media (max-width: $medium-min-width) and (min-height: $large-min-height), (max-height: $medium-min-height) and (min-width: $large-min-width), (min-width: $small-min-width) and (max-width: $medium-min-width) and (min-height: $small-min-height), (min-height: $small-min-height) and (max-height: $medium-min-height) and (min-width: $small-min-width) {
   @include discard-calculations((
     "nth-child(9n+0)": (top: 1rem,    left: 0,      rotation: rotate(12deg)),
     "nth-child(9n+1)": (top: -2rem,   left: 0.6rem, rotation: rotate(-20deg)),
@@ -849,7 +849,7 @@ $large-min-width: 132rem;
 }
 
 // medium
-@media (min-width: $medium-min-width) and (min-height: $medium-min-height) and (max-width: $large-min-width), (min-width: $medium-min-width) and (min-height: $medium-min-height) and (max-height: $large-min-height) {
+@media (min-width: $medium-min-width) and (max-width: $large-min-width) and (min-height: $medium-min-height), (min-height: $medium-min-height) and (max-height: $large-min-height) and (min-width: $medium-min-width) {
   @include discard-calculations((
     "nth-child(9n+0)": (top: 1.0rem,  left: 0,       rotation: rotate(12deg)),
     "nth-child(9n+1)": (top: -1.5rem, left: 0.6rem,  rotation: rotate(-20deg)),
