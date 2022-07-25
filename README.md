@@ -3,6 +3,8 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Shrink tile sizes on mobile
+- Lobby not receiving bot player added
 - Refactor: Denormalize seatno as a seat attribute
 - Point out game menu on first load
 - Make seating less confusing
