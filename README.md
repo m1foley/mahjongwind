@@ -3,6 +3,7 @@
 Play mahjong with your friends online!
 
 ## TODO
+- Bug: Undoing a win after a bot drew a tile hung bot (workaround: paused & unpaused bots)
 - Shrink tile sizes on mobile
 - Lobby not receiving bot player added
 - Refactor: Denormalize seatno as a seat attribute
