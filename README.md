@@ -16,6 +16,12 @@ heroku login
 git push heroku main:main
 ```
 
+## Compile dependencies
+
+```sh
+mix deps.get
+```
+
 ## Console
 
 ```sh

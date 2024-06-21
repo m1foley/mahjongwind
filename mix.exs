@@ -45,8 +45,8 @@ defmodule Mjw.MixProject do
       {:gettext, "~> 0.24"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.4"},
-      # needed because no ecto
-      {:elixir_uuid, "~> 1.2"}
+      # Normally we'd use Ecto for UUID generation
+      {:uniq, "~> 0.1"}
     ]
   end
 
