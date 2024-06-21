@@ -40,7 +40,7 @@ defmodule Mjw.Game do
   Initialize a game with a random ID and a shuffled deck
   """
   def new() do
-    new(UUID.uuid4())
+    new(Uniq.UUID.uuid4())
   end
 
   defp new(id) do

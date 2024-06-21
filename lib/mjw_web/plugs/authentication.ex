@@ -24,7 +24,7 @@ defmodule MjwWeb.Plugs.Authentication do
   end
 
   def create_session_user_id(conn) do
-    put_session(conn, :user_id, UUID.uuid4())
+    put_session(conn, :user_id, Uniq.UUID.uuid4())
   end
 
   def assign_curent_user_id(conn) do
