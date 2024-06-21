@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
@@ -29,8 +29,8 @@ config :logger, level: :info
 #       https: [
 #         port: 443,
 #         cipher_suite: :strong,
-#         keyfile: System.get_env("SOME_APP_SSL_KEY_PATH"),
-#         certfile: System.get_env("SOME_APP_SSL_CERT_PATH"),
+#         keyfile: System.compile_env("SOME_APP_SSL_KEY_PATH"),
+#         certfile: System.compile_env("SOME_APP_SSL_CERT_PATH"),
 #         transport_options: [socket_opts: [:inet6]]
 #       ]
 #
