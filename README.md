@@ -2,55 +2,42 @@
 
 Play mahjong with your friends online!
 
-## TODO
-- Bug: Undoing a win after a bot drew a tile hung bot (workaround: paused & unpaused bots)
-- Shrink tile sizes on mobile
-- Lobby not receiving bot player added
-- Refactor: Denormalize seatno as a seat attribute
-- Point out game menu on first load
-- Make seating less confusing
-- Sound
-- Sort hand on deal
-- Indicate when deck is running low
-- Experiment with more CSS animations: dealing the tiles, etc.
-- Put everyone's discards in front of their hand?
-- Real user accounts instead of just web sessions
-- Exclude bots (e.g., PresidentCardGames uses phone numbers)
-- Support more Mahjong rule sets (flower tiles, no game wind, etc.)
-- Instructions
-- Protect games from being erased during deploys
-- Test Internet Explorer
-- Automatically expire games
+## Server
 
-## Future rule enforcement
-- Winning tile was the last one picked up
-
-## Instructions
-
-### Server
 - Install dependencies with `mix deps.get`
 - Install Node.js dependencies with `npm install` inside the `assets` directory
 - Start Phoenix endpoint with `mix phx.server`
 - Visit <http://localhost:4000>
 
-### Deploy to Heroku
+## Deploy to Heroku
+
 ```sh
 heroku login
 git push heroku main:main
 ```
 
-### Console
-`iex -S mix`
+## Console
 
-### pry server
-`iex -S mix phx.server`
+```sh
+iex -S mix
+```
 
-### pry tests
-`iex -S mix test <file>`
+## pry server
+
+```sh
+iex -S mix phx.server
+```
+
+## pry tests
+
+```sh
+iex -S mix test <file>
+```
 
 ## Misc. development notes
 
 ### Research/similar sites
+
 - <https://www.reddit.com/r/Mahjong/comments/ogl4yf/best_way_to_play_hk_mahjong_online/>
 - <http://mahjongbuddy.com>
 - <https://www.reddit.com/user/tthiatma/>
@@ -60,23 +47,28 @@ git push heroku main:main
 - Deploys: <https://damonvjanis.medium.com/optimizing-for-free-hosting-elixir-deployments-6bfc119a1f44>
 
 ### sortablejs
+
 - <https://fullstackphoenix.com/features/sortable-lists-with-sortable-js>
 - <https://www.headway.io/blog/client-side-drag-and-drop-with-phoenix-liveview>
 - <https://github.com/kelseyleftwich/phoenix-liveview-hook-demo>
 - <https://github.com/SortableJS/Sortable>
 
 ### Tile images
+
 - <https://en.wikipedia.org/wiki/Mahjong_tiles>
 
 ### Tailwind
+
 - <https://pragmaticstudio.com/tutorials/adding-tailwind-css-to-phoenix>
 
 ### PresidentCardGames
+
 - <https://twitter.com/toranb/status/1341069221829242881>
 - <https://presidentcardgames.com/>
 - <https://elixirmatch.com/>
 
-### Available domains
+### Available domains considered
+
 ```
 mahjonggenius.com
 mahjongmeetup.com
