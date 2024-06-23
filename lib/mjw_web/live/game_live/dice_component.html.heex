@@ -1,0 +1,58 @@
+<div id={@id}>
+  <div class={"dice-#{@previous_roller_relative_position}"}>
+    <%= if @rolled_dice do %>
+      <%= for {die, i} <- @dice |> Enum.with_index() do %>
+        <%# game_state class added to distinguish the identical animations for the 2 types of rolls %>
+        <img src={"/images/dice/d#{die}.png"} alt="" class={"die die-#{i}#{if @raw_event in [:rolled_for_first_dealer, :rolled_for_deal], do: " #{@game_state}-#{@previous_roller_relative_position}"}"} />
+      <% end %>
+    <% end %>
+  </div>
+
+  <%= case @game_state do %>
+    <% :rolling_for_first_dealer -> %>
+      <div class="state-description">
+        <%= if @roller_relative_position == 0 do %>
+          Roll to determine first dealer:
+        <% else %>
+          Waiting for <%= @roller_name %> to roll for first dealer...
+        <% end %>
+      </div>
+    <% :rolling_for_deal -> %>
+      <div class="state-description">
+        <%= if @event == :rolled_for_first_dealer do %>
+          <div class="state-description">
+            Players reseated.
+            <%= if @roller_relative_position == 0 do %>
+              You are the first dealer!
+            <% else %>
+              <%= @roller_name %> is the first dealer.
+            <% end %>
+          </div>
+        <% end %>
+
+        <%= if @roller_relative_position == 0 do %>
+          Roll to deal the tiles:
+        <% else %>
+          Waiting for <%= @roller_name %> to roll dice &amp; start the deal...
+        <% end %>
+      </div>
+    <% :discarding -> %>
+      <div class="state-description">
+        Tiles dealt. Waiting for <%= if @roller_relative_position == 0, do: "you", else: @roller_name %> to discard...
+      </div>
+    <% _unknown_game_state -> %>
+  <% end %>
+
+  <%= if @rolling_dice do %>
+    <%= case @roller_relative_position do %>
+    <% 0 -> %>
+      <div class="hand hand-0" phx-target="#game" phx-click="roll" title="Click to roll dice">🤛</div>
+    <% 1 -> %>
+      <div class="hand hand-1" title="Rolling dice">🤛</div>
+    <% 2 -> %>
+      <div class="hand hand-2" title="Rolling dice">👊</div>
+    <% 3 -> %>
+      <div class="hand hand-3" title="Rolling dice">🤜</div>
+    <% end %>
+  <% end %>
+</div>

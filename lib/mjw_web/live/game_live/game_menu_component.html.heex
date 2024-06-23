@@ -1,4 +1,4 @@
-<div id="<%= @id %>" class="phx-modal" phx-target="#game" phx-click="closegamemenu">
+<div id={@id} class="phx-modal" phx-target="#game" phx-click="closegamemenu">
   <div class="gamemenu-content">
     <%= if @player_seats_finalized do %>
       <div phx-target="#game" phx-click="draw" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4">
@@ -14,8 +14,8 @@
           Declare DQ 🙅🏻‍♀️
         </div>
 
-        <%= for seat <- @relative_game_seats |> Enum.slice(1..-1) do %>
-          <div class="dqplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden" phx-target="#game" phx-click="dq" phx-value-seatno="<%= seat.seatno %>">
+        <%= for seat <- @relative_game_seats |> Enum.drop(1) do %>
+          <div class="dqplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden" phx-target="#game" phx-click="dq" phx-value-seatno={seat.seatno}>
             <%= seat.player_name %>
           </div>
         <% end %>
@@ -32,15 +32,15 @@
           Boot player 🥾
         </div>
 
-        <%= for seat <- @relative_game_seats_with_players |> Enum.slice(1..-1) do %>
-          <div class="bootplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden" phx-target="#game" phx-click="bootplayer" phx-value-seatno="<%= seat.seatno %>">
+        <%= for seat <- @relative_game_seats_with_players |> Enum.drop(1) do %>
+          <div class="bootplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden" phx-target="#game" phx-click="bootplayer" phx-value-seatno={seat.seatno}>
             <%= seat.player_name %>
           </div>
         <% end %>
       </div>
     <% end %>
 
-    <div phx-target="<%= @myself %>" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-click="quit">
+    <div phx-target={@myself} class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4" phx-click="quit">
       Leave game
     </div>
 
@@ -51,7 +51,7 @@
     </div>
 
     <div phx-click="">
-      <%= live_component @socket, MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-gamemenu", game: @game, game_state: @game_state %>
+      <%= live_component MjwWeb.GameLive.InviteLinkComponent, id: "invite-link-gamemenu", game: @game, game_state: @game_state %>
     </div>
   </div>
 </div>
