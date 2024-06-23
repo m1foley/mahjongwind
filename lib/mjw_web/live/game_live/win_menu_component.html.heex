@@ -26,7 +26,7 @@
       </div>
 
       <div class="flex flex-row flex-wrap text-left justify-start justify-items-start">
-        <span class="pr-1">&#8594;</span>
+        <span class="pr-1 cursor-default">&#8594;</span>
         <%= for tile <- @game.deck do %>
           <img id={tile} src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"} alt="" class="tile" />
         <% end %>
