@@ -671,7 +671,7 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event(
         "accept_seat_offering",
-        %{"seat_offering" => %{"player_name" => player_name}},
+        %{"player_name" => player_name},
         socket
       ) do
     player_id = socket.assigns.current_user_id

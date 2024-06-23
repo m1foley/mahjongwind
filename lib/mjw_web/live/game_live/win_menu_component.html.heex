@@ -1,4 +1,4 @@
-<div id="<%= @id %>">
+<div id={@id}>
   <div id="winmenu-inner" phx-hook="Simpledrag">
     <%= if Mjw.Seat.confirmed_win?(@current_user_seat) do %>
       <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4">
@@ -21,18 +21,18 @@
     <% end %>
 
     <%= if @showdeck do %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="hidedeck">
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target={@myself} phx-click="hidedeck">
         Hide remaining deck
       </div>
 
       <div class="flex flex-row flex-wrap text-left justify-start justify-items-start">
         <span class="pr-1">&#8594;</span>
         <%= for tile <- @game.deck do %>
-          <img id="<%= tile %>" src="/images/tiles/<%= Mjw.Tile.without_id(tile) %>.png" alt="" class="tile" />
+          <img id={tile} src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"} alt="" class="tile" />
         <% end %>
       </div>
     <% else %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="<%= @myself %>" phx-click="showdeck">
+      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target={@myself} phx-click="showdeck">
         View remaining deck
       </div>
     <% end %>
