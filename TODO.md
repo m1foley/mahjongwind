@@ -18,6 +18,7 @@
 - Protect games from being erased during deploys
 - Test Internet Explorer
 - Automatically expire games
+- Refactor: Extract some common HTML elements (e.g., tile images) to components
 
 ## Future rule enforcement
 - Winning tile was the last one picked up

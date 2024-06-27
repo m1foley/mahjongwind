@@ -3,10 +3,10 @@ defmodule MjwWeb.GameControllerTest do
 
   describe "create" do
     test "creates a game and redirects to it", %{conn: conn} do
-      conn = post(conn, Routes.game_path(conn, :create))
+      conn = post(conn, ~p"/games")
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.game_show_path(conn, :show, id)
+      assert redirected_to(conn) == ~p"/games/#{id}"
     end
   end
 end

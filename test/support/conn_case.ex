@@ -19,15 +19,15 @@ defmodule MjwWeb.ConnCase do
 
   using do
     quote do
+      # The default endpoint for testing
+      @endpoint MjwWeb.Endpoint
+
+      use MjwWeb, :verified_routes
+
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import MjwWeb.ConnCase
-
-      alias MjwWeb.Router.Helpers, as: Routes
-
-      # The default endpoint for testing
-      @endpoint MjwWeb.Endpoint
     end
   end
 
