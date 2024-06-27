@@ -21,9 +21,7 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
     |> Mjw.Game.evacuate_seat(current_user_seat.seatno)
     |> MjwWeb.GameStore.update_with_lobby_change(:left_game, %{seat: current_user_seat})
 
-    socket =
-      socket
-      |> push_redirect(to: Routes.game_index_path(socket, :index))
+    socket = socket |> push_navigate(to: ~p"/")
 
     {:noreply, socket}
   end

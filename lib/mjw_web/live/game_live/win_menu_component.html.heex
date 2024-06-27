@@ -11,11 +11,11 @@
     <% end %>
 
     <%= if Mjw.Seat.win_expose?(@current_user_seat) do %>
-      <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4">
+      <div class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-default opacity-30">
         Expose hand
       </div>
     <% else %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="#game" phx-click="expose">
+      <div class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-pointer hover:bg-gray-100" phx-target="#game" phx-click="expose">
         Expose hand
       </div>
     <% end %>

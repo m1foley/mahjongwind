@@ -7,11 +7,19 @@
 # General application configuration
 import Config
 
+config :mjw,
+  generators: [timestamp_type: :utc_datetime]
+
 # Configures the endpoint
 config :mjw, MjwWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "NGNyFN6CX0NHhfTvUdX55LusARQu+s+aao+g3XeKcbZkvat3Cf2tWwGGg+KciUjS",
-  render_errors: [view: MjwWeb.ErrorView, accepts: ~w(html json), layout: false],
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    view: MjwWeb.ErrorView,
+    accepts: ~w(html json),
+    layout: false
+  ],
   pubsub_server: Mjw.PubSub,
   live_view: [signing_salt: "TMykxRdF"]
 
@@ -22,7 +30,7 @@ config :logger, :console,
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.12.18",
+  version: "0.17.11",
   default: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
@@ -40,8 +48,9 @@ config :dart_sass,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+# Configure tailwind (the version is required)
 config :tailwind,
-  version: "3.2.7",
+  version: "3.4.3",
   default: [
     args: ~w(
       --config=tailwind.config.js
