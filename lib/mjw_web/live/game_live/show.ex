@@ -28,6 +28,7 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_params(_params, _url, socket), do: {:noreply, socket}
 
+  # Player booted
   @impl true
   def handle_info(
         {%Mjw.Game{} = _game, :booted, %{booted_seat: booted_seat} = _event_details},
@@ -37,12 +38,12 @@ defmodule MjwWeb.GameLive.Show do
     socket =
       socket
       |> put_flash(:error, "You have been booted from the game.")
-      |> push_redirect(to: Routes.game_index_path(socket, :index))
+      |> push_navigate(to: ~p"/")
 
     {:noreply, socket}
   end
 
-  # Ignore game updates initiated by the current player because the local
+  # A game update initiated by the current player: ignore because the local
   # assigns should have already been taken care of (usually by update_game/4)
   @impl true
   def handle_info({%Mjw.Game{} = _game, _event, %{seat: seat} = _event_details}, socket)
@@ -50,7 +51,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # When another player updates the game, update the local assigns and redraw
+  # Another player updates the game: update the local assigns and redraw
   @impl true
   def handle_info({%Mjw.Game{} = game, event, event_details}, socket) do
     game = merge_updated_game(game, socket, event)
@@ -103,6 +104,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Pause bots
   @impl true
   def handle_event("pausebots", _params, socket) do
     game = Mjw.Game.pause_bots(socket.assigns.game)
@@ -111,6 +113,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Resume bots
   @impl true
   def handle_event("resumebots", _params, socket) do
     game =
@@ -123,6 +126,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
+  # Undo
   @impl true
   def handle_event("undo", _params, socket)
       when socket.assigns.current_user_can_undo do
@@ -159,7 +163,7 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  # sorting one's own exposed tiles
+  # Sorting one's own exposed tiles
   @impl true
   def handle_event(
         "dropped",
@@ -554,8 +558,8 @@ defmodule MjwWeb.GameLive.Show do
   @impl true
   def handle_event("dropped", _params, socket) do
     game_id = socket.assigns.game.id
-    path = Routes.game_show_path(socket, :show, game_id)
-    socket = push_redirect(socket, to: path)
+    path = ~p"/games/#{game_id}"
+    socket = push_navigate(socket, to: path)
 
     {:noreply, socket}
   end
@@ -784,7 +788,7 @@ defmodule MjwWeb.GameLive.Show do
   defp game_not_found_redirect(socket) do
     socket
     |> put_flash(:error, "That game ID does not exist.")
-    |> push_redirect(to: Routes.game_index_path(socket, :index))
+    |> push_navigate(to: ~p"/")
   end
 
   defp subscribe_to_game_updates(socket) do
@@ -915,7 +919,7 @@ defmodule MjwWeb.GameLive.Show do
   defp unjoinable_game_redirect(socket) do
     socket
     |> put_flash(:error, "Sorry, that game is full.")
-    |> push_redirect(to: Routes.game_index_path(socket, :index))
+    |> push_navigate(to: ~p"/")
   end
 
   defp game_joinable?(socket) do
@@ -955,7 +959,7 @@ defmodule MjwWeb.GameLive.Show do
   end
 
   defp might_have_gongs?(%Mjw.Seat{exposed: exposed, hiddengongs: hiddengongs}) do
-    length(exposed) > 3 || length(hiddengongs) > 3
+    length(exposed) >= 4 || length(hiddengongs) >= 4
   end
 
   defp might_have_gongs?(_empty_seat), do: false

@@ -22,11 +22,17 @@
         <div class="dropzone-description">Winning tile</div>
       <% end %>
     </div>
+
     <div class="line-break"></div>
 
     <div id="concealed-0" phx-hook="Drag" phx-target="#game" class={"concealed-tiles dropzone current-user-discarding-#{if @current_user_discarding, do: "t"} enable-pull-from-discards-#{if @available_discard_tile, do: "t"} concealed-loser-hand-#{if @concealed_loser_hand, do: "t"}"}>
       <%= for tile <- @seat.concealed do %>
-        <img id={tile} src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"} alt="" class="tile draggable" />
+        <img
+          id={tile}
+          src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
+          alt=""
+          class="tile draggable"
+        />
       <% end %>
     </div>
   </div>
