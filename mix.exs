@@ -5,9 +5,9 @@ defmodule Mjw.MixProject do
     [
       app: :mjw,
       version: "1.0.0",
-      elixir: "~> 1.11",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: Mix.compilers(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -34,19 +34,34 @@ defmodule Mjw.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.5.7"},
-      {:phoenix_live_view, "~> 0.15.4"},
-      {:floki, ">= 0.27.0", only: :test},
-      {:phoenix_html, "~> 2.14"},
+      {:phoenix, "~> 1.7.14"},
+      {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.3", only: :dev},
-      {:phoenix_live_dashboard, "~> 0.4"},
-      {:telemetry_metrics, "~> 0.4"},
-      {:telemetry_poller, "~> 0.4"},
-      {:gettext, "~> 0.18"},
+      # TODO bump on release to {:phoenix_live_view, "~> 1.0.0"},
+      {:phoenix_live_view, "~> 1.0.0-rc.5", override: true},
+      {:floki, "~> 0.36", only: :test},
+      {:phoenix_live_dashboard, "~> 0.8.3"},
+      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
+      {:heroicons,
+       github: "tailwindlabs/heroicons",
+       tag: "v2.1.1",
+       sparse: "optimized",
+       app: false,
+       compile: false,
+       depth: 1},
+      {:swoosh, "~> 1.5"},
+      {:finch, "~> 0.13"},
+      {:telemetry_metrics, "~> 1.0"},
+      {:telemetry_poller, "~> 1.0"},
+      {:gettext, "~> 0.24"},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.4"},
-      # needed because no ecto
-      {:elixir_uuid, "~> 1.2"}
+      {:dns_cluster, "~> 0.1.1"},
+      {:bandit, "~> 1.5"},
+      {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
+
+      # Normally we'd use Ecto for UUID generation
+      {:uniq, "~> 0.1"}
     ]
   end
 
@@ -58,7 +73,14 @@ defmodule Mjw.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "cmd npm install --prefix assets"]
+      setup: ["deps.get", "assets.setup", "assets.build"],
+      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.build": [
+        "sass default --no-source-map --style=compressed",
+        "tailwind default --minify",
+        "esbuild default --minify"
+      ],
+      "assets.deploy": ["assets.build", "phx.digest"]
     ]
   end
 end

@@ -2,18 +2,25 @@
 
 Play mahjong with your friends online!
 
-## Server
+## Quick setup
 
-- Install dependencies with `mix deps.get`
-- Install Node.js dependencies with `npm install` inside the `assets` directory
-- Start Phoenix endpoint with `mix phx.server`
+- Install dependencies: `mix setup`
+- Run tests: `mix test`
+- Start server: `mix phx.server`
 - Visit <http://localhost:4000>
 
-## Deploy to Heroku
+## Install dependencies and other setup tasks
 
 ```sh
-heroku login
-git push heroku main:main
+mix setup
+```
+
+## Run server
+
+```sh
+mix phx.server
+# with pry
+iex -S mix phx.server
 ```
 
 ## Console
@@ -22,16 +29,19 @@ git push heroku main:main
 iex -S mix
 ```
 
-## pry server
+## Run tests
 
 ```sh
-iex -S mix phx.server
+mix test
+# with pry
+iex -S mix test <file>
 ```
 
-## pry tests
+## Deploy to Heroku
 
 ```sh
-iex -S mix test <file>
+heroku login
+git push heroku main:main
 ```
 
 ## Misc. development notes

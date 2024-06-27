@@ -1,5 +1,5 @@
 defmodule MjwWeb.LiveHelpers do
-  import Phoenix.LiveView
+  use Phoenix.LiveView
 
   @doc """
   Take the user_id from the session and make it available to LiveViews

@@ -1,6 +1,6 @@
 /* jshint esversion: 6 */
 
-import Sortable from 'sortablejs';
+import Sortable from "../vendor/sortable"
 
 export default {
   mounted() {

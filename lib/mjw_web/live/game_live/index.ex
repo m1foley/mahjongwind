@@ -25,7 +25,8 @@ defmodule MjwWeb.GameLive.Index do
   end
 
   defp fetch_games(socket) do
-    seated_games = Enum.reject(MjwWeb.GameStore.all(), &Mjw.Game.empty?/1)
+    seated_games = MjwWeb.GameStore.all() |> Enum.reject(&Mjw.Game.empty?/1)
+
     assign(socket, :games, seated_games)
   end
 end
