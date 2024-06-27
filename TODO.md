@@ -19,6 +19,7 @@
 - Test Internet Explorer
 - Automatically expire games
 - Refactor: Extract some common HTML elements (e.g., tile images) to components
+- Change "Pause bots" to "Pause" to pause humans too. Allows time to pick tile.
 
 ## Future rule enforcement
 - Winning tile was the last one picked up
