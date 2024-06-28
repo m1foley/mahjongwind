@@ -1,6 +1,7 @@
 # TODO
 
 - Put everyone's discards in front of their hand (suggested by Mom)
+- Bug: Can't undo to get first discarded tile of the game from bot (human went last, missed a discarded tile, can't go back to beginning of game). If there are no human actions to go back to, Undo should return to beginning of game.
 - Bug: Undoing a win after a bot drew a tile hung bot (workaround: paused & unpaused bots)
 - Shrink tile sizes on mobile
 - Lobby not receiving bot player added
