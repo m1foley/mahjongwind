@@ -8,7 +8,7 @@
 - Point out game menu on first load
 - Make seating less confusing
 - Sound
-- Sort hand on deal
+- "Sort" button after deal (disappears if player moves any tile)
 - Indicate when deck is running low
 - Experiment with more CSS animations: dealing the tiles, etc.
 - Real user accounts instead of just web sessions
@@ -23,6 +23,13 @@
 - Only show "hidden gong" if actually possible
 - Add titles to tile images ("5 of bamboo"). good for game log where it's small
 - Add "Waiting for Mei..." to game log when waiting, then delete when no longer waiting
+- Make Pause button easier to click (click on board center?)
+- Slider for tile size (so users don't have to increase font size)
+- Animated "waiting" dots next to player name when waiting for them
+- Allow dragging from decktile to exposed tiles (adding onto a pong)
+- 2-click instead of drag & drop. First click will pause other players.
+- Display everyone's wind direction instead of staircase
+- Animate deal: 4 at a time goes into people's hand
 
 ## Future rule enforcement
 - Winning tile was the last one picked up

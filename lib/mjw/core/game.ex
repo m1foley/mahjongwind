@@ -11,8 +11,22 @@ defmodule Mjw.Game do
   @all_tiles (@bamboo_tiles ++ @circle_tiles ++ @number_tiles ++ @dragon_tiles ++ @wind_tiles)
              |> Enum.map(fn base -> Enum.map(0..3, fn i -> "#{base}-#{i}" end) end)
              |> List.flatten()
-
   @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
+  @bot_names [
+    "Black Sesame 🤖",
+    "Dragonfruit 🤖",
+    "Garlic 🤖",
+    "Ginger 🤖",
+    "Goji 🤖",
+    "Guava 🤖",
+    "Lychee 🤖",
+    "Papaya 🤖",
+    "Passionfruit 🤖",
+    "Persimmon 🤖",
+    "Pomelo 🤖",
+    "Taro 🤖",
+    "Wax Apple 🤖"
+  ]
 
   defstruct id: nil,
             deck: [],
@@ -970,22 +984,6 @@ defmodule Mjw.Game do
     |> update_seat(seatno, fn seat -> Mjw.Seat.seat_bot(seat, bot_name) end)
     |> pick_random_available_wind(seatno)
   end
-
-  @bot_names [
-    "Black Sesame 🤖",
-    "Dragonfruit 🤖",
-    "Garlic 🤖",
-    "Ginger 🤖",
-    "Goji 🤖",
-    "Guava 🤖",
-    "Lychee 🤖",
-    "Papaya 🤖",
-    "Passionfruit 🤖",
-    "Persimmon 🤖",
-    "Pomelo 🤖",
-    "Taro 🤖",
-    "Wax Apple 🤖"
-  ]
 
   defp generate_bot_name(%__MODULE__{} = game) do
     Enum.random(@bot_names -- seated_player_names(game))
