@@ -8,7 +8,11 @@
     <%= unless Enum.empty?(@games) do %>
       <div class="pt-12 pb-10 text-xl font-semibold">or join a game in progress:</div>
       <%= for game <- @games do %>
-        <.live_component module={MjwWeb.GameLive.LobbyGameComponent} id={"join-#{game.id}"} game={game} />
+        <.live_component
+          module={MjwWeb.GameLive.LobbyGameComponent}
+          id={"join-#{game.id}"}
+          game={game}
+        />
       <% end %>
     <% end %>
   </div>
