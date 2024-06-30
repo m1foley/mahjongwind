@@ -17,7 +17,9 @@ import Config
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
 if System.get_env("PHX_SERVER") do
-  config :mjw, MjwWeb.Endpoint, server: true
+  config :mjw, MjwWeb.Endpoint,
+    server: true,
+    url: [host: "mahjongwind.com"]
 end
 
 if config_env() == :prod do
@@ -50,7 +52,7 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  host = System.get_env("PHX_HOST") || "mahjongwind.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :mjw, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
