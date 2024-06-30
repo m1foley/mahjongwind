@@ -5,7 +5,11 @@
         Waiting for everyone to shuffle... 👋
       </div>
     <% else %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="#game" phx-click="confirm_win">
+      <div
+        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+        phx-target="#game"
+        phx-click="confirm_win"
+      >
         Okay, let's start shuffling... 👋
       </div>
     <% end %>
@@ -15,30 +19,51 @@
         Expose hand
       </div>
     <% else %>
-      <div class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-pointer hover:bg-gray-100" phx-target="#game" phx-click="expose">
+      <div
+        class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-pointer hover:bg-gray-100"
+        phx-target="#game"
+        phx-click="expose"
+      >
         Expose hand
       </div>
     <% end %>
 
     <%= if @showdeck do %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target={@myself} phx-click="hidedeck">
+      <div
+        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+        phx-target={@myself}
+        phx-click="hidedeck"
+      >
         Hide remaining deck
       </div>
 
       <div class="flex flex-row flex-wrap text-left justify-start justify-items-start">
         <span class="pr-1 cursor-default" title="Next tile in the deck">&#8594;</span>
         <%= for tile <- @game.deck do %>
-          <img id={tile} src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"} alt="" class="tile" />
+          <img
+            id={tile}
+            src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
+            alt=""
+            class="tile"
+          />
         <% end %>
       </div>
     <% else %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target={@myself} phx-click="showdeck">
+      <div
+        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+        phx-target={@myself}
+        phx-click="showdeck"
+      >
         View remaining deck
       </div>
     <% end %>
 
     <%= unless Mjw.Seat.declared_win?(@current_user_seat) do %>
-      <div class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4" phx-target="#game" phx-click="dqdeclared">
+      <div
+        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+        phx-target="#game"
+        phx-click="dqdeclared"
+      >
         Declare DQ 🙅🏻‍♀️
       </div>
     <% end %>

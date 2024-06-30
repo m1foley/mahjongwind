@@ -7,20 +7,31 @@
 
       <div class="player-icons">
         <%= if @seat.seatno == 0 && @player_seats_finalized do %>
-          <div class="firstdealer-indicator" title="First dealer. Game wind changes when the deal circles back to them.">
+          <div
+            class="firstdealer-indicator"
+            title="First dealer. Game wind changes when the deal circles back to them."
+          >
             庄
           </div>
         <% end %>
 
         <%= if @seat.seatno == @game.dealer_seatno do %>
-          <div class="dealer-indicator" title={"Dealer#{if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})"}"}>
+          <div
+            class="dealer-indicator"
+            title={"Dealer#{if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})"}"}
+          >
             Dealer<%= if @game.dealer_win_count > 0 do %>
               <sup><%= @game.dealer_win_count + 1 %></sup>
             <% end %>
           </div>
         <% end %>
         <%= if @game_state != :rolling_for_deal && @seat.seatno == @game.dealpick_seatno do %>
-          <img src="/images/staircase.png" alt="" title="This staircase is the end of the deck (used to determine player wind)" class={"dealpickstaircase inline-block mx-auto relative bottom-1#{if @seat.seatno == @game.dealer_seatno, do: " pl-1"}"} />
+          <img
+            src="/images/staircase.png"
+            alt=""
+            title="This staircase is the end of the deck (used to determine player wind)"
+            class={"dealpickstaircase inline-block mx-auto relative bottom-1#{if @seat.seatno == @game.dealer_seatno, do: " pl-1"}"}
+          />
         <% end %>
       </div>
     </div>
@@ -34,7 +45,11 @@
     <div class="hiddengong-tiles">
       <%= if @seat.win_expose do %>
         <%= for tile <- @seat.hiddengongs do %>
-          <img src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"} alt="" class="tile opacity-50" />
+          <img
+            src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
+            alt=""
+            class="tile opacity-50"
+          />
         <% end %>
       <% else %>
         <%= for _tile <- @seat.hiddengongs do %>
@@ -59,7 +74,12 @@
 
     <%= if @seat.wintile do %>
       <div class="wintile-tiles">
-        <img id={@seat.wintile} src={"/images/tiles/#{Mjw.Tile.without_id(@seat.wintile)}.png"} alt="" class="tile ml-8" />
+        <img
+          id={@seat.wintile}
+          src={"/images/tiles/#{Mjw.Tile.without_id(@seat.wintile)}.png"}
+          alt=""
+          class="tile ml-8"
+        />
       </div>
     <% end %>
   </div>

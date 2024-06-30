@@ -2,7 +2,11 @@
   <div class={"dice-#{@previous_roller_relative_position}"}>
     <%= if @rolled_dice do %>
       <%= for {die, i} <- Enum.with_index(@dice) do %>
-        <img src={"/images/dice/d#{die}.png"} alt="" class={"die die-#{i}#{if @raw_event in [:rolled_for_first_dealer, :rolled_for_deal], do: " #{@game_state}-#{@previous_roller_relative_position}"}"} />
+        <img
+          src={"/images/dice/d#{die}.png"}
+          alt=""
+          class={"die die-#{i}#{if @raw_event in [:rolled_for_first_dealer, :rolled_for_deal], do: " #{@game_state}-#{@previous_roller_relative_position}"}"}
+        />
       <% end %>
     <% end %>
   </div>
