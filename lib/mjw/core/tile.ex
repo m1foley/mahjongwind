@@ -5,7 +5,7 @@ defmodule Mjw.Tile do
   @tile_format_regex ~r/^[ncbwd][a-z1-9]-[0-3]$/
 
   @doc """
-  Sort according to beauty, with special tiles last
+  Sort by suit and then number
   """
   def sort(tiles) do
     Enum.sort_by(tiles, fn tile ->

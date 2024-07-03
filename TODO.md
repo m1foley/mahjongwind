@@ -2,7 +2,7 @@
 
 - CD: https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
 - Put everyone's discards in front of their hand (suggested by Mom)
-- Bug: Can't undo to get first discarded tile of the game from bot (human went last, missed a discarded tile, can't go back to beginning of game). If there are no human actions to go back to, Undo should return to beginning of game.
+- If no undoable moves, Undo button should reset the game to get first discarded tile of the game from bot (human went last, missed a discarded tile, can't go back to beginning of game).
 - Bug: Undoing a win after a bot drew a tile hung bot (workaround: paused & unpaused bots)
 - Shrink tile sizes on mobile
 - Lobby not receiving bot player added
@@ -33,7 +33,7 @@
 - Display everyone's wind direction instead of staircase
 - Animate deal: 4 at a time goes into people's hand
 - Sanity check for (possible race condition) bug: rearranging hand leads to duplicate tiles. Last time it happened after peek tile got put into hand, and user drag & dropped that new tile.
-- Remember sorted hand so it doesn't get reshuffled when losing internet connection
+- Remember sorted hand in browser so it doesn't get reshuffled when losing internet connection
 
 ## Future rule enforcement
 - Winning tile was the last one picked up

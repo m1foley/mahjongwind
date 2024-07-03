@@ -211,16 +211,36 @@ defmodule Mjw.Seat do
       Enum.filter([seat.peektile, seat.wintile], & &1)
   end
 
-  # Doesn't check wintile because it can never be populated in an undo_state
-  defp restore_to_hand(%__MODULE__{} = seat, %__MODULE__{} = undo_state_seat, tile) do
-    if undo_state_seat.peektile == tile do
-      %{seat | peektile: tile}
-    else
-      removed_from_list =
-        [:exposed, :concealed, :hiddengongs]
-        |> Enum.find(fn list -> tile in Map.get(undo_state_seat, list) end)
+  defp restore_to_hand(%__MODULE__{} = seat, %__MODULE__{} = undo_state_seat, tile)
+       when undo_state_seat.peektile == tile do
+    %{seat | peektile: tile}
+  end
 
-      seat |> Map.update!(removed_from_list, fn list -> list ++ [tile] end)
-    end
+  # When restoring a tile to a hand during an Undo, the hand probably changed
+  # since then so it's not always easy to determine the ideal position. We can
+  # assume players sort their hands, so attempt to restore it next to the tile
+  # that would follow it by sort order. If not available it goes to the end.
+  defp restore_to_hand(%__MODULE__{} = seat, %__MODULE__{} = undo_state_seat, tile) do
+    # Doesn't check wintile because it can never be populated in an undo_state
+    removed_from_list =
+      [:exposed, :concealed, :hiddengongs]
+      |> Enum.find(fn list -> tile in Map.get(undo_state_seat, list) end)
+
+    seat
+    |> Map.update!(removed_from_list, fn list ->
+      sorted_list = (list ++ [tile]) |> Mjw.Tile.sort()
+      sorted_list_index = sorted_list |> Enum.find_index(&(&1 == tile))
+      insert_before_tile = sorted_list |> Enum.at(sorted_list_index + 1)
+
+      insert_before_index =
+        if insert_before_tile do
+          list |> Enum.find_index(&(&1 == insert_before_tile))
+        else
+          length(list)
+        end
+
+      Enum.slice(list, 0, insert_before_index) ++
+        [tile] ++ Enum.slice(list, insert_before_index..-1//1)
+    end)
   end
 end
