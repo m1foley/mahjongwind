@@ -803,7 +803,7 @@ defmodule MjwWeb.GameLive.Show do
     show_wind_picking_was = socket.assigns[:show_wind_picking]
 
     current_user_seatno = Mjw.Game.sitting_at(game, current_user_id)
-    game_state = Mjw.Game.state(game)
+    game_state = Mjw.GameState.state(game)
     last_discarded_seatno = Mjw.Game.last_discarded_seatno(game)
 
     win_declared_seatno =

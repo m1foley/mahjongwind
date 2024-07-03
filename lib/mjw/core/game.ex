@@ -135,7 +135,7 @@ defmodule Mjw.Game do
     end)
   end
 
-  defp remaining_winds_to_pick(%__MODULE__{seats: seats}) do
+  def remaining_winds_to_pick(%__MODULE__{seats: seats}) do
     @wind_tiles -- Enum.map(seats, & &1.picked_wind)
   end
 
@@ -996,92 +996,4 @@ defmodule Mjw.Game do
   def resume_bots(%__MODULE__{} = game) do
     %{game | pause_bots: false}
   end
-
-  @doc """
-  Calculate the state of a game
-  """
-  def state(%__MODULE__{} = game) do
-    {game, :tbd}
-    |> state_waiting_for_players
-    |> state_picking_winds
-    |> state_rolling_for_first_dealer
-    |> state_rolling_for_deal
-    |> state_win_declared
-    |> state_discarding
-    |> state_drawing
-    |> state_invalid
-  end
-
-  defp state_waiting_for_players({game, :tbd}) do
-    if empty_seats_count(game) > 0 do
-      {game, :waiting_for_players}
-    else
-      {game, :tbd}
-    end
-  end
-
-  defp state_waiting_for_players({game, state}), do: {game, state}
-
-  defp state_picking_winds({game, :tbd}) do
-    if !Enum.empty?(remaining_winds_to_pick(game)) do
-      {game, :picking_winds}
-    else
-      {game, :tbd}
-    end
-  end
-
-  defp state_picking_winds({game, state}), do: {game, state}
-
-  defp state_rolling_for_first_dealer({game, :tbd}) do
-    if Enum.empty?(game.dice) do
-      {game, :rolling_for_first_dealer}
-    else
-      {game, :tbd}
-    end
-  end
-
-  defp state_rolling_for_first_dealer({game, state}), do: {game, state}
-
-  defp state_rolling_for_deal({game, :tbd}) do
-    if game.turn_state == :rolling do
-      {game, :rolling_for_deal}
-    else
-      {game, :tbd}
-    end
-  end
-
-  defp state_rolling_for_deal({game, state}), do: {game, state}
-
-  defp state_win_declared({game, :tbd}) do
-    if win_declared_seatno(game) do
-      {game, :win_declared}
-    else
-      {game, :tbd}
-    end
-  end
-
-  defp state_win_declared({game, state}), do: {game, state}
-
-  defp state_discarding({game, :tbd}) do
-    if game.turn_state == :discarding do
-      {game, :discarding}
-    else
-      {game, :tbd}
-    end
-  end
-
-  defp state_discarding({game, state}), do: {game, state}
-
-  defp state_drawing({game, :tbd}) do
-    if game.turn_state == :drawing do
-      {game, :drawing}
-    else
-      {game, :tbd}
-    end
-  end
-
-  defp state_drawing({game, state}), do: {game, state}
-
-  defp state_invalid({_game, :tbd}), do: :invalid
-  defp state_invalid({_game, state}), do: state
 end

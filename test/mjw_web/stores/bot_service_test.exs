@@ -345,7 +345,7 @@ defmodule MjwWeb.BotServiceTest do
 
       game = MjwWeb.GameStore.get(game.id)
       refute Enum.empty?(game.dice)
-      assert Mjw.Game.state(game) == :rolling_for_deal
+      assert Mjw.GameState.state(game) == :rolling_for_deal
     end
 
     test "does nothing when the state is not rolling_for_first_dealer" do
@@ -423,7 +423,7 @@ defmodule MjwWeb.BotServiceTest do
 
       game = MjwWeb.GameStore.get(game.id)
       refute Enum.empty?(game.dice)
-      assert Mjw.Game.state(game) == :discarding
+      assert Mjw.GameState.state(game) == :discarding
     end
 
     test "does nothing when the state is not rolling_for_deal" do
@@ -503,7 +503,7 @@ defmodule MjwWeb.BotServiceTest do
 
       game = MjwWeb.GameStore.get(game.id)
       assert game.turn_seatno == 1
-      assert Mjw.Game.state(game) == :discarding
+      assert Mjw.GameState.state(game) == :discarding
       bot_seat = Enum.at(game.seats, 1)
       assert bot_seat.concealed == ["n1-0", "n1-1", "b1-0"]
       assert game.deck == ["b1-1", "b1-2"]
@@ -637,7 +637,7 @@ defmodule MjwWeb.BotServiceTest do
 
       game = MjwWeb.GameStore.get(game.id)
       assert game.turn_seatno == 0
-      assert Mjw.Game.state(game) == :win_declared
+      assert Mjw.GameState.state(game) == :win_declared
       bot_seat = Enum.at(game.seats, 0)
       assert bot_seat.concealed == ["b1-0", "b2-0", "b2-1", "b3-0", "b3-1", "b4-0", "c1-0"]
       assert bot_seat.exposed == ["n1-0", "n2-0", "n3-0", "n4-0", "n5-0", "n6-0"]
@@ -785,7 +785,7 @@ defmodule MjwWeb.BotServiceTest do
 
       game = MjwWeb.GameStore.get(game.id)
       assert game.turn_seatno == 2
-      assert Mjw.Game.state(game) == :drawing
+      assert Mjw.GameState.state(game) == :drawing
       bot_seat = Enum.at(game.seats, 1)
       assert length(bot_seat.concealed) == 2
       {event_log_event, event_log_detail} = Enum.at(game.event_log, 0)
