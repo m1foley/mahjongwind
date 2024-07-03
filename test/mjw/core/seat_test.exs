@@ -587,7 +587,7 @@ defmodule Mjw.SeatTest do
 
       result = Mjw.Seat.merge_for_undo(seat, undo_state_seat)
 
-      assert result == %{seat | hiddengongs: ["n3-0", "n4-0", "n3-1"]}
+      assert result == %{seat | hiddengongs: ["n3-0", "n3-1", "n4-0"]}
     end
 
     test "restores a tile removed from the peektile by the undoable action" do
