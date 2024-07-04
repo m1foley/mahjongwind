@@ -26,9 +26,8 @@ defmodule Mjw.Seat do
   end
 
   @bot_id "bot"
-
   def seat_bot(%__MODULE__{} = seat, bot_name) do
-    %{seat | player_id: @bot_id, player_name: bot_name}
+    seat_player(seat, @bot_id, bot_name)
   end
 
   def bot?(%__MODULE__{player_id: @bot_id}), do: true

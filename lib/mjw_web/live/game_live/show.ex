@@ -132,9 +132,8 @@ defmodule MjwWeb.GameLive.Show do
       when socket.assigns.current_user_can_undo do
     game =
       socket.assigns.game
-      |> Mjw.Game.undo()
-      |> optionally_enqueue_bot_roll(socket)
-      |> optionally_enqueue_bot_draw(socket)
+      |> Mjw.Game.undo(socket.assigns.current_user_seatno)
+      |> optionally_enqueue_all_bot_actions
 
     socket = update_game(socket, game, :undo)
 
@@ -912,7 +911,7 @@ defmodule MjwWeb.GameLive.Show do
     |> assign(:deck_remaining, length(game.deck))
     |> assign(:empty_seats_count, Mjw.Game.empty_seats_count(game))
     |> assign(:turn_player_name, Mjw.Game.turn_player_name(game))
-    |> assign(:current_user_can_undo, game.undo_seatno == current_user_seatno)
+    |> assign(:current_user_can_undo, Mjw.Game.can_undo?(game, current_user_seatno))
     |> assign(:bots_present, Mjw.Game.bots_present?(game))
   end
 
