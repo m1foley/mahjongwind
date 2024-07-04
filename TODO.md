@@ -2,7 +2,6 @@
 
 - CD: https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
 - Put everyone's discards in front of their hand (suggested by Mom)
-- If no undoable moves, Undo button should reset the game to get first discarded tile of the game from bot (human went last, missed a discarded tile, can't go back to beginning of game).
 - Bug: Undoing a win after a bot drew a tile hung bot (workaround: paused & unpaused bots)
 - Shrink tile sizes on mobile
 - Lobby not receiving bot player added

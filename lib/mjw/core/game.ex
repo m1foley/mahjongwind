@@ -43,7 +43,7 @@ defmodule Mjw.Game do
             turn_seatno: 0,
             # Where the deal picking started from. Might be used to count points.
             dealpick_seatno: 0,
-            # Number of times the player has been dealer (wins, draws, DQs all count)
+            # Number of times the player has been dealer (draws, etc, also count)
             dealer_win_count: 0,
             event_log: [],
             undo_seatno: nil,
@@ -51,17 +51,10 @@ defmodule Mjw.Game do
             pause_bots: false
 
   @doc """
-  Initialize a game with a random ID and a shuffled deck
+  Initialize a game, defaulting to a random ID and a shuffled deck
   """
-  def new() do
-    new(Uniq.UUID.uuid4())
-  end
-
-  defp new(id) do
-    %__MODULE__{
-      id: id,
-      deck: shuffled_deck()
-    }
+  def new(id \\ Uniq.UUID.uuid4()) do
+    %__MODULE__{id: id, deck: shuffled_deck()}
   end
 
   defp shuffled_deck() do
@@ -193,7 +186,8 @@ defmodule Mjw.Game do
 
   @doc """
   Roll dice and deal the deck. The dealer will have 14 tiles and others will
-  have 13. Set dealpick_seatno and change turn_state to discarding.
+  have 13. Sets dealpick_seatno, changes turn_state to discarding, and sets
+  undo_state to an initial value.
   """
   def roll_dice_and_deal(%__MODULE__{turn_state: :rolling} = game) do
     game
@@ -387,6 +381,7 @@ defmodule Mjw.Game do
     tile = Mjw.BotStrategy.discard(game)
 
     game
+    |> set_undo_state_if_first_discard()
     |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_concealed(&1, tile))
     |> Map.merge(%{discards: [tile | game.discards], turn_state: :drawing})
@@ -722,9 +717,18 @@ defmodule Mjw.Game do
     update_seat(game, seatno, fn _seat_being_replaced -> seat end)
   end
 
-  def undo(%__MODULE__{undo_seatno: undo_seatno, undo_state: %__MODULE__{} = undo_state} = game)
-      when undo_seatno != nil do
-    player_name = player_name_at(game, undo_seatno)
+  def undo(
+        %__MODULE__{undo_seatno: undo_seatno, undo_state: %__MODULE__{} = undo_state} = game,
+        player_seatno
+      ) do
+    player_name = player_name_at(game, player_seatno)
+
+    log_event_message =
+      if undo_seatno do
+        "#{player_name} undid their action."
+      else
+        "#{player_name} reset the game."
+      end
 
     undo_state
     # event_log is preserved as a singleton at the top-level game
@@ -732,7 +736,7 @@ defmodule Mjw.Game do
     |> merge_seats_for_undo(game)
     # just in case undoing a declared win
     |> clear_all_seat_win_attributes()
-    |> log_event("#{player_name} undid their action.")
+    |> log_event(log_event_message)
   end
 
   # The undo player's hand will change after an undo, but try to preserve their
@@ -762,6 +766,15 @@ defmodule Mjw.Game do
     Map.update!(game, :seats, fn seats ->
       Enum.map(seats, &Mjw.Seat.clear_win_attributes/1)
     end)
+  end
+
+  @doc """
+  A player can undo when they performed the last human action, OR if the
+  undo_seatno is nil which indicates it's the beginning of the game and we can
+  undo the initial bot discards
+  """
+  def can_undo?(%__MODULE__{undo_seatno: undo_seatno, undo_state: undo_state}, seatno) do
+    undo_state && (!undo_seatno || undo_seatno == seatno)
   end
 
   @doc """
@@ -960,9 +973,19 @@ defmodule Mjw.Game do
   # When an undoable change is made, set the undo_state so that the player in
   # undo_seatno can possibly undo it. event_log is not saved in undo states
   # because it exists as a singleton at the top-level game.
-  defp set_undo_state(%__MODULE__{} = game, undo_seatno) do
+  defp set_undo_state(%__MODULE__{} = game, undo_seatno \\ nil) do
     undo_state = game |> Map.delete(:event_log)
     %{game | undo_seatno: undo_seatno, undo_state: undo_state}
+  end
+
+  # When a bot discards first, set the initial undo_state so a human can Undo
+  # to the beginning of the game to pick up a bot's discard they missed
+  defp set_undo_state_if_first_discard(%__MODULE__{} = game) do
+    if Enum.empty?(game.discards) do
+      set_undo_state(game)
+    else
+      game
+    end
   end
 
   def seat_bot(%__MODULE__{} = game) do

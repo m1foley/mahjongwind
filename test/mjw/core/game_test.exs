@@ -1396,7 +1396,7 @@ defmodule Mjw.GameTest do
       }
 
       {:ok, game} = Mjw.Game.discard(orig_game, 3, "n3-3")
-      game = Mjw.Game.undo(game)
+      game = Mjw.Game.undo(game, 3)
 
       expected_event_log = [{"name3 undid their action.", nil}, {"name3 discarded.", "n3-3"}]
       assert game == %{orig_game | event_log: expected_event_log}
@@ -1423,7 +1423,7 @@ defmodule Mjw.GameTest do
       game =
         orig_game
         |> Mjw.Game.draw_discard(3, ["dp-0"], "dp-0")
-        |> Mjw.Game.undo()
+        |> Mjw.Game.undo(3)
 
       expected_event_log = [
         {"name3 undid their action.", nil},
@@ -1454,7 +1454,7 @@ defmodule Mjw.GameTest do
       game =
         orig_game
         |> Mjw.Game.pong(1, ["dp-0"], "dp-0")
-        |> Mjw.Game.undo()
+        |> Mjw.Game.undo(1)
 
       expected_event_log = [
         {"name1 undid their action.", nil},
@@ -1487,7 +1487,7 @@ defmodule Mjw.GameTest do
         orig_game
         |> Mjw.Game.peek_deck_tile(3)
         |> Mjw.Game.clear_peektile(3)
-        |> Mjw.Game.undo()
+        |> Mjw.Game.undo(3)
 
       expected_event_log = [
         {"name3 undid their action.", nil},
@@ -1519,7 +1519,7 @@ defmodule Mjw.GameTest do
       {game, "b1-0"} =
         orig_game |> Mjw.Game.draw_correction_tile(3, ["n1-3", "n2-3", "n3-3", "decktile"])
 
-      game = game |> Mjw.Game.undo()
+      game = game |> Mjw.Game.undo(3)
 
       expected_event_log = [
         {"name3 undid their action.", nil},
@@ -1550,7 +1550,7 @@ defmodule Mjw.GameTest do
       game =
         orig_game
         |> Mjw.Game.declare_win_from_discards(1, "dp-0")
-        |> Mjw.Game.undo()
+        |> Mjw.Game.undo(1)
 
       expected_event_log = [{"name1 undid their action.", nil}, {"name1 went out!", "dp-0"}]
       assert game == %{orig_game | event_log: expected_event_log}
@@ -1577,7 +1577,7 @@ defmodule Mjw.GameTest do
       game =
         orig_game
         |> Mjw.Game.declare_win_from_hand(1, "n3-1")
-        |> Mjw.Game.undo()
+        |> Mjw.Game.undo(1)
 
       expected_event_log = [{"name1 undid their action.", nil}, {"name1 went out!", "n3-1"}]
       assert game == %{orig_game | event_log: expected_event_log}
@@ -1615,7 +1615,7 @@ defmodule Mjw.GameTest do
       {:ok, game} = Mjw.Game.discard(orig_game, 0, "b5-0")
 
       {:draw_discard, game} = Mjw.Game.bot_draw(game)
-      game = Mjw.Game.undo(game)
+      game = Mjw.Game.undo(game, 0)
 
       expected_event_log = [
         {"name0 undid their action.", nil},
@@ -2037,6 +2037,73 @@ defmodule Mjw.GameTest do
       assert game.seats |> Enum.map(&length(&1.concealed)) |> Enum.sort() == [13, 13, 13, 14]
       assert length(game.deck) == 83
       assert game.turn_state == :discarding
+    end
+  end
+
+  describe "can_undo?" do
+    test "is false for all players before the first discard" do
+      game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(1)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Mjw.Game.roll_dice_and_reseat_players()
+        |> Mjw.Game.roll_dice_and_deal()
+
+      refute Mjw.Game.can_undo?(game, 0)
+      refute Mjw.Game.can_undo?(game, 1)
+      refute Mjw.Game.can_undo?(game, 2)
+      refute Mjw.Game.can_undo?(game, 3)
+    end
+
+    test "is true for all human players after the first bot discard" do
+      {:ok, game} =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(1)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Mjw.Game.roll_dice_and_reseat_players()
+        |> Mjw.Game.roll_dice_and_deal()
+        |> Map.merge(%{turn_seatno: 3})
+        |> Mjw.Game.bot_discard()
+
+      assert Mjw.Game.can_undo?(game, 0)
+      assert Mjw.Game.can_undo?(game, 1)
+      assert Mjw.Game.can_undo?(game, 2)
+    end
+
+    test "when undo_seatno is set, is true only for the undo_seatno player id" do
+      orig_game =
+        Mjw.Game.new()
+        |> Mjw.Game.seat_player("id0", "name0")
+        |> Mjw.Game.seat_player("id1", "name1")
+        |> Mjw.Game.seat_player("id2", "name2")
+        |> Mjw.Game.seat_bot()
+        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Game.pick_random_available_wind(1)
+        |> Mjw.Game.pick_random_available_wind(2)
+        |> Mjw.Game.pick_random_available_wind(3)
+        |> Mjw.Game.roll_dice_and_reseat_players()
+        |> Mjw.Game.roll_dice_and_deal()
+        |> Map.merge(%{turn_seatno: 0})
+
+      tile = orig_game.seats |> Enum.at(0) |> Map.get(:concealed) |> Enum.random()
+      {:ok, game} = orig_game |> Mjw.Game.discard(0, tile)
+
+      assert Mjw.Game.can_undo?(game, 0)
+      refute Mjw.Game.can_undo?(game, 1)
+      refute Mjw.Game.can_undo?(game, 2)
+      refute Mjw.Game.can_undo?(game, 3)
     end
   end
 end
