@@ -38,22 +38,18 @@
 
     <div class="exposed-tiles">
       <%= for tile <- @seat.exposed do %>
-        <img id={tile} src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"} alt="" class="tile" />
+        <.tile id={tile} tile={tile} />
       <% end %>
     </div>
 
     <div class="hiddengong-tiles">
       <%= if @seat.win_expose do %>
         <%= for tile <- @seat.hiddengongs do %>
-          <img
-            src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
-            alt=""
-            class="tile opacity-50"
-          />
+          <.tile tile={tile} class="opacity-50" />
         <% end %>
       <% else %>
         <%= for _tile <- @seat.hiddengongs do %>
-          <img src="/images/tiles/concealed.png" alt="" class="tile" />
+          <.concealed_tile class="tile" />
         <% end %>
       <% end %>
     </div>
@@ -63,23 +59,18 @@
     <div class="concealed-tiles">
       <%= if @seat.win_expose do %>
         <%= for tile <- @seat.concealed do %>
-          <img src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"} alt="" class="tile" />
+          <.tile tile={tile} />
         <% end %>
       <% else %>
         <%= for _tile <- @seat.concealed do %>
-          <img src="/images/tiles/concealed.png" alt="" class="tile" />
+          <.concealed_tile class="tile" />
         <% end %>
       <% end %>
     </div>
 
     <%= if @seat.wintile do %>
       <div class="wintile-tiles">
-        <img
-          id={@seat.wintile}
-          src={"/images/tiles/#{Mjw.Tile.without_id(@seat.wintile)}.png"}
-          alt=""
-          class="tile ml-8"
-        />
+        <.tile tile={@seat.wintile} class="ml-8" />
       </div>
     <% end %>
   </div>

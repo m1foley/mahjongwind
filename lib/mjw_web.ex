@@ -84,8 +84,10 @@ defmodule MjwWeb do
     quote do
       # HTML escaping functionality
       import Phoenix.HTML
-      # Core UI components and translation
+      # Phoenix Core UI components and translation
       import MjwWeb.CoreComponents
+      # Our own custom components
+      import MjwWeb.GameComponents
       import MjwWeb.Gettext
 
       # Shortcut for generating JS commands

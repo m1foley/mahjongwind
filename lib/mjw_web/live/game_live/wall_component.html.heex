@@ -2,13 +2,13 @@
   <div class="tiles flex-wrap">
     <div class="wall-tiles wall-tiles-1">
       <%= for _ <- 0..15 do %>
-        <img src="/images/tiles/concealed.png" alt="" class="walltile" />
+        <.concealed_tile class="walltile" />
       <% end %>
     </div>
     <div class="line-break"></div>
     <div class="wall-tiles">
       <%= for _ <- 0..15 do %>
-        <img src="/images/tiles/concealed.png" alt="" class="walltile" />
+        <.concealed_tile class="walltile" />
       <% end %>
     </div>
   </div>
