@@ -12,8 +12,7 @@
       <div class="windandname">
         <div class="windcontainer">
           <%= if wind_data[:picked_wind_idx] do %>
-            <img
-              src="/images/tiles/concealed.png"
+            <.concealed_tile
               class="tile pickable-wind"
               phx-target="#game"
               phx-click="windpick"
@@ -24,7 +23,7 @@
             <%= if wind_data[:picked_by_name] do %>
               <img src={"/images/tiles/#{wind_data[:wind]}.png"} alt="" class="tile" />
             <% else %>
-              <img src="/images/tiles/concealed.png" alt="" class="tile" />
+              <.concealed_tile class="tile" />
             <% end %>
           <% end %>
         </div>

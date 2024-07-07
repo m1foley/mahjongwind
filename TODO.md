@@ -1,18 +1,17 @@
 # TODO
 
-- CD: https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
-- Put everyone's discards in front of their hand (suggested by Mom)
-- Bug: Undoing a win after a bot drew a tile hung bot (workaround: paused & unpaused bots)
+- Refactor: Convert Live View Components to regular Components
+- Slider for tile size (so users don't have to increase font size)
+- Real user accounts instead of just web sessions
 - Shrink tile sizes on mobile
 - Lobby not receiving bot player added
 - Refactor: Denormalize seatno as a seat attribute
 - Point out game menu on first load
-- Make seating less confusing
+- Make seating process less confusing
 - Sound
 - "Sort" button after deal (disappears if player moves any tile)
 - Indicate when deck is running low
 - Experiment with more CSS animations: dealing the tiles, etc.
-- Real user accounts instead of just web sessions
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)
 - Support more Mahjong rule sets (flower tiles, no game wind, etc.)
 - Instructions
@@ -25,7 +24,6 @@
 - Add titles to tile images ("5 of bamboo"). good for game log where it's small
 - Add "Waiting for Mei..." to game log when waiting, then delete when no longer waiting
 - Make Pause button easier to click (click on board center?)
-- Slider for tile size (so users don't have to increase font size)
 - Animated "waiting" dots next to player name when waiting for them
 - Allow dragging from decktile to exposed tiles (adding onto a pong)
 - 2-click instead of drag & drop. First click will pause other players.
@@ -33,6 +31,7 @@
 - Animate deal: 4 at a time goes into people's hand
 - Sanity check for (possible race condition) bug: rearranging hand leads to duplicate tiles. Last time it happened after peek tile got put into hand, and user drag & dropped that new tile.
 - Remember sorted hand in browser so it doesn't get reshuffled when losing internet connection
+- Put everyone's discards in front of their hand (suggested by Mom)
 
 ## Future rule enforcement
 - Winning tile was the last one picked up

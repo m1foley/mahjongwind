@@ -7,24 +7,14 @@
       class={"hiddengong-tiles dropzone#{if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && @seat.win_expose, do: " exposed-loser-hand"}"}
     >
       <%= for tile <- @seat.hiddengongs do %>
-        <img
-          id={tile}
-          src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
-          alt=""
-          class="tile draggable"
-        />
+        <.tile id={tile} tile={tile} class="draggable" />
       <% end %>
       <div class="dropzone-description">Hidden gong</div>
     </div>
 
     <div id="exposed-0" phx-hook="Drag" phx-target="#game" class="exposed-tiles dropzone">
       <%= for tile <- @seat.exposed do %>
-        <img
-          id={tile}
-          src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
-          alt=""
-          class="tile draggable"
-        />
+        <.tile id={tile} tile={tile} class="draggable" />
       <% end %>
       <div class="dropzone-description">Exposed tiles</div>
     </div>
@@ -36,12 +26,7 @@
       class={"wintile-tiles#{if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno, do: " dropzone"}"}
     >
       <%= if @seat.wintile do %>
-        <img
-          id={@seat.wintile}
-          src={"/images/tiles/#{Mjw.Tile.without_id(@seat.wintile)}.png"}
-          alt=""
-          class="tile cursor-not-allowed"
-        />
+        <.tile id={@seat.wintile} tile={@seat.wintile} class="cursor-not-allowed" />
       <% end %>
       <%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno do %>
         <div class="dropzone-description">Winning tile</div>
@@ -57,12 +42,7 @@
       class={"concealed-tiles dropzone current-user-discarding-#{if @current_user_discarding, do: "t"} enable-pull-from-discards-#{if @available_discard_tile, do: "t"} concealed-loser-hand-#{if @concealed_loser_hand, do: "t"}"}
     >
       <%= for tile <- @seat.concealed do %>
-        <img
-          id={tile}
-          src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
-          alt=""
-          class="tile draggable"
-        />
+        <.tile id={tile} tile={tile} class="draggable" />
       <% end %>
     </div>
   </div>

@@ -40,12 +40,7 @@
       <div class="flex flex-row flex-wrap text-left justify-start justify-items-start">
         <span class="pr-1 cursor-default" title="Next tile in the deck">&#8594;</span>
         <%= for tile <- @game.deck do %>
-          <img
-            id={tile}
-            src={"/images/tiles/#{Mjw.Tile.without_id(tile)}.png"}
-            alt=""
-            class="tile"
-          />
+          <.tile id={tile} tile={tile} />
         <% end %>
       </div>
     <% else %>
