@@ -8,10 +8,10 @@ import Config
 config :mjw, MjwWeb.Endpoint,
   url: [host: "mahjongwind.com", port: 443, scheme: "https"],
   cache_static_manifest: "priv/static/cache_manifest.json",
-  check_origin: ["//mahjongwind.com"],
+  check_origin: :conn,
   force_ssl: [
     host: nil,
-    rewrite_on: [:x_forwarded_port, :x_forwarded_proto],
+    rewrite_on: [:x_forwarded_host, :x_forwarded_port, :x_forwarded_proto],
     hsts: true
   ]
 
