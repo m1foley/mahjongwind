@@ -2,6 +2,230 @@ defmodule MjwWeb.GameLive.Show do
   use MjwWeb, :live_view
 
   @impl true
+  def render(assigns) do
+    ~H"""
+    <div
+      id="game"
+      class={"glow-#{@non_discard_glow_tile} drew-from-discards-#{@drew_from_discards_tile} drew-from-deck-#{@drew_from_deck_relative_seatno} exposed-tile-#{@exposed_tile} zimo-#{@zimo_relative_seatno}#{unless @current_user_seatno, do: " blurred"}"}
+    >
+      <img :if={!@winds_have_been_picked} src="/images/stickpomelo.png" alt="" class="stickpomelo" />
+      <canvas
+        :if={@dq_confetti}
+        id="dq-confetti-canvas"
+        class="confetti-canvas"
+        phx-hook="Confetti"
+        data-dq="true"
+      >
+      </canvas>
+      <canvas
+        :if={@win_confetti}
+        id="win-confetti-canvas"
+        class="confetti-canvas"
+        phx-hook="Confetti"
+        data-winner={@win_declared_seatno == @current_user_seatno}
+        data-dq="false"
+      >
+      </canvas>
+
+      <%= for seatno <- [1, 3, 0, 2] do %>
+        <%= cond do %>
+          <% @show_wall -> %>
+            <.wall seatno={seatno} />
+          <% seatno == 0 -> %>
+            <.current_user_seat
+              seat={@current_user_seat}
+              current_user_drawing={@current_user_drawing}
+              win_declared_seatno={@win_declared_seatno}
+              current_user_seatno={@current_user_seatno}
+              current_user_discarding={@current_user_discarding}
+              available_discard_tile={@available_discard_tile}
+            />
+          <% true -> %>
+            <.opponent_seat
+              seatno={seatno}
+              seat={@relative_game_seats |> Enum.at(seatno)}
+              game={@game}
+              turn_glow_seatno={@turn_glow_seatno}
+              player_seats_finalized={@player_seats_finalized}
+              game_state={@game_state}
+            />
+        <% end %>
+      <% end %>
+
+      <div
+        :if={!@show_wall}
+        id="discards"
+        phx-hook="Drag"
+        phx-target="#game"
+        class={"dglow-#{@available_discard_tile} discardedby-#{if @raw_event == :discarded, do: @discarded_by_relative_seatno} current-user-discarding-#{if @current_user_discarding, do: "t"} enable-pull-from-discards-#{if @available_discard_tile, do: "t"}"}
+      >
+        <%= for tile <- Enum.reverse(@game.discards) do %>
+          <.tile id={tile} tile={tile} class="draggable" />
+        <% end %>
+      </div>
+
+      <div class="gamelog">
+        <%= for {event, icon} <- @game.event_log do %>
+          <div class="event py-1 flex-grow">
+            <span class="desc align-middle"><%= event %></span>
+            <%= if icon do %>
+              <%= if Mjw.Tile.tile_format?(icon) do %>
+                <.tile tile={icon} class="align-middle" />
+              <% else %>
+                <span class="icon text-xl align-middle"><%= icon %></span>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div id="table-center">
+        <.live_component
+          :if={@show_wind_picking}
+          module={MjwWeb.GameLive.WindPickComponent}
+          id="windpick"
+          current_user_id={@current_user_id}
+          game={@game}
+        />
+
+        <.live_component
+          :if={@rolling_dice || @rolled_dice}
+          module={MjwWeb.GameLive.DiceComponent}
+          id="dicecomponent"
+          ,
+          current_user_id={@current_user_id}
+          game={@game}
+          game_state={@game_state}
+          current_user_seatno={@current_user_seatno}
+          event={@event}
+          raw_event={@raw_event}
+          rolling_dice={@rolling_dice}
+          rolled_dice={@rolled_dice}
+        />
+
+        <%= case @game_state do %>
+          <% :waiting_for_players -> %>
+            <div class="state-description">
+              Waiting for <%= MjwWeb.Gettext.ngettext(
+                "1 more player",
+                "%{count} more players",
+                @empty_seats_count
+              ) %>...
+            </div>
+            <.live_component
+              module={MjwWeb.GameLive.InviteLinkComponent}
+              id="invite-link-center"
+              game={@game}
+              game_state={@game_state}
+            />
+          <% :win_declared -> %>
+            <div class="state-description">
+              <%= if @win_declared_seatno == @current_user_seatno do %>
+                Congratulations!
+              <% else %>
+                <%= @relative_game_seats
+                |> Enum.find(&(&1.seatno == @win_declared_seatno))
+                |> Map.get(:player_name) %> went out!
+              <% end %>
+            </div>
+            <.live_component
+              module={MjwWeb.GameLive.WinMenuComponent}
+              id="winmenu"
+              game={@game}
+              win_declared_seatno={@win_declared_seatno}
+              current_user_seat={@current_user_seat}
+            />
+          <% _ -> %>
+        <% end %>
+      </div>
+
+      <div
+        :if={@current_user_drawing || @current_user_seat.peektile}
+        id="peektile-0"
+        phx-hook="Drag"
+        phx-target="#game"
+      >
+        <%= if @current_user_seat.peektile do %>
+          <.tile
+            id={@current_user_seat.peektile}
+            tile={@current_user_seat.peektile}
+            class="draggable"
+          />
+        <% else %>
+          <.concealed_tile class="tile cursor-pointer" phx-target="#game" phx-click="peek" />
+        <% end %>
+      </div>
+
+      <div class="icons">
+        <%= if @winds_have_been_picked && @bots_present do %>
+          <%= if @game.pause_bots do %>
+            <div id="resumebots" phx-click="resumebots">Resume bots</div>
+          <% else %>
+            <div id="pausebots" phx-click="pausebots">Pause bots</div>
+          <% end %>
+        <% end %>
+        <div :if={@current_user_can_undo} id="undo" phx-click="undo">Undo</div>
+        <div :if={@show_correction_tile} id="correctiontiles" phx-hook="Drag" class="dropzone">
+          <.concealed_tile id="decktile" class="tile draggable" title="Gong correction tile" />
+        </div>
+        <span :if={!@show_wall} id="deck-remaining-count" title="Tiles remaining in the deck">
+          <%= @deck_remaining %>
+        </span>
+        <img
+          src={"/images/gamewind/#{@game.wind}.png"}
+          alt=""
+          title="Game wind (click for menu)"
+          class="gamewind cursor-pointer"
+          phx-click="opengamemenu"
+        />
+      </div>
+
+      <div :if={@player_seats_finalized} class="seat-0-icons">
+        <div
+          :if={@current_user_seatno == 0}
+          class="firstdealer-indicator inline-block text-gray-100 text-xl font-light font-serif opacity-50"
+          title="First dealer. Game wind changes when the deal circles back to you."
+        >
+          庄
+        </div>
+
+        <div
+          :if={@game.dealer_seatno == @current_user_seatno}
+          class="dealer-indicator inline-block text-gray-100 text-base font-extrabold opacity-50"
+          title={"You are the dealer#{if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})"}"}
+        >
+          Dealer<sup :if={@game.dealer_win_count > 0}><%= @game.dealer_win_count + 1 %></sup>
+        </div>
+        <img
+          :if={@game_state != :rolling_for_deal && @game.dealpick_seatno == @current_user_seatno}
+          src="/images/staircase.png"
+          alt=""
+          title="This staircase is the end of the deck (used to determine player wind)"
+          class={"dealpickstaircase inline-block mx-auto opacity-80#{if @game.dealer_seatno == @current_user_seatno, do: " pl-1"}"}
+        />
+      </div>
+    </div>
+
+    <.live_component
+      :if={@raw_event == :opened_game_menu}
+      module={MjwWeb.GameLive.GameMenuComponent}
+      id="gamemenu"
+      game={@game}
+      relative_game_seats={@relative_game_seats}
+      player_seats_finalized={@player_seats_finalized}
+      game_state={@game_state}
+    />
+    <.live_component
+      :if={!@current_user_seatno}
+      module={MjwWeb.GameLive.SeatOfferingComponent}
+      id="seat_offering_modal"
+      game={@game}
+      current_user_id={@current_user_id}
+    />
+    """
+  end
+
+  @impl true
   def mount(%{"id" => id}, session, socket) do
     socket = assign_defaults(socket, session)
     game = MjwWeb.GameStore.get(id)
@@ -732,14 +956,14 @@ defmodule MjwWeb.GameLive.Show do
     {:noreply, socket}
   end
 
-  def optionally_enqueue_all_bot_actions(%Mjw.Game{} = game, socket)
-      when socket.assigns.bots_present do
+  defp optionally_enqueue_all_bot_actions(%Mjw.Game{} = game, socket)
+       when socket.assigns.bots_present do
     optionally_enqueue_all_bot_actions(game)
   end
 
-  def optionally_enqueue_all_bot_actions(%Mjw.Game{} = game, _socket), do: game
+  defp optionally_enqueue_all_bot_actions(%Mjw.Game{} = game, _socket), do: game
 
-  def optionally_enqueue_all_bot_actions(%Mjw.Game{} = game) do
+  defp optionally_enqueue_all_bot_actions(%Mjw.Game{} = game) do
     game
     |> optionally_enqueue_bot_roll()
     |> optionally_enqueue_bot_try_win_out_of_turn()
