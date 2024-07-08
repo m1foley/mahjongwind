@@ -25,17 +25,13 @@
       <% @show_wall -> %>
         <.live_component module={MjwWeb.GameLive.WallComponent} id={"walltiles-#{seatno}"} />
       <% seatno == 0 -> %>
-        <.live_component
-          module={MjwWeb.GameLive.CurrentUserSeatComponent}
-          id={"seat-#{seatno}"}
+        <.current_user_seat
           seat={@current_user_seat}
-          game={@game}
           current_user_drawing={@current_user_drawing}
           win_declared_seatno={@win_declared_seatno}
-          current_user_id={@current_user_id}
+          current_user_seatno={@current_user_seatno}
           current_user_discarding={@current_user_discarding}
           available_discard_tile={@available_discard_tile}
-          current_user_seatno={@current_user_seatno}
         />
       <% true -> %>
         <.opponent_seat
