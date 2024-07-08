@@ -1,6 +1,5 @@
 # TODO
 
-- Refactor: Convert Live View Components to regular Components
 - Slider for tile size (so users don't have to increase font size)
 - Real user accounts instead of just web sessions
 - Shrink tile sizes on mobile
