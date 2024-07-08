@@ -1,6 +1,15 @@
 defmodule MjwWeb.GameComponents do
   use Phoenix.Component
 
+  quote do
+    unquote(MjwWeb.verified_routes())
+  end
+
+  use Phoenix.VerifiedRoutes,
+    endpoint: MjwWeb.Endpoint,
+    router: MjwWeb.Router,
+    statics: MjwWeb.static_paths()
+
   attr(:tile, :string, required: true)
   attr(:class, :string, default: nil)
   attr(:id, :string, default: nil)
@@ -293,6 +302,18 @@ defmodule MjwWeb.GameComponents do
             <div class="hand hand-3" title="Rolling dice">🤜</div>
         <% end %>
       <% end %>
+    </div>
+    """
+  end
+
+  attr(:game, Mjw.Game, required: true)
+
+  def lobby_game(assigns) do
+    ~H"""
+    <div id={"join-#{@game.id}"} class="lobbygame">
+      <.link href={~p"/games/#{@game.id}"} class="lobbygame-link">
+        <%= Mjw.Game.seated_player_names(@game) |> Enum.join(", ") %>
+      </.link>
     </div>
     """
   end

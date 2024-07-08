@@ -48,13 +48,14 @@ git push heroku main:main
 
 ### Research/similar sites
 
+- Example of newest Phoenix version: <https://github.com/fly-apps/live_beats/blob/master/lib/live_beats_web/live/settings_live.ex>
+- Deploys: <https://damonvjanis.medium.com/optimizing-for-free-hosting-elixir-deployments-6bfc119a1f44>
 - <https://www.reddit.com/r/Mahjong/comments/ogl4yf/best_way_to_play_hk_mahjong_online/>
 - <http://mahjongbuddy.com>
 - <https://www.reddit.com/user/tthiatma/>
 - <https://www.reddit.com/r/Mahjong/comments/jsbsve/i_created_online_hong_kong_mahjong_web_app/>
 - <https://www.reddit.com/r/Mahjong/>
 - <https://en.wikipedia.org/wiki/Hong_Kong_Mahjong_scoring_rules>
-- Deploys: <https://damonvjanis.medium.com/optimizing-for-free-hosting-elixir-deployments-6bfc119a1f44>
 
 ### sortablejs
 
