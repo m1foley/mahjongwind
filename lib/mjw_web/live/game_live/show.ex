@@ -211,13 +211,44 @@ defmodule MjwWeb.GameLive.Show do
       player_seats_finalized={@player_seats_finalized}
       game_state={@game_state}
     />
-    <.live_component
+
+    <div
       :if={!@current_user_seatno}
-      module={MjwWeb.GameLive.SeatOfferingComponent}
       id="seat_offering_modal"
-      game={@game}
-      current_user_id={@current_user_id}
-    />
+      phx-target="#seat_offering_modal"
+      class="phx-modal seat-offering-modal blurred relative"
+    >
+      <div class="phx-modal-content seat-offering-modal-content">
+        <.form for={%{}} id="seat-offering-form" phx-target="#game" phx-submit="accept_seat_offering">
+          <div class="text-4xl">
+            <h2>Have a seat! 🪑</h2>
+          </div>
+
+          <div class="text-xl pt-8">
+            <.label for="player_name">Your name:</.label>
+          </div>
+
+          <div class="pt-4">
+            <input
+              type="text"
+              name="player_name"
+              class="p-2 mx-3 border border-gray-600 rounded w-72"
+              required
+              minlength="1"
+              maxlength="70"
+              autofocus
+              autocomplete="off"
+              data-1p-ignore="true"
+              data-lpignore="true"
+            />
+          </div>
+
+          <div class="pt-8">
+            <.button type="submit" class="sit-button" phx-disable-with="Sitting...">Sit</.button>
+          </div>
+        </.form>
+      </div>
+    </div>
     """
   end
 
