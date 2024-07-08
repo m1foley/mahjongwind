@@ -176,4 +176,26 @@ defmodule MjwWeb.GameComponents do
     </div>
     """
   end
+
+  attr(:seatno, :integer, required: true)
+
+  def wall(assigns) do
+    ~H"""
+    <div id={"walltiles-#{@seatno}"}>
+      <div class="tiles flex-wrap">
+        <div class="wall-tiles wall-tiles-1">
+          <%= for _ <- 0..15 do %>
+            <.concealed_tile class="walltile" />
+          <% end %>
+        </div>
+        <div class="line-break"></div>
+        <div class="wall-tiles">
+          <%= for _ <- 0..15 do %>
+            <.concealed_tile class="walltile" />
+          <% end %>
+        </div>
+      </div>
+    </div>
+    """
+  end
 end
