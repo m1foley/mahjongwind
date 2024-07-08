@@ -88,15 +88,11 @@ defmodule MjwWeb.GameLive.Show do
           game={@game}
         />
 
-        <.live_component
+        <.dice
           :if={@rolling_dice || @rolled_dice}
-          module={MjwWeb.GameLive.DiceComponent}
-          id="dicecomponent"
-          ,
-          current_user_id={@current_user_id}
+          current_user_seatno={@current_user_seatno}
           game={@game}
           game_state={@game_state}
-          current_user_seatno={@current_user_seatno}
           event={@event}
           raw_event={@raw_event}
           rolling_dice={@rolling_dice}
