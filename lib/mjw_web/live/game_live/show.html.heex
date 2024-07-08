@@ -38,14 +38,13 @@
           current_user_seatno={@current_user_seatno}
         />
       <% true -> %>
-        <.live_component
-          module={MjwWeb.GameLive.OpponentSeatComponent}
-          id={"seat-#{seatno}"}
-          seat={Enum.at(@relative_game_seats, seatno)}
+        <.opponent_seat
+          seatno={seatno}
+          seat={@relative_game_seats |> Enum.at(seatno)}
           game={@game}
           turn_glow_seatno={@turn_glow_seatno}
-          game_state={@game_state}
           player_seats_finalized={@player_seats_finalized}
+          game_state={@game_state}
         />
     <% end %>
   <% end %>
