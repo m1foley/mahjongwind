@@ -1,5 +1,8 @@
 # TODO
 
+- 2-click instead of drag & drop. First click will pause other players.
+- Display everyone's wind direction instead of staircase
+- Change "Pause bots" to "Pause" to pause humans too. Allows time to pick tile.
 - Slider for tile size (so users don't have to increase font size)
 - Real user accounts instead of just web sessions
 - Shrink tile sizes on mobile
@@ -18,15 +21,12 @@
 - Test Internet Explorer
 - Automatically expire games
 - Refactor: Extract some common HTML elements (e.g., tile images) to components
-- Change "Pause bots" to "Pause" to pause humans too. Allows time to pick tile.
 - Only show "hidden gong" if actually possible
 - Add titles to tile images ("5 of bamboo"). good for game log where it's small
 - Add "Waiting for Mei..." to game log when waiting, then delete when no longer waiting
 - Make Pause button easier to click (click on board center?)
 - Animated "waiting" dots next to player name when waiting for them
 - Allow dragging from decktile to exposed tiles (adding onto a pong)
-- 2-click instead of drag & drop. First click will pause other players.
-- Display everyone's wind direction instead of staircase
 - Animate deal: 4 at a time goes into people's hand
 - Sanity check for (possible race condition) bug: rearranging hand leads to duplicate tiles. Last time it happened after peek tile got put into hand, and user drag & dropped that new tile.
 - Remember sorted hand in browser so it doesn't get reshuffled when losing internet connection

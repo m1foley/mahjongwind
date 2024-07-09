@@ -317,4 +317,31 @@ defmodule MjwWeb.GameComponents do
     </div>
     """
   end
+
+  attr(:id, :string, default: nil)
+  attr(:game_id, :integer, required: true)
+  attr(:game_state, :atom, required: true)
+
+  def invite_link(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      class="text-gray-800 text-base font-semibold py-2 px-4 my-4"
+      phx-hook="CopyToClipboard"
+    >
+      Invite link: <% game_url = url(~p"/games/#{@game_id}") %>
+      <input type="text" class="game-url font-normal" value={game_url} size={String.length(game_url)} />
+      <span class="copy-to-clipboard" style="cursor:pointer;">📋</span>
+
+      <%= if @game_state == :waiting_for_players do %>
+        <div class="pt-12">
+          <div id={"#{@id}-addbot"} class="addbot" phx-click="addbot">
+            <span class="align-middle">Add bot</span>
+            <span class="pl-2 text-2xl align-middle">🤖</span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    """
+  end
 end

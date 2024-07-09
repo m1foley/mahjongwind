@@ -79,12 +79,7 @@
     </div>
 
     <div phx-click="">
-      <.live_component
-        module={MjwWeb.GameLive.InviteLinkComponent}
-        id="invite-link-gamemenu"
-        game={@game}
-        game_state={@game_state}
-      />
+      <.invite_link id="invite-link-gamemenu" game_id={@game.id} game_state={@game_state} />
     </div>
   </div>
 </div>
