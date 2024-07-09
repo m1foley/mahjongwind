@@ -108,12 +108,7 @@ defmodule MjwWeb.GameLive.Show do
                 @empty_seats_count
               ) %>...
             </div>
-            <.live_component
-              module={MjwWeb.GameLive.InviteLinkComponent}
-              id="invite-link-center"
-              game={@game}
-              game_state={@game_state}
-            />
+            <.invite_link id="invite-link-center" game_id={@game.id} game_state={@game_state} />
           <% :win_declared -> %>
             <div class="state-description">
               <%= if @win_declared_seatno == @current_user_seatno do %>
