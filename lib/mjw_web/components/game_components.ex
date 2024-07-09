@@ -217,25 +217,7 @@ defmodule MjwWeb.GameComponents do
   attr(:rolling_dice, :boolean, required: true)
 
   def dice(assigns) do
-    {roller_seat, roller_relative_position} =
-      Mjw.Game.current_or_most_recent_roller_seat_with_relative_position(
-        assigns.game,
-        assigns.game_state,
-        assigns.current_user_seatno
-      )
-
-    previous_roller_relative_position =
-      if assigns.event == :rolled_for_first_dealer do
-        Mjw.Game.picked_east_wind_relative_seatno(assigns.game, assigns.current_user_seatno)
-      else
-        roller_relative_position
-      end
-
-    assigns =
-      assigns
-      |> assign(:previous_roller_relative_position, previous_roller_relative_position)
-      |> assign(:roller_name, roller_seat.player_name)
-      |> assign(:roller_relative_position, roller_relative_position)
+    assigns = dice_assigns_calculations(assigns)
 
     ~H"""
     <div id="dicecomponent">
@@ -306,6 +288,27 @@ defmodule MjwWeb.GameComponents do
     """
   end
 
+  defp dice_assigns_calculations(assigns) do
+    {roller_seat, roller_relative_position} =
+      Mjw.Game.current_or_most_recent_roller_seat_with_relative_position(
+        assigns.game,
+        assigns.game_state,
+        assigns.current_user_seatno
+      )
+
+    previous_roller_relative_position =
+      if assigns.event == :rolled_for_first_dealer do
+        Mjw.Game.picked_east_wind_relative_seatno(assigns.game, assigns.current_user_seatno)
+      else
+        roller_relative_position
+      end
+
+    assigns
+    |> assign(:previous_roller_relative_position, previous_roller_relative_position)
+    |> assign(:roller_name, roller_seat.player_name)
+    |> assign(:roller_relative_position, roller_relative_position)
+  end
+
   attr(:game, Mjw.Game, required: true)
 
   def lobby_game(assigns) do
@@ -343,5 +346,86 @@ defmodule MjwWeb.GameComponents do
       <% end %>
     </div>
     """
+  end
+
+  attr(:id, :string, default: nil)
+  attr(:game, Mjw.Game, required: true)
+  attr(:current_user_id, :integer, required: true)
+
+  def wind_pick(assigns) do
+    assigns = wind_pick_assigns_calculations(assigns)
+
+    ~H"""
+    <div id={@id}>
+      <div class="state-description">
+        <%= if @picked_wind do %>
+          &nbsp;
+        <% else %>
+          Pick a wind to choose your seat:
+        <% end %>
+      </div>
+
+      <div class="windtiles">
+        <%= for {wind_data, i} <- Enum.with_index(@picked_winds) do %>
+          <div class="windandname">
+            <div class="windcontainer">
+              <%= cond do %>
+                <% Enum.empty?(wind_data) -> %>
+                  <.concealed_tile
+                    class="tile pickable-wind"
+                    phx-target="#game"
+                    phx-click="windpick"
+                    phx-value-picked-wind-idx={i}
+                    title="Click to pick this wind tile"
+                  />
+                <% wind_data[:picked_by_name] -> %>
+                  <img src={"/images/tiles/#{wind_data[:wind]}.png"} alt="" class="tile" />
+                <% true -> %>
+                  <.concealed_tile class="tile" />
+              <% end %>
+            </div>
+            <div class="picked-by-name">
+              <%= wind_data[:picked_by_name] %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  @wind_tiles ~w(we ws ww wn)
+
+  defp wind_pick_assigns_calculations(assigns) do
+    game = assigns.game
+    current_user_id = assigns.current_user_id
+    picked_wind = Mjw.Game.picked_wind(game, current_user_id)
+
+    picked_winds =
+      if picked_wind do
+        picked_wind_idx = Mjw.Game.picked_wind_idx(game, current_user_id)
+        picked_winds_player_names = Mjw.Game.picked_winds_player_names(game)
+
+        @wind_tiles
+        |> Enum.with_index()
+        |> Enum.map(fn {wind, i} ->
+          # we always display the picked tile in the picked_wind_idx, so swap
+          # with the tile that's really at that index
+          wind =
+            cond do
+              picked_wind_idx == i -> picked_wind
+              wind == picked_wind -> @wind_tiles |> Enum.at(picked_wind_idx)
+              true -> wind
+            end
+
+          %{wind: wind, picked_by_name: picked_winds_player_names[wind]}
+        end)
+      else
+        List.duplicate(%{}, 4)
+      end
+
+    assigns
+    |> assign(:picked_wind, picked_wind)
+    |> assign(:picked_winds, picked_winds)
   end
 end

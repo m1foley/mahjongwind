@@ -80,13 +80,7 @@ defmodule MjwWeb.GameLive.Show do
       </div>
 
       <div id="table-center">
-        <.live_component
-          :if={@show_wind_picking}
-          module={MjwWeb.GameLive.WindPickComponent}
-          id="windpick"
-          current_user_id={@current_user_id}
-          game={@game}
-        />
+        <.wind_pick :if={@show_wind_picking} current_user_id={@current_user_id} game={@game} />
 
         <.dice
           :if={@rolling_dice || @rolled_dice}
