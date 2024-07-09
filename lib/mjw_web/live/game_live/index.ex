@@ -2,6 +2,34 @@ defmodule MjwWeb.GameLive.Index do
   use MjwWeb, :live_view
 
   @impl true
+  def render(assigns) do
+    ~H"""
+    <div class="lobby">
+      <img src="/images/cursive.png" alt="Mahjong Wind" class="lobbytitle" />
+      <.form for={%{}} action={~p"/games"}>
+        <.button type="submit" class="new-game">Start a game</.button>
+      </.form>
+
+      <div class="lobbygames">
+        <%= unless Enum.empty?(@games) do %>
+          <div class="pt-12 pb-10 text-xl font-semibold">or join a game in progress:</div>
+          <%= for game <- @games do %>
+            <.lobby_game game={game} />
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Email:</span>
+      <span class="pl-1">hello&#64;<span class="hidden">REMOVE</span>mahjongwind.com</span>
+      <span class="pl-4">Twitter:</span>
+      <span class="pl-1"><a href="https://www.twitter.com/m1foley">@m1foley</a></span>
+    </div>
+    """
+  end
+
+  @impl true
   def mount(_params, session, socket) do
     socket =
       socket
