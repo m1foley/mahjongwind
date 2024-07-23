@@ -208,7 +208,7 @@ defmodule MjwWeb.GameLive.Show do
       class="phx-modal seat-offering-modal blurred relative"
     >
       <div class="phx-modal-content seat-offering-modal-content">
-        <.form for={%{}} id="seat-offering-form" phx-target="#game" phx-submit="accept_seat_offering">
+        <form id="seat-offering-form" phx-target="#game" phx-submit="accept_seat_offering">
           <div class="text-4xl">
             <h2>Have a seat! 🪑</h2>
           </div>
@@ -235,7 +235,7 @@ defmodule MjwWeb.GameLive.Show do
           <div class="pt-8">
             <.button type="submit" class="sit-button" phx-disable-with="Sitting...">Sit</.button>
           </div>
-        </.form>
+        </form>
       </div>
     </div>
     """
