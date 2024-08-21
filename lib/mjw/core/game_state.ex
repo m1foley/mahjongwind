@@ -25,10 +25,10 @@ defmodule Mjw.GameState do
   defp waiting_for_players({game, state}), do: {game, state}
 
   defp picking_winds({game, :tbd}) do
-    if !Enum.empty?(Mjw.Game.remaining_winds_to_pick(game)) do
-      {game, :picking_winds}
-    else
+    if Enum.empty?(Mjw.Game.remaining_winds_to_pick(game)) do
       {game, :tbd}
+    else
+      {game, :picking_winds}
     end
   end
 
