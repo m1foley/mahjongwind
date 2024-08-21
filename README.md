@@ -44,6 +44,12 @@ heroku login
 git push heroku main:main
 ```
 
+## Credo for static analysis
+
+```sh
+mix credo
+```
+
 ## Misc. development notes
 
 ### Research/similar sites
