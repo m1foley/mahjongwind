@@ -61,7 +61,8 @@ defmodule Mjw.MixProject do
       {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
 
       # Normally we'd use Ecto for UUID generation
-      {:uniq, "~> 0.1"}
+      {:uniq, "~> 0.1"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
