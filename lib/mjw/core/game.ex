@@ -13,19 +13,16 @@ defmodule Mjw.Game do
              |> List.flatten()
   @four_empty_seats 0..3 |> Enum.map(fn _ -> %Mjw.Seat{} end)
   @bot_names [
-    "Black Sesame 🤖",
     "Dragonfruit 🤖",
-    "Garlic 🤖",
-    "Ginger 🤖",
     "Goji 🤖",
     "Guava 🤖",
+    "Lian Wu 🤖",
     "Lychee 🤖",
     "Papaya 🤖",
     "Passionfruit 🤖",
     "Persimmon 🤖",
     "Pomelo 🤖",
-    "Taro 🤖",
-    "Wax Apple 🤖"
+    "Taro 🤖"
   ]
 
   defstruct id: nil,
