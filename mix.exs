@@ -62,6 +62,7 @@ defmodule Mjw.MixProject do
 
       # Normally we'd use Ecto for UUID generation
       {:uniq, "~> 0.1"},
+      # Static code analysis
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
