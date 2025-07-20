@@ -923,20 +923,12 @@ defmodule Mjw.Game do
     dealer_name = turn_player_name(game)
 
     event =
-      "#{dealer_name} is the dealer" <>
-        case game.dealer_win_count do
-          0 -> "."
-          1 -> " for the second time."
-          2 -> " for the third time."
-          3 -> " for the fourth time."
-          4 -> " for the fifth time."
-          5 -> " for the sixth time."
-          6 -> " for the seventh time."
-          7 -> " for the eighth time."
-          8 -> " for the ninth time."
-          9 -> " for the tenth time."
-          dealer_win_count -> " (x#{dealer_win_count + 1})"
-        end
+      if game.dealer_win_count == 0 do
+        "#{dealer_name} is the dealer."
+      else
+        {:ok, ordinal} = Mjw.Cldr.Number.to_string(game.dealer_win_count + 1, format: :ordinal)
+        "#{dealer_name} is the dealer for the #{ordinal} time."
+      end
 
     log_event(game, event)
   end

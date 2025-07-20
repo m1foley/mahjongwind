@@ -570,7 +570,7 @@ defmodule Mjw.GameTest do
       assert game.undo_state == nil
 
       assert game.event_log == [
-               {"Player 1 is the dealer for the second time.", nil},
+               {"Player 1 is the dealer for the 2nd time.", nil},
                {"The game was declared a draw.", "🤝"}
              ]
 
@@ -647,7 +647,7 @@ defmodule Mjw.GameTest do
       assert game.undo_state == nil
 
       assert game.event_log == [
-               {"name1 is the dealer for the second time.", nil},
+               {"name1 is the dealer for the 2nd time.", nil},
                {"The game was declared a draw.", "🤝"}
              ]
 
@@ -1053,7 +1053,7 @@ defmodule Mjw.GameTest do
       assert game.undo_state == nil
 
       assert game.event_log == [
-               {"name1 is the dealer for the third time.", nil},
+               {"name1 is the dealer for the 3rd time.", nil},
                {"The game was declared a draw.", "🤝"}
              ]
 
@@ -1113,7 +1113,7 @@ defmodule Mjw.GameTest do
       assert game.undo_state == nil
 
       assert game.event_log == [
-               {"name1 is the dealer for the third time.", nil},
+               {"name1 is the dealer for the 3rd time.", nil},
                {"name3 has been disqualified.", "🙅🏻‍♀️"}
              ]
 
@@ -1313,7 +1313,7 @@ defmodule Mjw.GameTest do
       assert game.dealer_seatno == 3
       assert game.dealer_win_count == 2
       assert game.wind == "we"
-      assert game.event_log == [{"Name3 is the dealer for the third time.", nil}]
+      assert game.event_log == [{"Name3 is the dealer for the 3rd time.", nil}]
     end
   end
 

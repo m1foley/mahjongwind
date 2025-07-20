@@ -58,6 +58,7 @@ defmodule Mjw.MixProject do
       {:dns_cluster, "~> 0.2"},
       {:bandit, "~> 1.7"},
       {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
+      {:ex_cldr_numbers, "~> 2.35"},
 
       # Normally we'd use Ecto for UUID generation
       {:uniq, "~> 0.6"},
