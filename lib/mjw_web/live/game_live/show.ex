@@ -96,7 +96,7 @@ defmodule MjwWeb.GameLive.Show do
         <%= case @game_state do %>
           <% :waiting_for_players -> %>
             <div class="state-description">
-              Waiting for <%= MjwWeb.Gettext.ngettext(
+              Waiting for <%= ngettext(
                 "1 more player",
                 "%{count} more players",
                 @empty_seats_count

@@ -43,7 +43,7 @@ defmodule MjwWeb do
         layouts: [html: MjwWeb.Layouts]
 
       import Plug.Conn
-      import MjwWeb.Gettext
+      use Gettext, backend: MjwWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -88,7 +88,7 @@ defmodule MjwWeb do
       import MjwWeb.CoreComponents
       # Our own custom components
       import MjwWeb.GameComponents
-      import MjwWeb.Gettext
+      use Gettext, backend: MjwWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
