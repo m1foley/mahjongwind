@@ -202,9 +202,8 @@ defmodule Mjw.BotStrategy do
     end)
   end
 
-  # Discard tiles that aren't next to other tiles in their suit.
-  # Not sophisticated enough to keep gutshots.
-  # TODO: This algorithm can be improved
+  # Discard tiles that aren't next to other tiles in their suit. Not
+  # sophisticated enough to keep gutshots; this algorithm can be improved.
   defp reject_contiguous(tiles) do
     Enum.reject(tiles, fn tile ->
       Enum.any?(tiles, fn tile2 ->
