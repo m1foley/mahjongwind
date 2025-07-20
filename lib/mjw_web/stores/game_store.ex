@@ -1,4 +1,10 @@
 defmodule MjwWeb.GameStore do
+  @moduledoc """
+  Agent-based in-memory store for managing state across the application.
+  Uses built-in Phoenix PubSub integration for real-time updates.
+  The store handles game lifecycle operations including creation, updates,
+  removal, and broadcasting changes to subscribed processes.
+  """
   use Agent
 
   def initial, do: %{}
