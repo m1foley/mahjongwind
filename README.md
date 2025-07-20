@@ -37,12 +37,9 @@ mix test
 iex -S mix test <file>
 ```
 
-## Deploy to Heroku
+## Deployment
 
-```sh
-heroku login
-git push heroku main:main
-```
+The `main` branch is configured to automatically deploy to Fly.io. For details see `.github/workflows/fly.yml`.
 
 ## Credo for static analysis
 
