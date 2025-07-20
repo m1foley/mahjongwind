@@ -1,4 +1,9 @@
 defmodule Mjw.Seat do
+  @moduledoc """
+  A Seat holds a user and their tiles
+  """
+  require Logger
+
   defstruct concealed: [],
             exposed: [],
             hiddengongs: [],
@@ -201,6 +206,52 @@ defmodule Mjw.Seat do
         seat
       end
     end
+  end
+
+  @doc """
+  We merge the game state with client's current_user_seat when any game changes
+  happen from other players. We'd prefer to always just use the client's
+  current_user_seat to preserve their concealed_tile sorting, but there's the
+  possibility of a server/client mismatch. Intelligently merge the server &
+  client seats by ensuring the merged seat contains only the server seat's
+  tiles, but defer to the way the client seat has arranged them.
+  """
+  def merge_server_client_seats(%__MODULE__{} = server_seat, %__MODULE__{} = client_seat) do
+    if server_client_match?(server_seat, client_seat) do
+      client_seat
+    else
+      Logger.info(
+        "merge_for_server_client_match: Server/client seat mismatch detected. " <>
+          "server_seat: #{all_tiles_in_hand_description(server_seat)}, " <>
+          "client_seat: #{all_tiles_in_hand_description(client_seat)}, "
+      )
+
+      # Use the concealed tiles from the server seat, but try to order them per
+      # the client seat's ordering
+      server_only = server_seat.concealed -- client_seat.concealed
+      client_only = client_seat.concealed -- server_seat.concealed
+      concealed = (client_seat.concealed -- client_only) ++ server_only
+      %{server_seat | concealed: concealed}
+    end
+  end
+
+  defp all_tiles_in_hand_description(%__MODULE__{} = seat) do
+    [
+      "exposed=#{Enum.join(seat.exposed, ",")}",
+      "concealed=#{Enum.join(seat.concealed, ",")}",
+      "hiddengongs=#{Enum.join(seat.hiddengongs, ",")}",
+      "peektile=#{seat.peektile}",
+      "wintile=#{seat.wintile}"
+    ]
+    |> Enum.join(",")
+  end
+
+  defp server_client_match?(%__MODULE__{} = server_seat, %__MODULE__{} = client_seat) do
+    server_seat.exposed == client_seat.exposed &&
+      Enum.sort(server_seat.concealed) == Enum.sort(client_seat.concealed) &&
+      server_seat.hiddengongs == client_seat.hiddengongs &&
+      server_seat.peektile == client_seat.peektile &&
+      server_seat.wintile == client_seat.wintile
   end
 
   def all_tiles_in_hand(%__MODULE__{} = seat) do

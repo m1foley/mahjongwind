@@ -658,4 +658,192 @@ defmodule Mjw.SeatTest do
       assert seat.exposed == ["n1-2", "b1-1"]
     end
   end
+
+  describe "merge_server_client_seats" do
+    test "returns client seat when server and client seats match exactly" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0", "c1-0"],
+        exposed: ["n2-0", "b2-0"],
+        hiddengongs: ["n3-0"],
+        peektile: "b3-0",
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0", "c1-0"],
+        exposed: ["n2-0", "b2-0"],
+        hiddengongs: ["n3-0"],
+        peektile: "b3-0",
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      assert result == client_seat
+    end
+
+    test "returns client seat when concealed tiles are same but in different order" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0", "c1-0"],
+        exposed: ["n2-0", "b2-0"],
+        hiddengongs: ["n3-0"],
+        peektile: "b3-0",
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["c1-0", "n1-0", "b1-0"],
+        exposed: ["n2-0", "b2-0"],
+        hiddengongs: ["n3-0"],
+        peektile: "b3-0",
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      assert result == client_seat
+    end
+
+    test "merges when client has extra concealed tiles" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0"],
+        exposed: ["n2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0", "c1-0"],
+        exposed: ["n2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      assert result.concealed == ["n1-0", "b1-0"]
+      assert result.exposed == ["n2-0"]
+      assert result.hiddengongs == []
+    end
+
+    test "merges when server has extra concealed tiles" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0", "c1-0"],
+        exposed: ["n2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0"],
+        exposed: ["n2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      assert result.concealed == ["n1-0", "b1-0", "c1-0"]
+      assert result.exposed == ["n2-0"]
+      assert result.hiddengongs == []
+    end
+
+    test "preserves client ordering when merging with server additions" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0", "c1-0", "n2-0"],
+        exposed: ["n3-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["c1-0", "n1-0", "b1-0"],
+        exposed: ["n3-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      # Should preserve client ordering for existing tiles and append new ones
+      assert result.concealed == ["c1-0", "n1-0", "b1-0", "n2-0"]
+      assert result.exposed == ["n3-0"]
+    end
+
+    test "handles complete mismatch in concealed tiles" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0", "b1-0"],
+        exposed: ["n2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["c1-0", "c2-0"],
+        exposed: ["n2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      # Should use server tiles when there's a complete mismatch
+      assert result.concealed == ["n1-0", "b1-0"]
+      assert result.exposed == ["n2-0"]
+    end
+
+    test "handles mismatch in exposed tiles" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0"],
+        exposed: ["n2-0", "b2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["n1-0"],
+        exposed: ["n2-0"],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      # Should use server seat data when exposed tiles don't match
+      assert result == server_seat
+    end
+
+    test "handles mismatch in peektile" do
+      server_seat = %Mjw.Seat{
+        concealed: ["n1-0"],
+        exposed: [],
+        hiddengongs: [],
+        peektile: "b1-0",
+        wintile: nil
+      }
+
+      client_seat = %Mjw.Seat{
+        concealed: ["n1-0"],
+        exposed: [],
+        hiddengongs: [],
+        peektile: nil,
+        wintile: nil
+      }
+
+      result = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+      # Should use server seat data when peektile doesn't match
+      assert result == server_seat
+    end
+  end
 end

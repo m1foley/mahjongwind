@@ -28,7 +28,6 @@
 - Animated "waiting" dots next to player name when waiting for them
 - Allow dragging from decktile to exposed tiles (adding onto a pong)
 - Animate deal: 4 at a time goes into people's hand
-- Sanity check for (possible race condition) bug: rearranging hand leads to duplicate tiles. Last time it happened after peek tile got put into hand, and user drag & dropped that new tile.
 - Remember sorted hand in browser so it doesn't get reshuffled when losing internet connection
 - Put everyone's discards in front of their hand (suggested by Mom)
 

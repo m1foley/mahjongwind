@@ -1239,14 +1239,19 @@ defmodule MjwWeb.GameLive.Show do
        when event in @events_that_change_other_players_seats,
        do: game
 
-  # No player can update another player's seat (aside for the exceptions noted
-  # above). Therefore, we can merge any game changes from other players with
-  # the locally assigned seat. This allows players to sort their concealed
-  # tiles independently of the other players.
+  # No player can update another player's seat, aside for the exceptions noted
+  # above. Therefore, when merging any game changes from other players we can
+  # typically keep the current_user_seat as-is. This allows players to sort
+  # their concealed tiles independently of other players' actions.
   defp merge_updated_game(%Mjw.Game{} = game, socket, _event) do
-    current_user_seat = socket.assigns.current_user_seat
-    seatno = current_user_seat.seatno
-    Mjw.Game.replace_seat(game, seatno, current_user_seat)
+    # current_user_seat on the client
+    client_seat = socket.assigns.current_user_seat
+    seatno = client_seat.seatno
+    # current_user_seat on the server, the authoritive source
+    server_seat = Enum.at(game.seats, seatno)
+    merged_seat = Mjw.Seat.merge_server_client_seats(server_seat, client_seat)
+
+    Mjw.Game.replace_seat(game, seatno, merged_seat)
   end
 
   @current_player_glow_tile_events [
