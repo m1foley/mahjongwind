@@ -4,7 +4,7 @@
 #
 
 app = 'mahjongwind'
-primary_region = 'nrt'
+primary_region = 'sjc'
 kill_signal = 'SIGTERM'
 
 [build]
