@@ -4,6 +4,7 @@ defmodule Mjw.MixProject do
   def project do
     [
       app: :mjw,
+      ecto_repos: [Mjw.Repo],
       version: "1.0.0",
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -59,9 +60,8 @@ defmodule Mjw.MixProject do
       {:bandit, "~> 1.7"},
       {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
       {:ex_cldr_numbers, "~> 2.35"},
-
-      # Normally we'd use Ecto for UUID generation
-      {:uniq, "~> 0.6"},
+      {:ecto_sql, "~> 3.12"},
+      {:postgrex, "~> 0.22"},
       # Static code analysis
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]

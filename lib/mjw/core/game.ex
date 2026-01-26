@@ -50,7 +50,7 @@ defmodule Mjw.Game do
   @doc """
   Initialize a game, defaulting to a random ID and a shuffled deck
   """
-  def new(id \\ Uniq.UUID.uuid4()) do
+  def new(id \\ Ecto.UUID.generate()) do
     %__MODULE__{id: id, deck: shuffled_deck()}
   end
 
