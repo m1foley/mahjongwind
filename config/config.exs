@@ -8,6 +8,7 @@
 import Config
 
 config :mjw,
+  ecto_repos: [Mjw.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
