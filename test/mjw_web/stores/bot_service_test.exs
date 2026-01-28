@@ -1,5 +1,5 @@
 defmodule MjwWeb.BotServiceTest do
-  use ExUnit.Case, async: true
+  use Mjw.DataCase, async: true
   doctest MjwWeb.BotService
 
   setup do

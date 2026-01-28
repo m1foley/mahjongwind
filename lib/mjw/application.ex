@@ -9,13 +9,12 @@ defmodule Mjw.Application do
   def start(_type, _args) do
     children = [
       MjwWeb.Telemetry,
+      Mjw.Repo,
       {DNSCluster, query: Application.get_env(:mjw, :dns_cluster_query) || :ignore},
-      # Start the PubSub system, used by GameStore for persistence
+      # Start the PubSub system, used by GameStore for real-time updates
       {Phoenix.PubSub, name: Mjw.PubSub},
       # Start the Finch HTTP client for sending emails
       # {Finch, name: Mjw.Finch},
-      # Service to handle game data persistence
-      MjwWeb.GameStore,
       # Service that handles bot moves
       MjwWeb.BotService,
 

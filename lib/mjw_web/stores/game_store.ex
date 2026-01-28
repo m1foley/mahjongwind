@@ -1,17 +1,14 @@
 defmodule MjwWeb.GameStore do
   @moduledoc """
-  Agent-based in-memory store for managing state across the application.
-  Uses built-in Phoenix PubSub integration for real-time updates.
+  SQL-backed store for managing game state across the application.
+  Uses PostgreSQL for persistence and Phoenix PubSub for real-time updates.
   The store handles game lifecycle operations including creation, updates,
   removal, and broadcasting changes to subscribed processes.
   """
-  use Agent
 
-  def initial, do: %{}
-
-  def start_link(_opts) do
-    Agent.start_link(&initial/0, name: __MODULE__)
-  end
+  alias Mjw.Repo
+  alias Mjw.Games.{GameRecord, GameSerializer}
+  require Ecto.Query
 
   @doc """
   Create a new Game and persist it
@@ -40,29 +37,56 @@ defmodule MjwWeb.GameStore do
     |> broadcast_lobby_update(event)
   end
 
+  @doc """
+  Persist a game to the database (insert or update)
+  """
   def persist(game) do
-    Agent.update(__MODULE__, &Map.put(&1, game.id, game))
+    state = GameSerializer.to_map(game)
+
+    %GameRecord{id: game.id}
+    |> GameRecord.changeset(%{id: game.id, state: state})
+    |> Repo.insert!(
+      on_conflict: {:replace, [:state, :updated_at]},
+      conflict_target: :id
+    )
+
     game
   end
 
+  @doc """
+  Remove a game from the database
+  """
+
   def remove(game) do
-    Agent.update(__MODULE__, &Map.delete(&1, game.id))
+    Repo.delete_all(Ecto.Query.from g in GameRecord, where: g.id == ^game.id)
     broadcast_lobby_update(game, :game_removed)
   end
 
+  @doc """
+  Get a game by ID
+  """
   def get(game_id) do
-    Agent.get(__MODULE__, &Map.get(&1, game_id))
-  end
-
-  def all do
-    Agent.get(__MODULE__, &Map.values(&1))
+    case Repo.get(GameRecord, game_id) do
+      nil -> nil
+      record -> GameSerializer.from_map(record.state)
+    end
   end
 
   @doc """
-  Remove all stored games. Only used in tests.
+  Get all games
+  """
+  def all do
+    GameRecord
+    |> Repo.all()
+    |> Enum.map(&GameSerializer.from_map(&1.state))
+  end
+
+  @doc """
+  Remove all stored games. Used in tests.
   """
   def clear do
-    Agent.update(__MODULE__, fn _ -> initial() end)
+    Repo.delete_all(GameRecord)
+    :ok
   end
 
   @doc """
