@@ -25,6 +25,30 @@ defmodule Mjw.Game do
     "Taro 🤖"
   ]
 
+  # Valid values for turn_state field
+  @turn_states [:rolling, :drawing, :discarding]
+  def turn_states, do: @turn_states
+
+  # Struct field names for serialization
+  @fields [
+    :id,
+    :deck,
+    :discards,
+    :wind,
+    :seats,
+    :dice,
+    :turn_state,
+    :dealer_seatno,
+    :turn_seatno,
+    :dealpick_seatno,
+    :dealer_win_count,
+    :event_log,
+    :undo_seatno,
+    :undo_state,
+    :pause_bots
+  ]
+  def fields, do: @fields
+
   defstruct id: nil,
             deck: [],
             discards: [],
@@ -367,7 +391,7 @@ defmodule Mjw.Game do
     |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, tile))
     |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
-    |> Map.merge(%{discards: new_discards, turn_state: :drawing})
+    |> then(&%{&1 | discards: new_discards, turn_state: :drawing})
     |> advance_turn_seat_or_declare_draw()
   end
 
@@ -381,7 +405,7 @@ defmodule Mjw.Game do
     |> set_undo_state_if_first_discard()
     |> log_discard_event(seatno, tile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_concealed(&1, tile))
-    |> Map.merge(%{discards: [tile | game.discards], turn_state: :drawing})
+    |> then(&%{&1 | discards: [tile | game.discards], turn_state: :drawing})
     |> advance_turn_seat_or_declare_draw()
   end
 
@@ -414,13 +438,13 @@ defmodule Mjw.Game do
         game.wind
       end
 
-    game
-    |> Map.merge(%{
-      turn_seatno: dealer_seatno,
-      dealer_seatno: dealer_seatno,
-      dealer_win_count: 0,
-      wind: wind
-    })
+    %{
+      game
+      | turn_seatno: dealer_seatno,
+        dealer_seatno: dealer_seatno,
+        dealer_win_count: 0,
+        wind: wind
+    }
   end
 
   defp increment_seatno(seatno, by \\ 1), do: rem(seatno + by, 4)
@@ -492,7 +516,7 @@ defmodule Mjw.Game do
     |> log_declared_win_event(seatno, wintile)
     |> update_seat(seatno, &Mjw.Seat.remove_from_hand(&1, wintile))
     |> update_seat(seatno, &Mjw.Seat.ensure_no_dangling_peektile/1)
-    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding})
+    |> then(&%{&1 | turn_seatno: seatno, turn_state: :discarding})
     |> update_seat(seatno, &Mjw.Seat.declare_win(&1, wintile))
   end
 
@@ -507,7 +531,7 @@ defmodule Mjw.Game do
     game
     |> set_undo_state(seatno)
     |> log_declared_win_event(seatno, wintile)
-    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
+    |> then(&%{&1 | turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
     |> update_seat(seatno, &Mjw.Seat.declare_win(&1, wintile))
   end
 
@@ -517,7 +541,7 @@ defmodule Mjw.Game do
       ) do
     game
     |> log_declared_win_event(seatno, wintile)
-    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
+    |> then(&%{&1 | turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
     |> update_seat(seatno, &Mjw.Seat.declare_win(&1, wintile))
   end
 
@@ -534,7 +558,7 @@ defmodule Mjw.Game do
     |> set_undo_state(seatno)
     |> log_draw_discard_event(seatno, tile)
     |> update_exposed(seatno, new_exposed)
-    |> Map.merge(%{turn_state: :discarding, discards: remaining_discards})
+    |> then(&%{&1 | turn_state: :discarding, discards: remaining_discards})
   end
 
   @doc """
@@ -550,7 +574,7 @@ defmodule Mjw.Game do
     |> set_undo_state(seatno)
     |> log_pong_event(seatno, tile)
     |> update_exposed(seatno, new_exposed)
-    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
+    |> then(&%{&1 | turn_seatno: seatno, turn_state: :discarding, discards: remaining_discards})
   end
 
   @doc """
@@ -566,7 +590,7 @@ defmodule Mjw.Game do
       |> set_undo_state(seatno)
       |> log_drew_correction_tile_event(seatno)
       |> update_concealed(seatno, new_concealed)
-      |> Map.merge(%{deck: new_deck})
+      |> then(&%{&1 | deck: new_deck})
 
     {game, tile}
   end
@@ -727,9 +751,7 @@ defmodule Mjw.Game do
         "#{player_name} reset the game."
       end
 
-    undo_state
-    # event_log is preserved as a singleton at the top-level game
-    |> Map.merge(%{event_log: game.event_log})
+    %{undo_state | event_log: game.event_log}
     |> merge_seats_for_undo(game)
     # just in case undoing a declared win
     |> clear_all_seat_win_attributes()
@@ -788,7 +810,7 @@ defmodule Mjw.Game do
     |> set_undo_state(seatno)
     |> log_drew_from_deck_event(seatno)
     |> update_seat(seatno, fn seat -> Mjw.Seat.peek(seat, peektile) end)
-    |> Map.merge(%{deck: remaining_deck, turn_state: :discarding})
+    |> then(&%{&1 | deck: remaining_deck, turn_state: :discarding})
   end
 
   @doc """
@@ -837,7 +859,7 @@ defmodule Mjw.Game do
     |> update_seat(seatno, fn seat ->
       %{seat | concealed: new_concealed, exposed: new_exposed}
     end)
-    |> Map.merge(%{turn_state: :discarding, discards: remaining_discards})
+    |> then(&%{&1 | turn_state: :discarding, discards: remaining_discards})
   end
 
   # Draw a tile from the deck into the bot's concealed tiles.
@@ -853,14 +875,14 @@ defmodule Mjw.Game do
       |> Mjw.Seat.add_to_concealed(tile)
       |> Mjw.Seat.sort_concealed()
     end)
-    |> Map.merge(%{deck: remaining_deck, turn_state: :discarding})
+    |> then(&%{&1 | deck: remaining_deck, turn_state: :discarding})
   end
 
   # Bot picks themselves to win
   defp bot_declare_win_from_zimo(%__MODULE__{deck: [tile | remaining_deck]} = game, seatno) do
     game
     |> log_zimo_event(seatno, tile)
-    |> Map.merge(%{turn_seatno: seatno, turn_state: :discarding, deck: remaining_deck})
+    |> then(&%{&1 | turn_seatno: seatno, turn_state: :discarding, deck: remaining_deck})
     |> update_seat(seatno, &Mjw.Seat.declare_win(&1, tile))
   end
 
@@ -963,7 +985,7 @@ defmodule Mjw.Game do
   # undo_seatno can possibly undo it. event_log is not saved in undo states
   # because it exists as a singleton at the top-level game.
   defp set_undo_state(%__MODULE__{} = game, undo_seatno \\ nil) do
-    undo_state = game |> Map.delete(:event_log)
+    undo_state = game |> Map.put(:event_log, [])
     %{game | undo_seatno: undo_seatno, undo_state: undo_state}
   end
 

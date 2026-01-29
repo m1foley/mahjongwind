@@ -4,6 +4,16 @@ defmodule Mjw.Seat do
   """
   require Logger
 
+  # Valid values for winreaction field
+  @winreactions [:ok, :expose, :expose_ok]
+  def winreactions, do: @winreactions
+
+  # Struct field names for serialization
+  @fields [:concealed, :exposed, :hiddengongs, :peektile, :wintile, :player_id,
+           :player_name, :picked_wind, :picked_wind_idx, :winreaction, :seatno,
+           :win_expose]
+  def fields, do: @fields
+
   defstruct concealed: [],
             exposed: [],
             hiddengongs: [],
@@ -21,7 +31,11 @@ defmodule Mjw.Seat do
             # - :ok = confirmed
             # - :expose = exposed hand, not confirmed
             # - :expose_ok = exposed hand, confirmed
-            winreaction: nil
+            winreaction: nil,
+            # Added for LiveView convenience - original index in game.seats
+            seatno: nil,
+            # Added for LiveView convenience - whether to show exposed hand
+            win_expose: nil
 
   def empty?(%__MODULE__{player_id: nil}), do: true
   def empty?(%__MODULE__{}), do: false
