@@ -32,7 +32,9 @@ setup tags do
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
 
     # Allow the BotService GenServer to access the sandbox
-    Ecto.Adapters.SQL.Sandbox.allow(Mjw.Repo, self(), Process.whereis(MjwWeb.BotService))
+    if bot_service_pid = Process.whereis(MjwWeb.BotService) do
+      Ecto.Adapters.SQL.Sandbox.allow(Mjw.Repo, self(), bot_service_pid)
+    end
 
     :ok
   end
