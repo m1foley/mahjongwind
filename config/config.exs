@@ -17,8 +17,7 @@ config :mjw, MjwWeb.Endpoint,
   secret_key_base: "NGNyFN6CX0NHhfTvUdX55LusARQu+s+aao+g3XeKcbZkvat3Cf2tWwGGg+KciUjS",
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    view: MjwWeb.ErrorView,
-    accepts: ~w(html json),
+    formats: [html: MjwWeb.ErrorHTML, json: MjwWeb.ErrorJSON],
     layout: false
   ],
   pubsub_server: Mjw.PubSub,

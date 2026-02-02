@@ -948,11 +948,21 @@ defmodule Mjw.Game do
       if game.dealer_win_count == 0 do
         "#{dealer_name} is the dealer."
       else
-        {:ok, ordinal} = Mjw.Cldr.Number.to_string(game.dealer_win_count + 1, format: :ordinal)
-        "#{dealer_name} is the dealer for the #{ordinal} time."
+        "#{dealer_name} is the dealer for the #{ordinal(game.dealer_win_count + 1)} time."
       end
 
     log_event(game, event)
+  end
+
+  defp ordinal(n) do
+    suffix = cond do
+      n in [11, 12, 13] -> "th"
+      rem(n, 10) == 1 -> "st"
+      rem(n, 10) == 2 -> "nd"
+      rem(n, 10) == 3 -> "rd"
+      true -> "th"
+    end
+    "#{n}#{suffix}"
   end
 
   defp log_player_joined_event(%__MODULE__{} = game, player_name) do

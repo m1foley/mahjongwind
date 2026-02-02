@@ -35,14 +35,15 @@ defmodule Mjw.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.21"},
-      {:phoenix_html, "~> 4.2"},
-      {:phoenix_live_reload, "~> 1.3", only: :dev},
-      {:phoenix_live_view, "~> 1.0"},
-      {:floki, "~> 0.38", only: :test},
+      {:phoenix, "~> 1.8.3"},
+      {:phoenix_html, "~> 4.3"},
+      {:phoenix_live_reload, "~> 1.6", only: :dev},
+      {:phoenix_live_view, "~> 1.1"},
+      {:floki, ">= 0.38.0", only: :test},
+      {:lazy_html, ">= 0.1.8", only: :test},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
        tag: "v2.2.0",
@@ -50,20 +51,19 @@ defmodule Mjw.MixProject do
        app: false,
        compile: false,
        depth: 1},
-      {:swoosh, "~> 1.19"},
-      {:finch, "~> 0.20"},
+      {:swoosh, "~> 1.21"},
+      {:finch, "~> 0.21"},
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.3"},
-      {:gettext, "~> 0.26"},
+      {:gettext, "~> 1.0"},
       {:jason, "~> 1.4"},
       {:dns_cluster, "~> 0.2"},
-      {:bandit, "~> 1.7"},
+      {:bandit, "~> 1.10"},
       {:dart_sass, "~> 0.7", runtime: Mix.env() == :dev},
-      {:ex_cldr_numbers, "~> 2.35"},
-      {:ecto_sql, "~> 3.12"},
+      {:ecto_sql, "~> 3.13"},
       {:postgrex, "~> 0.22"},
       # Static code analysis
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, ">= 1.7.16", only: [:dev, :test], runtime: false}
     ]
   end
 

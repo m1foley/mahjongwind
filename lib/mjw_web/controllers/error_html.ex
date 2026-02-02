@@ -1,4 +1,4 @@
-defmodule MjwWeb.ErrorView do
+defmodule MjwWeb.ErrorHTML do
   @moduledoc """
   This module is invoked by your endpoint in case of errors on HTML requests.
 
@@ -10,8 +10,8 @@ defmodule MjwWeb.ErrorView do
   # uncomment the embed_templates/1 call below
   # and add pages to the error directory:
   #
-  #   * lib/sample_app_web/controllers/error_html/404.html.heex
-  #   * lib/sample_app_web/controllers/error_html/500.html.heex
+  #   * lib/mjw_web/controllers/error_html/404.html.heex
+  #   * lib/mjw_web/controllers/error_html/500.html.heex
   #
   # embed_templates "error_html/*"
 
