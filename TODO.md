@@ -1,6 +1,5 @@
 # TODO
 
-- Missing tests: serializers, integration
 - Sweep to clear old games
 - Change primary key from uuid to integer
 - 2-click instead of drag & drop. First click will pause other players.
