@@ -1,8 +1,14 @@
-defmodule Mjw.GameState do
+defmodule Mjw.Games.GameState do
+  @moduledoc """
+  Calculate the state of a game based on its current attributes.
+  """
+
+  alias Mjw.Games.Game
+
   @doc """
   Calculate the state of a game
   """
-  def state(%Mjw.Game{} = game) do
+  def state(%Game{} = game) do
     {game, :tbd}
     |> waiting_for_players
     |> picking_winds
@@ -15,7 +21,7 @@ defmodule Mjw.GameState do
   end
 
   defp waiting_for_players({game, :tbd}) do
-    if Mjw.Game.empty_seats_count(game) > 0 do
+    if Game.empty_seats_count(game) > 0 do
       {game, :waiting_for_players}
     else
       {game, :tbd}
@@ -25,7 +31,7 @@ defmodule Mjw.GameState do
   defp waiting_for_players({game, state}), do: {game, state}
 
   defp picking_winds({game, :tbd}) do
-    if Enum.empty?(Mjw.Game.remaining_winds_to_pick(game)) do
+    if Enum.empty?(Game.remaining_winds_to_pick(game)) do
       {game, :tbd}
     else
       {game, :picking_winds}
@@ -55,7 +61,7 @@ defmodule Mjw.GameState do
   defp rolling_for_deal({game, state}), do: {game, state}
 
   defp win_declared({game, :tbd}) do
-    if Mjw.Game.win_declared_seatno(game) do
+    if Game.win_declared_seatno(game) do
       {game, :win_declared}
     else
       {game, :tbd}

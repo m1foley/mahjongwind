@@ -11,7 +11,7 @@ defmodule MjwWeb.GameLiveTest do
   defp create_game(_context) do
     game =
       MjwWeb.GameStore.create()
-      |> Mjw.Game.seat_player("id0", "name0")
+      |> Mjw.Games.Game.seat_player("id0", "name0")
       |> MjwWeb.GameStore.update(:event1)
 
     %{game: game}

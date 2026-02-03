@@ -50,10 +50,10 @@ defmodule MjwWeb.GameLive.ShowTest do
     test "prevents joining a full game", %{conn: conn} do
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player("p1", "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.seat_player("p1", "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
         |> MjwWeb.GameStore.update(:players_seated)
 
       result = live(conn, ~p"/games/#{game.id}")
@@ -69,10 +69,10 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
         |> MjwWeb.GameStore.update(:players_seated)
 
       # Connect with the same user_id
@@ -88,7 +88,7 @@ defmodule MjwWeb.GameLive.ShowTest do
     test "shows correct player count", %{conn: conn} do
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player("p1", "Alice")
+        |> Mjw.Games.Game.seat_player("p1", "Alice")
         |> MjwWeb.GameStore.update(:player_joined)
 
       {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
@@ -98,7 +98,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       |> render_submit()
 
       updated_game = MjwWeb.GameStore.get(game.id)
-      assert length(Mjw.Game.seated_player_names(updated_game)) == 2
+      assert length(Mjw.Games.Game.seated_player_names(updated_game)) == 2
     end
 
     test "shows add bot button", %{conn: conn} do
@@ -106,7 +106,7 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
         |> MjwWeb.GameStore.update(:player_joined)
 
       conn = assign_user_session(conn, user_id)
@@ -120,7 +120,7 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
         |> MjwWeb.GameStore.update(:player_joined)
 
       conn = assign_user_session(conn, user_id)
@@ -129,7 +129,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       view |> element("#invite-link-center-addbot") |> render_click()
 
       updated_game = MjwWeb.GameStore.get(game.id)
-      assert Mjw.Game.bots_present?(updated_game)
+      assert Mjw.Games.Game.bots_present?(updated_game)
     end
   end
 
@@ -139,10 +139,10 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
         |> MjwWeb.GameStore.update(:players_seated)
 
       conn = assign_user_session(conn, user_id)
@@ -157,10 +157,10 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
         |> MjwWeb.GameStore.update(:players_seated)
 
       conn = assign_user_session(conn, user_id)
@@ -169,7 +169,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       view |> element(".pickable-wind[phx-value-picked-wind-idx='0']") |> render_click()
 
       updated_game = MjwWeb.GameStore.get(game.id)
-      assert Mjw.Game.picked_wind(updated_game, user_id) != nil
+      assert Mjw.Games.Game.picked_wind(updated_game, user_id) != nil
     end
   end
 
@@ -180,10 +180,10 @@ defmodule MjwWeb.GameLive.ShowTest do
       # Create game where user_id picks East wind
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
         |> then(fn game ->
           # Force the first player to have East wind
           game
@@ -193,9 +193,9 @@ defmodule MjwWeb.GameLive.ShowTest do
             end)
           end)
         end)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
         |> MjwWeb.GameStore.update(:winds_picked)
 
       conn = assign_user_session(conn, user_id)
@@ -209,10 +209,10 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
         |> then(fn game ->
           game
           |> Map.update!(:seats, fn seats ->
@@ -221,9 +221,9 @@ defmodule MjwWeb.GameLive.ShowTest do
             end)
           end)
         end)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
         |> MjwWeb.GameStore.update(:winds_picked)
 
       conn = assign_user_session(conn, user_id)
@@ -232,7 +232,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       view |> element(".hand") |> render_click()
 
       updated_game = MjwWeb.GameStore.get(game.id)
-      assert Mjw.GameState.state(updated_game) == :rolling_for_deal
+      assert Mjw.Games.GameState.state(updated_game) == :rolling_for_deal
     end
   end
 
@@ -242,16 +242,16 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
-        |> Mjw.Game.roll_dice_and_reseat_players()
-        |> Mjw.Game.roll_dice_and_deal()
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.roll_dice_and_reseat_players()
+        |> Mjw.Games.Game.roll_dice_and_deal()
         |> MjwWeb.GameStore.update(:dealt)
 
       # Find the player whose turn it is (dealer)
@@ -269,16 +269,16 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
-        |> Mjw.Game.roll_dice_and_reseat_players()
-        |> Mjw.Game.roll_dice_and_deal()
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.roll_dice_and_reseat_players()
+        |> Mjw.Games.Game.roll_dice_and_deal()
         |> MjwWeb.GameStore.update(:dealt)
 
       dealer = Enum.at(game.seats, game.turn_seatno)
@@ -294,16 +294,16 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
-        |> Mjw.Game.roll_dice_and_reseat_players()
-        |> Mjw.Game.roll_dice_and_deal()
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.roll_dice_and_reseat_players()
+        |> Mjw.Games.Game.roll_dice_and_deal()
         |> MjwWeb.GameStore.update(:dealt)
 
       dealer = Enum.at(game.seats, game.turn_seatno)
@@ -321,16 +321,16 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
-        |> Mjw.Game.roll_dice_and_reseat_players()
-        |> Mjw.Game.roll_dice_and_deal()
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.roll_dice_and_reseat_players()
+        |> Mjw.Games.Game.roll_dice_and_deal()
         |> MjwWeb.GameStore.update(:dealt)
 
       dealer = Enum.at(game.seats, game.turn_seatno)
@@ -350,16 +350,16 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
-        |> Mjw.Game.roll_dice_and_reseat_players()
-        |> Mjw.Game.roll_dice_and_deal()
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.roll_dice_and_reseat_players()
+        |> Mjw.Games.Game.roll_dice_and_deal()
         |> MjwWeb.GameStore.update(:dealt)
 
       dealer = Enum.at(game.seats, game.turn_seatno)
@@ -377,11 +377,11 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_bot()
-        |> Mjw.Game.seat_bot()
-        |> Mjw.Game.seat_bot()
-        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.pick_random_available_wind(0)
         |> MjwWeb.GameStore.update(:bots_seated)
 
       conn = assign_user_session(conn, user_id)
@@ -395,11 +395,11 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
-        |> Mjw.Game.seat_bot()
-        |> Mjw.Game.seat_bot()
-        |> Mjw.Game.seat_bot()
-        |> Mjw.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.pick_random_available_wind(0)
         |> MjwWeb.GameStore.update(:bots_seated)
 
       conn = assign_user_session(conn, user_id)
@@ -419,7 +419,7 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       game =
         MjwWeb.GameStore.create()
-        |> Mjw.Game.seat_player(user_id, "Alice")
+        |> Mjw.Games.Game.seat_player(user_id, "Alice")
         |> MjwWeb.GameStore.update(:player_joined)
 
       conn = assign_user_session(conn, user_id)

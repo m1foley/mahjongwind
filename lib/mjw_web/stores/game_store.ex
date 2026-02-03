@@ -7,14 +7,14 @@ defmodule MjwWeb.GameStore do
   """
 
   alias Mjw.Repo
-  alias Mjw.Games.{GameRecord, GameSerializer}
+  alias Mjw.Games.{Game, GameRecord, GameSerializer}
   require Ecto.Query
 
   @doc """
   Create a new Game and persist it
   """
   def create do
-    Mjw.Game.new()
+    Game.new()
     |> persist()
     |> broadcast_lobby_update(:game_created)
   end

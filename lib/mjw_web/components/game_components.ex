@@ -1,6 +1,8 @@
 defmodule MjwWeb.GameComponents do
   use Phoenix.Component
 
+  alias Mjw.Games.{Game, Tile}
+
   quote do
     unquote(MjwWeb.verified_routes())
   end
@@ -18,7 +20,7 @@ defmodule MjwWeb.GameComponents do
     ~H"""
     <img
       id={@id}
-      src={"/images/tiles/#{Mjw.Tile.without_id(@tile)}.png"}
+      src={"/images/tiles/#{Tile.without_id(@tile)}.png"}
       alt=""
       class={["tile", @class]}
     />
@@ -37,7 +39,7 @@ defmodule MjwWeb.GameComponents do
   attr(:seatno, :integer, required: true)
   # seat is a decorator with extra attributes around Mjw.Seat
   attr(:seat, :map, required: true)
-  attr(:game, Mjw.Game, required: true)
+  attr(:game, Game, required: true)
   attr(:turn_glow_seatno, :integer, required: true)
   attr(:player_seats_finalized, :boolean, required: true)
   attr(:game_state, :atom, required: true)
@@ -209,7 +211,7 @@ defmodule MjwWeb.GameComponents do
   end
 
   attr(:current_user_seatno, :integer, required: true)
-  attr(:game, Mjw.Game, required: true)
+  attr(:game, Game, required: true)
   attr(:game_state, :atom, required: true)
   attr(:event, :atom, required: true)
   attr(:raw_event, :atom, required: true)
@@ -290,7 +292,7 @@ defmodule MjwWeb.GameComponents do
 
   defp dice_assigns_calculations(assigns) do
     {roller_seat, roller_relative_position} =
-      Mjw.Game.current_or_most_recent_roller_seat_with_relative_position(
+      Game.current_or_most_recent_roller_seat_with_relative_position(
         assigns.game,
         assigns.game_state,
         assigns.current_user_seatno
@@ -298,7 +300,7 @@ defmodule MjwWeb.GameComponents do
 
     previous_roller_relative_position =
       if assigns.event == :rolled_for_first_dealer do
-        Mjw.Game.picked_east_wind_relative_seatno(assigns.game, assigns.current_user_seatno)
+        Game.picked_east_wind_relative_seatno(assigns.game, assigns.current_user_seatno)
       else
         roller_relative_position
       end
@@ -309,13 +311,13 @@ defmodule MjwWeb.GameComponents do
     |> assign(:roller_relative_position, roller_relative_position)
   end
 
-  attr(:game, Mjw.Game, required: true)
+  attr(:game, Game, required: true)
 
   def lobby_game(assigns) do
     ~H"""
     <div id={"join-#{@game.id}"} class="lobbygame">
       <.link href={~p"/games/#{@game.id}"} class="lobbygame-link">
-        <%= Mjw.Game.seated_player_names(@game) |> Enum.join(", ") %>
+        <%= Game.seated_player_names(@game) |> Enum.join(", ") %>
       </.link>
     </div>
     """
@@ -349,7 +351,7 @@ defmodule MjwWeb.GameComponents do
   end
 
   attr(:id, :string, default: nil)
-  attr(:game, Mjw.Game, required: true)
+  attr(:game, Game, required: true)
   attr(:current_user_id, :integer, required: true)
 
   def wind_pick(assigns) do
@@ -399,12 +401,12 @@ defmodule MjwWeb.GameComponents do
   defp wind_pick_assigns_calculations(assigns) do
     game = assigns.game
     current_user_id = assigns.current_user_id
-    picked_wind = Mjw.Game.picked_wind(game, current_user_id)
+    picked_wind = Game.picked_wind(game, current_user_id)
 
     picked_winds =
       if picked_wind do
-        picked_wind_idx = Mjw.Game.picked_wind_idx(game, current_user_id)
-        picked_winds_player_names = Mjw.Game.picked_winds_player_names(game)
+        picked_wind_idx = Game.picked_wind_idx(game, current_user_id)
+        picked_winds_player_names = Game.picked_winds_player_names(game)
 
         @wind_tiles
         |> Enum.with_index()

@@ -63,7 +63,7 @@
       <div class="event py-1 flex-grow">
         <span class="desc align-middle"><%= event %></span>
         <%= if icon do %>
-          <%= if Mjw.Tile.tile_format?(icon) do %>
+          <%= if Mjw.Games.Tile.tile_format?(icon) do %>
             <.tile tile={icon} class="align-middle" />
           <% else %>
             <span class="icon text-xl align-middle"><%= icon %></span>

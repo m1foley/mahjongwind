@@ -1,9 +1,15 @@
-defmodule Mjw.BotStrategy do
+defmodule Mjw.Games.BotStrategy do
+  @moduledoc """
+  AI strategy for bot players to determine draws and discards.
+  """
+
+  alias Mjw.Games.{Game, Seat, Tile}
+
   @doc """
   Determine where to draw tile (discards or deck) or declare win from discard
   """
   def draw(
-        %Mjw.Game{turn_state: :drawing, discards: [discarded_tile | _], deck: [deck_tile | _]} =
+        %Game{turn_state: :drawing, discards: [discarded_tile | _], deck: [deck_tile | _]} =
           game
       ) do
     seat = turn_seat(game)
@@ -25,13 +31,13 @@ defmodule Mjw.BotStrategy do
     end
   end
 
-  defp wins_with?(%Mjw.Seat{concealed: concealed}, tile) do
+  defp wins_with?(%Seat{concealed: concealed}, tile) do
     winning_hand?([tile | concealed])
   end
 
   # Efficient algorithm for a waiting scenario
   defp winning_hand?([tile1, tile2]) do
-    Mjw.Tile.identical?(tile1, tile2)
+    Tile.identical?(tile1, tile2)
   end
 
   # The sum of a run is always divisible by 3.
@@ -49,7 +55,7 @@ defmodule Mjw.BotStrategy do
   # This algorithm doesn't require all 14 tiles because exposed tiles are
   # assumed to be correct and ignored.
   defp winning_hand?(tiles) do
-    Enum.all?(tiles, &Mjw.Tile.numeric?/1) &&
+    Enum.all?(tiles, &Tile.numeric?/1) &&
       tiles
       |> possible_pairs_for_winning_hand()
       |> Enum.any?(fn possible_pair -> winning_hand?(tiles, possible_pair) end)
@@ -62,7 +68,7 @@ defmodule Mjw.BotStrategy do
   end
 
   defp possible_pairs_for_winning_hand(tiles) do
-    sum_of_tiles = tiles |> Enum.map(&Mjw.Tile.to_integer/1) |> Enum.sum()
+    sum_of_tiles = tiles |> Enum.map(&Tile.to_integer/1) |> Enum.sum()
 
     possible_pair_numbers =
       case rem(sum_of_tiles, 3) do
@@ -72,27 +78,27 @@ defmodule Mjw.BotStrategy do
       end
 
     tiles
-    |> Enum.filter(&(Mjw.Tile.number(&1) in possible_pair_numbers))
-    |> Mjw.Tile.sort()
-    |> Enum.chunk_by(&Mjw.Tile.without_id/1)
+    |> Enum.filter(&(Tile.number(&1) in possible_pair_numbers))
+    |> Tile.sort()
+    |> Enum.chunk_by(&Tile.without_id/1)
     |> Enum.filter(&(length(&1) >= 2))
     |> Enum.map(&Enum.take(&1, 2))
   end
 
   defp remove_runs(tiles) do
-    tiles |> Mjw.Tile.sort() |> remove_runs_from_sorted()
+    tiles |> Tile.sort() |> remove_runs_from_sorted()
   end
 
   # recursion base case
   defp remove_runs_from_sorted(tiles) when length(tiles) < 3, do: tiles
 
   defp remove_runs_from_sorted([first_tile | tail]) do
-    middle_tile_idx = Enum.find_index(tail, &Mjw.Tile.contiguous_in_suit?(first_tile, &1))
+    middle_tile_idx = Enum.find_index(tail, &Tile.contiguous_in_suit?(first_tile, &1))
 
     last_tile_idx =
       if middle_tile_idx do
         middle_tile = Enum.at(tail, middle_tile_idx)
-        Enum.find_index(tail, &Mjw.Tile.contiguous_in_suit?(middle_tile, &1))
+        Enum.find_index(tail, &Tile.contiguous_in_suit?(middle_tile, &1))
       end
 
     if last_tile_idx do
@@ -105,8 +111,8 @@ defmodule Mjw.BotStrategy do
     end
   end
 
-  defp eat_discard(%Mjw.Seat{concealed: concealed, exposed: exposed}, tile) do
-    if Mjw.Tile.numeric?(tile) do
+  defp eat_discard(%Seat{concealed: concealed, exposed: exposed}, tile) do
+    if Tile.numeric?(tile) do
       run_pool = remove_runs_from_sorted(concealed)
       reduced = remove_runs([tile | run_pool])
 
@@ -128,7 +134,7 @@ defmodule Mjw.BotStrategy do
   @doc """
   Determine tile to discard
   """
-  def discard(%Mjw.Game{turn_state: :discarding} = game) do
+  def discard(%Game{turn_state: :discarding} = game) do
     tiles = remove_runs_from_sorted(turn_seat(game).concealed)
 
     if length(tiles) == 2 do
@@ -148,7 +154,7 @@ defmodule Mjw.BotStrategy do
   # For simplicity, we only keep numeric tiles
   defp find_non_numeric(tiles) do
     tiles
-    |> Enum.reject(&Mjw.Tile.numeric?/1)
+    |> Enum.reject(&Tile.numeric?/1)
     |> Enum.take_random(1)
     |> Enum.at(0)
   end
@@ -178,27 +184,27 @@ defmodule Mjw.BotStrategy do
 
   defp find_identical_pair(tiles) do
     tiles
-    |> Enum.chunk_by(&Mjw.Tile.without_id/1)
+    |> Enum.chunk_by(&Tile.without_id/1)
     |> Enum.filter(&(length(&1) >= 2))
     |> Enum.map(&Enum.take(&1, 2))
     |> Enum.at(0)
   end
 
-  def most_occurrences_in_viewable_tiles(%Mjw.Game{} = game, tiles) do
+  def most_occurrences_in_viewable_tiles(%Game{} = game, tiles) do
     viewable_tiles =
       game.discards ++
         (game.seats
          |> Enum.with_index()
          |> Enum.flat_map(fn {seat, idx} ->
            if idx == game.turn_seatno do
-             Mjw.Seat.all_tiles_in_hand(seat)
+             Seat.all_tiles_in_hand(seat)
            else
              seat.exposed
            end
          end))
 
     Enum.max_by(tiles, fn tile ->
-      Enum.count(viewable_tiles, &Mjw.Tile.identical?(&1, tile))
+      Enum.count(viewable_tiles, &Tile.identical?(&1, tile))
     end)
   end
 
@@ -207,7 +213,7 @@ defmodule Mjw.BotStrategy do
   defp reject_contiguous(tiles) do
     Enum.reject(tiles, fn tile ->
       Enum.any?(tiles, fn tile2 ->
-        Mjw.Tile.contiguous_in_suit?(tile, tile2) || Mjw.Tile.contiguous_in_suit?(tile2, tile)
+        Tile.contiguous_in_suit?(tile, tile2) || Tile.contiguous_in_suit?(tile2, tile)
       end)
     end)
   end
@@ -218,7 +224,7 @@ defmodule Mjw.BotStrategy do
   defp filter_by_highest_sibling_count(tiles) do
     sibling_groups =
       tiles
-      |> Enum.group_by(&Mjw.Tile.without_id/1)
+      |> Enum.group_by(&Tile.without_id/1)
       |> Enum.map(fn {_, siblings} -> siblings end)
 
     highest_sibling_count =
@@ -237,7 +243,7 @@ defmodule Mjw.BotStrategy do
   defp filter_by_rarest_suit(tiles) do
     suit_groups =
       tiles
-      |> Enum.group_by(&Mjw.Tile.suit/1)
+      |> Enum.group_by(&Tile.suit/1)
       |> Enum.map(fn {_, tiles_in_suit} -> tiles_in_suit end)
 
     rarest_suit_count =
@@ -250,11 +256,11 @@ defmodule Mjw.BotStrategy do
     |> List.flatten()
   end
 
-  def find_win_out_of_turn(%Mjw.Game{turn_state: :drawing, discards: [discarded_tile | _]} = game) do
+  def find_win_out_of_turn(%Game{turn_state: :drawing, discards: [discarded_tile | _]} = game) do
     result =
       game.seats
       |> Enum.with_index()
-      |> Enum.filter(fn {seat, idx} -> idx != game.turn_seatno && Mjw.Seat.bot?(seat) end)
+      |> Enum.filter(fn {seat, idx} -> idx != game.turn_seatno && Seat.bot?(seat) end)
       |> Enum.find(fn {seat, _idx} -> wins_with?(seat, discarded_tile) end)
 
     case result do
@@ -263,7 +269,7 @@ defmodule Mjw.BotStrategy do
     end
   end
 
-  defp turn_seat(%Mjw.Game{turn_seatno: seatno, seats: seats}) do
+  defp turn_seat(%Game{turn_seatno: seatno, seats: seats}) do
     Enum.at(seats, seatno)
   end
 end

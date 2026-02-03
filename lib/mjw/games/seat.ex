@@ -1,8 +1,10 @@
-defmodule Mjw.Seat do
+defmodule Mjw.Games.Seat do
   @moduledoc """
   A Seat holds a user and their tiles
   """
   require Logger
+
+  alias Mjw.Games.Tile
 
   # Valid values for winreaction field
   @winreactions [:ok, :expose, :expose_ok]
@@ -165,7 +167,7 @@ defmodule Mjw.Seat do
   end
 
   def sort_concealed(%__MODULE__{} = seat) do
-    Map.update!(seat, :concealed, &Mjw.Tile.sort/1)
+    Map.update!(seat, :concealed, &Tile.sort/1)
   end
 
   def peek(%__MODULE__{} = seat, tile) do
@@ -292,7 +294,7 @@ defmodule Mjw.Seat do
 
     seat
     |> Map.update!(removed_from_list, fn list ->
-      sorted_list = (list ++ [tile]) |> Mjw.Tile.sort()
+      sorted_list = (list ++ [tile]) |> Tile.sort()
       sorted_list_index = sorted_list |> Enum.find_index(&(&1 == tile))
       insert_before_tile = sorted_list |> Enum.at(sorted_list_index + 1)
 

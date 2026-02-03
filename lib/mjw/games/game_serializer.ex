@@ -1,15 +1,17 @@
 defmodule Mjw.Games.GameSerializer do
   @moduledoc """
-  Converts between Mjw.Game structs and database-storable maps.
+  Converts between Game structs and database-storable maps.
   Handles nested structs (Seat) and recursive structures (undo_state).
   """
 
-  # Allowed atom keys and values are defined in Mjw.Game and Mjw.Seat modules
+  alias Mjw.Games.{Game, Seat}
+
+  # Allowed atom keys and values are defined in Game and Seat modules
 
   @doc """
   Convert a Game struct to a map suitable for JSON/database storage.
   """
-  def to_map(%Mjw.Game{} = game) do
+  def to_map(%Game{} = game) do
     game
     |> Map.from_struct()
     |> Map.update!(:seats, fn seats ->
@@ -20,11 +22,11 @@ defmodule Mjw.Games.GameSerializer do
     end)
     |> Map.update!(:undo_state, fn
       nil -> nil
-      %Mjw.Game{} = undo_game -> to_map(undo_game)
+      %Game{} = undo_game -> to_map(undo_game)
     end)
   end
 
-  defp seat_to_map(%Mjw.Seat{} = seat) do
+  defp seat_to_map(%Seat{} = seat) do
     Map.from_struct(seat)
   end
 
@@ -39,21 +41,21 @@ defmodule Mjw.Games.GameSerializer do
 
     game_fields =
       map
-      |> atomize_keys(Mjw.Game.fields())
+      |> atomize_keys(Game.fields())
       |> Map.merge(%{seats: seats, undo_state: undo_state})
       |> Map.update!(:event_log, fn event_log ->
         Enum.map(event_log, &List.to_tuple/1)
       end)
-      |> Map.update!(:turn_state, &to_atom_if_binary(&1, Mjw.Game.turn_states()))
+      |> Map.update!(:turn_state, &to_atom_if_binary(&1, Game.turn_states()))
 
-    struct(Mjw.Game, game_fields)
+    struct(Game, game_fields)
   end
 
   defp map_to_seat(map) when is_map(map) do
     map
-    |> atomize_keys(Mjw.Seat.fields())
-    |> Map.update!(:winreaction, &to_atom_if_binary(&1, Mjw.Seat.winreactions()))
-    |> then(&struct(Mjw.Seat, &1))
+    |> atomize_keys(Seat.fields())
+    |> Map.update!(:winreaction, &to_atom_if_binary(&1, Seat.winreactions()))
+    |> then(&struct(Seat, &1))
   end
 
   defp to_atom_if_binary(nil, _allowed), do: nil

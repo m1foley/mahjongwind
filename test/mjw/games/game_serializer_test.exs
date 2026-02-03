@@ -4,7 +4,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
   describe "to_map/1" do
     test "converts a basic Game struct to a map" do
-      game = Mjw.Game.new("test-id-123")
+      game = Mjw.Games.Game.new("test-id-123")
 
       result = GameSerializer.to_map(game)
 
@@ -26,9 +26,9 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "converts seats to maps" do
       game =
-        Mjw.Game.new()
-        |> Mjw.Game.seat_player("player-1", "Alice")
-        |> Mjw.Game.seat_player("player-2", "Bob")
+        Mjw.Games.Game.new()
+        |> Mjw.Games.Game.seat_player("player-1", "Alice")
+        |> Mjw.Games.Game.seat_player("player-2", "Bob")
 
       result = GameSerializer.to_map(game)
 
@@ -43,7 +43,7 @@ defmodule Mjw.Games.GameSerializerTest do
     end
 
     test "converts event_log tuples to lists" do
-      game = %Mjw.Game{
+      game = %Mjw.Games.Game{
         event_log: [{"Player went out!", "n1-0"}, {"Player discarded.", "b2-1"}]
       }
 
@@ -53,7 +53,7 @@ defmodule Mjw.Games.GameSerializerTest do
     end
 
     test "handles nil undo_state" do
-      game = %Mjw.Game{undo_state: nil}
+      game = %Mjw.Games.Game{undo_state: nil}
 
       result = GameSerializer.to_map(game)
 
@@ -61,14 +61,14 @@ defmodule Mjw.Games.GameSerializerTest do
     end
 
     test "recursively converts undo_state Game struct" do
-      inner_game = %Mjw.Game{
+      inner_game = %Mjw.Games.Game{
         id: "inner-id",
         wind: "ws",
         turn_state: :drawing,
         event_log: [{"Inner event", nil}]
       }
 
-      game = %Mjw.Game{
+      game = %Mjw.Games.Game{
         id: "outer-id",
         undo_state: inner_game
       }
@@ -83,12 +83,12 @@ defmodule Mjw.Games.GameSerializerTest do
     end
 
     test "converts seat winreaction atoms" do
-      game = %Mjw.Game{
+      game = %Mjw.Games.Game{
         seats: [
-          %Mjw.Seat{winreaction: :ok},
-          %Mjw.Seat{winreaction: :expose},
-          %Mjw.Seat{winreaction: :expose_ok},
-          %Mjw.Seat{winreaction: nil}
+          %Mjw.Games.Seat{winreaction: :ok},
+          %Mjw.Games.Seat{winreaction: :expose},
+          %Mjw.Games.Seat{winreaction: :expose_ok},
+          %Mjw.Games.Seat{winreaction: nil}
         ]
       }
 
@@ -140,7 +140,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
       result = GameSerializer.from_map(map)
 
-      assert %Mjw.Game{} = result
+      assert %Mjw.Games.Game{} = result
       assert result.id == "test-id-456"
       assert result.deck == ["b1-0", "b2-0"]
       assert result.discards == ["n1-0"]
@@ -189,7 +189,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
       result = GameSerializer.from_map(map)
 
-      assert %Mjw.Game{} = result
+      assert %Mjw.Games.Game{} = result
       assert result.id == "test-id-789"
       assert result.turn_state == :rolling
     end
@@ -337,7 +337,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
       result = GameSerializer.from_map(map)
 
-      assert %Mjw.Game{} = result.undo_state
+      assert %Mjw.Games.Game{} = result.undo_state
       assert result.undo_state.id == "inner"
       assert result.undo_state.deck == ["b1-0"]
       assert result.undo_state.wind == "ws"
@@ -413,7 +413,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
   describe "roundtrip serialization" do
     test "to_map and from_map are inverse operations for a basic game" do
-      original = Mjw.Game.new("roundtrip-test")
+      original = Mjw.Games.Game.new("roundtrip-test")
 
       result =
         original
@@ -425,15 +425,15 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "to_map and from_map preserve a game with players" do
       original =
-        Mjw.Game.new()
-        |> Mjw.Game.seat_player("p1", "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
+        Mjw.Games.Game.new()
+        |> Mjw.Games.Game.seat_player("p1", "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
 
       result =
         original
@@ -445,17 +445,17 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "to_map and from_map preserve a game in play" do
       original =
-        Mjw.Game.new()
-        |> Mjw.Game.seat_player("p1", "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
-        |> Mjw.Game.roll_dice_and_reseat_players()
-        |> Mjw.Game.roll_dice_and_deal()
+        Mjw.Games.Game.new()
+        |> Mjw.Games.Game.seat_player("p1", "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.roll_dice_and_reseat_players()
+        |> Mjw.Games.Game.roll_dice_and_deal()
 
       result =
         original
@@ -467,23 +467,23 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "to_map and from_map preserve a game with undo state" do
       game =
-        Mjw.Game.new()
-        |> Mjw.Game.seat_player("p1", "Alice")
-        |> Mjw.Game.seat_player("p2", "Bob")
-        |> Mjw.Game.seat_player("p3", "Carol")
-        |> Mjw.Game.seat_player("p4", "Dave")
-        |> Mjw.Game.pick_random_available_wind(0)
-        |> Mjw.Game.pick_random_available_wind(1)
-        |> Mjw.Game.pick_random_available_wind(2)
-        |> Mjw.Game.pick_random_available_wind(3)
-        |> Mjw.Game.roll_dice_and_reseat_players()
-        |> Mjw.Game.roll_dice_and_deal()
+        Mjw.Games.Game.new()
+        |> Mjw.Games.Game.seat_player("p1", "Alice")
+        |> Mjw.Games.Game.seat_player("p2", "Bob")
+        |> Mjw.Games.Game.seat_player("p3", "Carol")
+        |> Mjw.Games.Game.seat_player("p4", "Dave")
+        |> Mjw.Games.Game.pick_random_available_wind(0)
+        |> Mjw.Games.Game.pick_random_available_wind(1)
+        |> Mjw.Games.Game.pick_random_available_wind(2)
+        |> Mjw.Games.Game.pick_random_available_wind(3)
+        |> Mjw.Games.Game.roll_dice_and_reseat_players()
+        |> Mjw.Games.Game.roll_dice_and_deal()
 
       # Find a tile in the dealer's hand to discard
       dealer_seatno = game.turn_seatno
       tile_to_discard = game.seats |> Enum.at(dealer_seatno) |> Map.get(:concealed) |> hd()
 
-      {:ok, original} = Mjw.Game.discard(game, dealer_seatno, tile_to_discard)
+      {:ok, original} = Mjw.Games.Game.discard(game, dealer_seatno, tile_to_discard)
 
       # The original should have an undo_state
       assert original.undo_state != nil
@@ -498,14 +498,14 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "to_map and from_map preserve a game with win declared" do
       game =
-        %Mjw.Game{
+        %Mjw.Games.Game{
           turn_seatno: 1,
           turn_state: :discarding,
           seats: [
-            %Mjw.Seat{player_id: "p1", player_name: "Alice", winreaction: :ok},
-            %Mjw.Seat{player_id: "p2", player_name: "Bob", wintile: "n1-0", winreaction: :expose},
-            %Mjw.Seat{player_id: "p3", player_name: "Carol", winreaction: :expose_ok},
-            %Mjw.Seat{player_id: "p4", player_name: "Dave", winreaction: nil}
+            %Mjw.Games.Seat{player_id: "p1", player_name: "Alice", winreaction: :ok},
+            %Mjw.Games.Seat{player_id: "p2", player_name: "Bob", wintile: "n1-0", winreaction: :expose},
+            %Mjw.Games.Seat{player_id: "p3", player_name: "Carol", winreaction: :expose_ok},
+            %Mjw.Games.Seat{player_id: "p4", player_name: "Dave", winreaction: nil}
           ]
         }
 
