@@ -20,9 +20,10 @@ defmodule Mjw.Games.Game do
   @four_empty_seats 0..3 |> Enum.map(fn _ -> %Seat{} end)
   @bot_names [
     "Dragonfruit 🤖",
+    "Durian 🤖",
     "Goji 🤖",
     "Guava 🤖",
-    "Lian Wu 🤖",
+    "Wax Apple 🤖",
     "Lychee 🤖",
     "Papaya 🤖",
     "Passionfruit 🤖",
@@ -961,13 +962,15 @@ defmodule Mjw.Games.Game do
   end
 
   defp ordinal(n) do
-    suffix = cond do
-      n in [11, 12, 13] -> "th"
-      rem(n, 10) == 1 -> "st"
-      rem(n, 10) == 2 -> "nd"
-      rem(n, 10) == 3 -> "rd"
-      true -> "th"
-    end
+    suffix =
+      cond do
+        n in [11, 12, 13] -> "th"
+        rem(n, 10) == 1 -> "st"
+        rem(n, 10) == 2 -> "nd"
+        rem(n, 10) == 3 -> "rd"
+        true -> "th"
+      end
+
     "#{n}#{suffix}"
   end
 
