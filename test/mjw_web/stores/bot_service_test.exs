@@ -23,7 +23,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Mjw.Games.Game.pick_random_available_wind(3)
 
       ^game = MjwWeb.BotService.optionally_enqueue_roll(game)
-      assert MjwWeb.BotService.list() == [{:rolling_for_first_dealer, game.id, 1}]
+      assert MjwWeb.BotService.list() == [{:rolling_for_first_dealer, game.uuid, 1}]
     end
 
     test "enqueues rolling_for_deal" do
@@ -39,7 +39,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Map.merge(%{turn_state: :rolling, dealer_seatno: 1, dice: [1, 2, 3]})
 
       ^game = MjwWeb.BotService.optionally_enqueue_roll(game)
-      assert MjwWeb.BotService.list() == [{:rolling_for_deal, game.id, 1}]
+      assert MjwWeb.BotService.list() == [{:rolling_for_deal, game.uuid, 1}]
     end
 
     test "does nothing when the rolling player is not a bot" do
@@ -104,7 +104,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Map.merge(%{turn_state: :drawing, turn_seatno: 1, dice: [1, 2, 3], discards: ["we-0"]})
 
       ^game = MjwWeb.BotService.optionally_enqueue_draw(game)
-      assert MjwWeb.BotService.list() == [{:draw, game.id, 1}]
+      assert MjwWeb.BotService.list() == [{:draw, game.uuid, 1}]
     end
 
     test "does nothing when the drawing player is not a bot" do
@@ -176,7 +176,7 @@ defmodule MjwWeb.BotServiceTest do
         |> Map.merge(%{turn_state: :drawing, turn_seatno: 0, dice: [1, 2, 3], discards: ["we-0"]})
 
       ^game = MjwWeb.BotService.optionally_enqueue_try_win_out_of_turn(game)
-      assert MjwWeb.BotService.list() == [{:try_win_out_of_turn, game.id, 0}]
+      assert MjwWeb.BotService.list() == [{:try_win_out_of_turn, game.uuid, 0}]
     end
 
     test "does nothing when no bots are out of turn" do
@@ -253,7 +253,7 @@ defmodule MjwWeb.BotServiceTest do
         })
 
       ^game = MjwWeb.BotService.optionally_enqueue_discard(game)
-      assert MjwWeb.BotService.list() == [{:discard, game.id, 1}]
+      assert MjwWeb.BotService.list() == [{:discard, game.uuid, 1}]
     end
 
     test "does nothing when the discarding player is not a bot" do
@@ -343,7 +343,7 @@ defmodule MjwWeb.BotServiceTest do
       assert_receive {_game, :rolled_for_first_dealer, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
-      game = MjwWeb.GameStore.get(game.id)
+      game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       refute Enum.empty?(game.dice)
       assert Mjw.Games.GameState.state(game) == :rolling_for_deal
     end
@@ -367,7 +367,7 @@ defmodule MjwWeb.BotServiceTest do
       |> MjwWeb.BotService.optionally_enqueue_roll()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
 
@@ -396,7 +396,7 @@ defmodule MjwWeb.BotServiceTest do
 
       assert MjwWeb.BotService.list() != []
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
   end
@@ -421,7 +421,7 @@ defmodule MjwWeb.BotServiceTest do
       assert_receive {_game, :rolled_for_deal, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
-      game = MjwWeb.GameStore.get(game.id)
+      game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       refute Enum.empty?(game.dice)
       assert Mjw.Games.GameState.state(game) == :discarding
     end
@@ -444,7 +444,7 @@ defmodule MjwWeb.BotServiceTest do
       |> MjwWeb.BotService.optionally_enqueue_roll()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
 
@@ -467,7 +467,7 @@ defmodule MjwWeb.BotServiceTest do
 
       assert MjwWeb.BotService.list() != []
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
   end
@@ -501,14 +501,14 @@ defmodule MjwWeb.BotServiceTest do
       assert_receive {_game, :drew_from_deck, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
-      game = MjwWeb.GameStore.get(game.id)
+      game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert game.turn_seatno == 1
       assert Mjw.Games.GameState.state(game) == :discarding
       bot_seat = Enum.at(game.seats, 1)
       assert bot_seat.concealed == ["n1-0", "n1-1", "b1-0"]
       assert game.deck == ["b1-1", "b1-2"]
       assert Enum.at(game.event_log, 0) == {"#{bot_seat.player_name} drew from the deck.", nil}
-      assert MjwWeb.BotService.list() == [{:discard, game.id, 1}]
+      assert MjwWeb.BotService.list() == [{:discard, game.uuid, 1}]
     end
 
     test "does nothing when the state is not drawing" do
@@ -537,7 +537,7 @@ defmodule MjwWeb.BotServiceTest do
       |> MjwWeb.BotService.optionally_enqueue_draw()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
 
@@ -567,7 +567,7 @@ defmodule MjwWeb.BotServiceTest do
       |> MjwWeb.BotService.optionally_enqueue_draw()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
 
@@ -594,7 +594,7 @@ defmodule MjwWeb.BotServiceTest do
         |> MjwWeb.BotService.optionally_enqueue_draw()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == nil
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == nil
       assert MjwWeb.BotService.list() == []
     end
   end
@@ -635,7 +635,7 @@ defmodule MjwWeb.BotServiceTest do
       assert_receive {_game, :declared_win, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
-      game = MjwWeb.GameStore.get(game.id)
+      game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert game.turn_seatno == 0
       assert Mjw.Games.GameState.state(game) == :win_declared
       bot_seat = Enum.at(game.seats, 0)
@@ -679,7 +679,7 @@ defmodule MjwWeb.BotServiceTest do
       |> MjwWeb.BotService.optionally_enqueue_try_win_out_of_turn()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
 
@@ -716,7 +716,7 @@ defmodule MjwWeb.BotServiceTest do
       |> MjwWeb.BotService.optionally_enqueue_try_win_out_of_turn()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
 
@@ -750,7 +750,7 @@ defmodule MjwWeb.BotServiceTest do
         |> MjwWeb.BotService.optionally_enqueue_try_win_out_of_turn()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == nil
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == nil
       assert MjwWeb.BotService.list() == []
     end
   end
@@ -783,7 +783,7 @@ defmodule MjwWeb.BotServiceTest do
       assert_receive {_game, :discarded, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
 
-      game = MjwWeb.GameStore.get(game.id)
+      game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert game.turn_seatno == 2
       assert Mjw.Games.GameState.state(game) == :drawing
       bot_seat = Enum.at(game.seats, 1)
@@ -819,7 +819,7 @@ defmodule MjwWeb.BotServiceTest do
         |> MjwWeb.BotService.optionally_enqueue_discard()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == game
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == game
       assert MjwWeb.BotService.list() == []
     end
 
@@ -846,7 +846,7 @@ defmodule MjwWeb.BotServiceTest do
         |> MjwWeb.BotService.optionally_enqueue_discard()
 
       send(MjwWeb.BotService, :perform_action)
-      assert MjwWeb.GameStore.get(game.id) == nil
+      assert MjwWeb.GameStore.get_by_uuid(game.uuid) == nil
       assert MjwWeb.BotService.list() == []
     end
 
@@ -877,7 +877,7 @@ defmodule MjwWeb.BotServiceTest do
       send(MjwWeb.BotService, :perform_action)
       assert_receive {_game, :discarded, _event_details}
       :ok = MjwWeb.GameStore.unsubscribe_from_game_updates(game)
-      assert MjwWeb.BotService.list() == [{:draw, game.id, 2}]
+      assert MjwWeb.BotService.list() == [{:draw, game.uuid, 2}]
     end
   end
 

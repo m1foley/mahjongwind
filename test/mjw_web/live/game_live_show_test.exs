@@ -25,7 +25,7 @@ defmodule MjwWeb.GameLive.ShowTest do
     test "shows seat offering modal for new player", %{conn: conn} do
       game = MjwWeb.GameStore.create()
 
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       assert html =~ "Have a seat!"
       assert html =~ "Your name:"
@@ -35,7 +35,7 @@ defmodule MjwWeb.GameLive.ShowTest do
     test "allows player to join by entering name", %{conn: conn} do
       game = MjwWeb.GameStore.create()
 
-      {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, view, _html} = live(conn, ~p"/games/#{game.uuid}")
 
       html =
         view
@@ -56,7 +56,7 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> Mjw.Games.Game.seat_player("p4", "Dave")
         |> MjwWeb.GameStore.update(:players_seated)
 
-      result = live(conn, ~p"/games/#{game.id}")
+      result = live(conn, ~p"/games/#{game.uuid}")
 
       assert {:error,
               {:live_redirect, %{to: "/", flash: %{"error" => "Sorry, that game is full."}}}} =
@@ -77,7 +77,7 @@ defmodule MjwWeb.GameLive.ShowTest do
 
       # Connect with the same user_id
       conn = assign_user_session(conn, user_id)
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       # Should not show seat offering since player is already seated
       refute html =~ "Have a seat!"
@@ -91,13 +91,13 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> Mjw.Games.Game.seat_player("p1", "Alice")
         |> MjwWeb.GameStore.update(:player_joined)
 
-      {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, view, _html} = live(conn, ~p"/games/#{game.uuid}")
 
       view
       |> form("#seat-offering-form", player_name: "Bob")
       |> render_submit()
 
-      updated_game = MjwWeb.GameStore.get(game.id)
+      updated_game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert length(Mjw.Games.Game.seated_player_names(updated_game)) == 2
     end
 
@@ -110,7 +110,7 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:player_joined)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       assert html =~ "Add bot"
     end
@@ -124,11 +124,11 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:player_joined)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, view, _html} = live(conn, ~p"/games/#{game.uuid}")
 
       view |> element("#invite-link-center-addbot") |> render_click()
 
-      updated_game = MjwWeb.GameStore.get(game.id)
+      updated_game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert Mjw.Games.Game.bots_present?(updated_game)
     end
   end
@@ -146,7 +146,7 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:players_seated)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       # Wind picking tiles should be visible
       assert html =~ "Pick a wind"
@@ -164,11 +164,11 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:players_seated)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, view, _html} = live(conn, ~p"/games/#{game.uuid}")
 
       view |> element(".pickable-wind[phx-value-picked-wind-idx='0']") |> render_click()
 
-      updated_game = MjwWeb.GameStore.get(game.id)
+      updated_game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert Mjw.Games.Game.picked_wind(updated_game, user_id) != nil
     end
   end
@@ -199,7 +199,7 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:winds_picked)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       assert html =~ "Roll to determine first dealer"
     end
@@ -227,11 +227,11 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:winds_picked)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, view, _html} = live(conn, ~p"/games/#{game.uuid}")
 
       view |> element(".hand") |> render_click()
 
-      updated_game = MjwWeb.GameStore.get(game.id)
+      updated_game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert Mjw.Games.GameState.state(updated_game) == :rolling_for_deal
     end
   end
@@ -258,7 +258,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       dealer = Enum.at(game.seats, game.turn_seatno)
       conn = assign_user_session(conn, dealer.player_id)
 
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       # Players should see their concealed tiles - check for the tile container
       assert html =~ "concealed-0"
@@ -284,7 +284,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       dealer = Enum.at(game.seats, game.turn_seatno)
       conn = assign_user_session(conn, dealer.player_id)
 
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       assert html =~ "discards"
     end
@@ -309,7 +309,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       dealer = Enum.at(game.seats, game.turn_seatno)
       conn = assign_user_session(conn, dealer.player_id)
 
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       assert html =~ "deck-remaining-count"
     end
@@ -336,7 +336,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       dealer = Enum.at(game.seats, game.turn_seatno)
       conn = assign_user_session(conn, dealer.player_id)
 
-      {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, view, _html} = live(conn, ~p"/games/#{game.uuid}")
 
       html = view |> element(".gamewind") |> render_click()
 
@@ -365,7 +365,7 @@ defmodule MjwWeb.GameLive.ShowTest do
       dealer = Enum.at(game.seats, game.turn_seatno)
       conn = assign_user_session(conn, dealer.player_id)
 
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       refute html =~ ~r/<div[^>]*id="undo"/
     end
@@ -385,7 +385,7 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:bots_seated)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       assert html =~ "Pause bots"
     end
@@ -403,12 +403,12 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:bots_seated)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, view, _html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, view, _html} = live(conn, ~p"/games/#{game.uuid}")
 
       html = view |> element("#pausebots") |> render_click()
 
       assert html =~ "Resume bots"
-      updated_game = MjwWeb.GameStore.get(game.id)
+      updated_game = MjwWeb.GameStore.get_by_uuid(game.uuid)
       assert updated_game.pause_bots == true
     end
   end
@@ -423,10 +423,10 @@ defmodule MjwWeb.GameLive.ShowTest do
         |> MjwWeb.GameStore.update(:player_joined)
 
       conn = assign_user_session(conn, user_id)
-      {:ok, _view, html} = live(conn, ~p"/games/#{game.id}")
+      {:ok, _view, html} = live(conn, ~p"/games/#{game.uuid}")
 
       assert html =~ "invite-link"
-      assert html =~ game.id
+      assert html =~ game.uuid
     end
   end
 

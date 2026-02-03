@@ -43,11 +43,11 @@ defmodule MjwWeb.GameStore do
   def persist(game) do
     state = GameSerializer.to_map(game)
 
-    %GameRecord{id: game.id}
-    |> GameRecord.changeset(%{id: game.id, state: state})
+    %GameRecord{}
+    |> GameRecord.changeset(%{uuid: game.uuid, state: state})
     |> Repo.insert!(
       on_conflict: {:replace, [:state, :updated_at]},
-      conflict_target: :id
+      conflict_target: :uuid
     )
 
     game
@@ -58,15 +58,15 @@ defmodule MjwWeb.GameStore do
   """
 
   def remove(game) do
-    Repo.delete_all(Ecto.Query.from g in GameRecord, where: g.id == ^game.id)
+    Repo.delete_all(Ecto.Query.from g in GameRecord, where: g.uuid == ^game.uuid)
     broadcast_lobby_update(game, :game_removed)
   end
 
   @doc """
-  Get a game by ID
+  Get a game by UUID
   """
-  def get(game_id) do
-    case Repo.get(GameRecord, game_id) do
+  def get_by_uuid(uuid) do
+    case Repo.get_by(GameRecord, uuid: uuid) do
       nil -> nil
       record -> GameSerializer.from_map(record.state)
     end
@@ -109,15 +109,15 @@ defmodule MjwWeb.GameStore do
   Subscribe to all updates for a particular game
   """
   def subscribe_to_game_updates(game) do
-    Phoenix.PubSub.subscribe(Mjw.PubSub, "game:#{game.id}")
+    Phoenix.PubSub.subscribe(Mjw.PubSub, "game:#{game.uuid}")
   end
 
   def unsubscribe_from_game_updates(game) do
-    Phoenix.PubSub.unsubscribe(Mjw.PubSub, "game:#{game.id}")
+    Phoenix.PubSub.unsubscribe(Mjw.PubSub, "game:#{game.uuid}")
   end
 
   defp broadcast_game_update(game, event, details) do
-    Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.id}", {game, event, details})
+    Phoenix.PubSub.broadcast(Mjw.PubSub, "game:#{game.uuid}", {game, event, details})
     game
   end
 end

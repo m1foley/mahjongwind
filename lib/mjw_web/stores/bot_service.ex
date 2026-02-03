@@ -20,7 +20,7 @@ defmodule MjwWeb.BotService do
     roller_seatno = Game.current_roller_seatno(game, game_state)
 
     if roller_seatno && bot_sitting_at?(game, roller_seatno) do
-      enqueue_delayed_action(game_state, game.id, roller_seatno)
+      enqueue_delayed_action(game_state, game.uuid, roller_seatno)
     end
 
     game
@@ -30,7 +30,7 @@ defmodule MjwWeb.BotService do
 
   def optionally_enqueue_draw(%Game{} = game) do
     if bot_sitting_at?(game, game.turn_seatno) && GameState.state(game) == :drawing do
-      enqueue_delayed_action(:draw, game.id, game.turn_seatno)
+      enqueue_delayed_action(:draw, game.uuid, game.turn_seatno)
     end
 
     game
@@ -42,7 +42,7 @@ defmodule MjwWeb.BotService do
     if GameState.state(game) == :drawing && bots_out_of_turn?(game) do
       enqueue_delayed_action(
         :try_win_out_of_turn,
-        game.id,
+        game.uuid,
         game.turn_seatno,
         @action_delay_win_out_of_turn
       )
@@ -62,7 +62,7 @@ defmodule MjwWeb.BotService do
   end
 
   defp enqueue_discard(%Game{turn_state: :discarding} = game, delay \\ @action_delay_default) do
-    enqueue_delayed_action(:discard, game.id, game.turn_seatno, delay)
+    enqueue_delayed_action(:discard, game.uuid, game.turn_seatno, delay)
     game
   end
 
@@ -86,7 +86,7 @@ defmodule MjwWeb.BotService do
   def handle_info(:perform_action, queue) do
     case :queue.out(queue) do
       {{:value, {action_type, game_id, bot_seatno}}, remaining_queue} ->
-        game = MjwWeb.GameStore.get(game_id)
+        game = MjwWeb.GameStore.get_by_uuid(game_id)
         perform_action(action_type, game, bot_seatno)
         {:noreply, remaining_queue}
 

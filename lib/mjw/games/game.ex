@@ -38,7 +38,7 @@ defmodule Mjw.Games.Game do
 
   # Struct field names for serialization
   @fields [
-    :id,
+    :uuid,
     :deck,
     :discards,
     :wind,
@@ -56,7 +56,7 @@ defmodule Mjw.Games.Game do
   ]
   def fields, do: @fields
 
-  defstruct id: nil,
+  defstruct uuid: nil,
             deck: [],
             discards: [],
             wind: "we",
@@ -81,8 +81,8 @@ defmodule Mjw.Games.Game do
   @doc """
   Initialize a game, defaulting to a random ID and a shuffled deck
   """
-  def new(id \\ Ecto.UUID.generate()) do
-    %__MODULE__{id: id, deck: shuffled_deck()}
+  def new(uuid \\ Ecto.UUID.generate()) do
+    %__MODULE__{uuid: uuid, deck: shuffled_deck()}
   end
 
   defp shuffled_deck() do
@@ -653,12 +653,12 @@ defmodule Mjw.Games.Game do
   @doc """
   Reset the game, preserving only the id and player info
   """
-  def reset(%__MODULE__{id: id, seats: seats}) do
-    new_game_with_same_id = new(id)
+  def reset(%__MODULE__{uuid: uuid, seats: seats}) do
+    new_game_with_same_uuid = new(uuid)
 
     seats
     |> Enum.with_index()
-    |> Enum.reduce(new_game_with_same_id, fn {seat, seatno}, game ->
+    |> Enum.reduce(new_game_with_same_uuid, fn {seat, seatno}, game ->
       if Seat.bot?(seat) do
         seat_bot_at(game, seat.player_name, seatno)
       else

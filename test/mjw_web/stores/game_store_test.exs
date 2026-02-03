@@ -4,7 +4,7 @@ defmodule MjwWeb.GameStoreTest do
 
   test "create creates a new game" do
     game = MjwWeb.GameStore.create()
-    assert game.id
+    assert game.uuid
   end
 
   test "create broadcasts change to lobby" do
@@ -22,12 +22,12 @@ defmodule MjwWeb.GameStoreTest do
 
   test "get retrieves a game" do
     game = MjwWeb.GameStore.create()
-    result = MjwWeb.GameStore.get(game.id)
+    result = MjwWeb.GameStore.get_by_uuid(game.uuid)
     assert result == game
   end
 
   test "get with a nonexistent id returns nil" do
-    result = MjwWeb.GameStore.get(Ecto.UUID.generate())
+    result = MjwWeb.GameStore.get_by_uuid(Ecto.UUID.generate())
     assert result == nil
   end
 
@@ -41,7 +41,7 @@ defmodule MjwWeb.GameStoreTest do
     game = MjwWeb.GameStore.create()
     result = MjwWeb.GameStore.remove(game)
     assert result == game
-    assert MjwWeb.GameStore.get(game.id) == nil
+    assert MjwWeb.GameStore.get_by_uuid(game.uuid) == nil
   end
 
   test "remove broadcasts change to lobby" do
@@ -62,7 +62,7 @@ defmodule MjwWeb.GameStoreTest do
     :ok = MjwWeb.GameStore.clear()
     games = 0..3 |> Enum.map(fn _ -> MjwWeb.GameStore.create() end)
     result = MjwWeb.GameStore.all()
-    assert Enum.sort_by(result, & &1.id) == Enum.sort_by(games, & &1.id)
+    assert Enum.sort_by(result, & &1.uuid) == Enum.sort_by(games, & &1.uuid)
   end
 
   test "update updates a game" do
@@ -70,7 +70,7 @@ defmodule MjwWeb.GameStoreTest do
     updated_game = game |> Map.merge(%{turn_seatno: 1})
     result = MjwWeb.GameStore.update(updated_game, :event1)
     assert result == updated_game
-    assert MjwWeb.GameStore.get(game.id) == updated_game
+    assert MjwWeb.GameStore.get_by_uuid(game.uuid) == updated_game
   end
 
   test "update with no details broadcasts the event" do
@@ -108,7 +108,7 @@ defmodule MjwWeb.GameStoreTest do
     updated_game = game |> Map.merge(%{turn_seatno: 1})
     result = MjwWeb.GameStore.update_with_lobby_change(updated_game, :event1)
     assert result == updated_game
-    assert MjwWeb.GameStore.get(game.id) == updated_game
+    assert MjwWeb.GameStore.get_by_uuid(game.uuid) == updated_game
   end
 
   test "update_with_lobby_change with details broadcasts change to game" do

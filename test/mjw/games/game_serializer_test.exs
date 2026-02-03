@@ -9,7 +9,7 @@ defmodule Mjw.Games.GameSerializerTest do
       result = GameSerializer.to_map(game)
 
       assert is_map(result)
-      assert result.id == "test-id-123"
+      assert result.uuid == "test-id-123"
       assert result.wind == "we"
       assert result.discards == []
       assert result.turn_state == :rolling
@@ -62,21 +62,21 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "recursively converts undo_state Game struct" do
       inner_game = %Mjw.Games.Game{
-        id: "inner-id",
+        uuid: "inner-id",
         wind: "ws",
         turn_state: :drawing,
         event_log: [{"Inner event", nil}]
       }
 
       game = %Mjw.Games.Game{
-        id: "outer-id",
+        uuid: "outer-id",
         undo_state: inner_game
       }
 
       result = GameSerializer.to_map(game)
 
       assert is_map(result.undo_state)
-      assert result.undo_state.id == "inner-id"
+      assert result.undo_state.uuid == "inner-id"
       assert result.undo_state.wind == "ws"
       assert result.undo_state.turn_state == :drawing
       assert result.undo_state.event_log == [["Inner event", nil]]
@@ -108,7 +108,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "converts a map with string keys to a Game struct" do
       map = %{
-        "id" => "test-id-456",
+        "uuid" => "test-id-456",
         "deck" => ["b1-0", "b2-0"],
         "discards" => ["n1-0"],
         "wind" => "ws",
@@ -123,25 +123,69 @@ defmodule Mjw.Games.GameSerializerTest do
         "undo_state" => nil,
         "pause_bots" => true,
         "seats" => [
-          %{"player_id" => "p1", "player_name" => "Alice", "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => "we",
-            "picked_wind_idx" => 0, "winreaction" => nil, "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
+          %{
+            "player_id" => "p1",
+            "player_name" => "Alice",
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => "we",
+            "picked_wind_idx" => 0,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          }
         ]
       }
 
       result = GameSerializer.from_map(map)
 
       assert %Mjw.Games.Game{} = result
-      assert result.id == "test-id-456"
+      assert result.uuid == "test-id-456"
       assert result.deck == ["b1-0", "b2-0"]
       assert result.discards == ["n1-0"]
       assert result.wind == "ws"
@@ -157,7 +201,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "converts a map with atom keys to a Game struct" do
       map = %{
-        id: "test-id-789",
+        uuid: "test-id-789",
         deck: ["c1-0"],
         discards: [],
         wind: "we",
@@ -172,31 +216,75 @@ defmodule Mjw.Games.GameSerializerTest do
         undo_state: nil,
         pause_bots: false,
         seats: [
-          %{player_id: nil, player_name: nil, concealed: [], exposed: [],
-            hiddengongs: [], peektile: nil, wintile: nil, picked_wind: nil,
-            picked_wind_idx: nil, winreaction: nil, seatno: nil, win_expose: nil},
-          %{player_id: nil, player_name: nil, concealed: [], exposed: [],
-            hiddengongs: [], peektile: nil, wintile: nil, picked_wind: nil,
-            picked_wind_idx: nil, winreaction: nil, seatno: nil, win_expose: nil},
-          %{player_id: nil, player_name: nil, concealed: [], exposed: [],
-            hiddengongs: [], peektile: nil, wintile: nil, picked_wind: nil,
-            picked_wind_idx: nil, winreaction: nil, seatno: nil, win_expose: nil},
-          %{player_id: nil, player_name: nil, concealed: [], exposed: [],
-            hiddengongs: [], peektile: nil, wintile: nil, picked_wind: nil,
-            picked_wind_idx: nil, winreaction: nil, seatno: nil, win_expose: nil}
+          %{
+            player_id: nil,
+            player_name: nil,
+            concealed: [],
+            exposed: [],
+            hiddengongs: [],
+            peektile: nil,
+            wintile: nil,
+            picked_wind: nil,
+            picked_wind_idx: nil,
+            winreaction: nil,
+            seatno: nil,
+            win_expose: nil
+          },
+          %{
+            player_id: nil,
+            player_name: nil,
+            concealed: [],
+            exposed: [],
+            hiddengongs: [],
+            peektile: nil,
+            wintile: nil,
+            picked_wind: nil,
+            picked_wind_idx: nil,
+            winreaction: nil,
+            seatno: nil,
+            win_expose: nil
+          },
+          %{
+            player_id: nil,
+            player_name: nil,
+            concealed: [],
+            exposed: [],
+            hiddengongs: [],
+            peektile: nil,
+            wintile: nil,
+            picked_wind: nil,
+            picked_wind_idx: nil,
+            winreaction: nil,
+            seatno: nil,
+            win_expose: nil
+          },
+          %{
+            player_id: nil,
+            player_name: nil,
+            concealed: [],
+            exposed: [],
+            hiddengongs: [],
+            peektile: nil,
+            wintile: nil,
+            picked_wind: nil,
+            picked_wind_idx: nil,
+            winreaction: nil,
+            seatno: nil,
+            win_expose: nil
+          }
         ]
       }
 
       result = GameSerializer.from_map(map)
 
       assert %Mjw.Games.Game{} = result
-      assert result.id == "test-id-789"
+      assert result.uuid == "test-id-789"
       assert result.turn_state == :rolling
     end
 
     test "converts event_log lists to tuples" do
       map = %{
-        "id" => "test",
+        "uuid" => "test",
         "deck" => [],
         "discards" => [],
         "wind" => "we",
@@ -210,11 +298,23 @@ defmodule Mjw.Games.GameSerializerTest do
         "undo_seatno" => nil,
         "undo_state" => nil,
         "pause_bots" => false,
-        "seats" => Enum.map(1..4, fn _ ->
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
-        end)
+        "seats" =>
+          Enum.map(1..4, fn _ ->
+            %{
+              "player_id" => nil,
+              "player_name" => nil,
+              "concealed" => [],
+              "exposed" => [],
+              "hiddengongs" => [],
+              "peektile" => nil,
+              "wintile" => nil,
+              "picked_wind" => nil,
+              "picked_wind_idx" => nil,
+              "winreaction" => nil,
+              "seatno" => nil,
+              "win_expose" => nil
+            }
+          end)
       }
 
       result = GameSerializer.from_map(map)
@@ -225,7 +325,7 @@ defmodule Mjw.Games.GameSerializerTest do
     test "converts turn_state string to atom" do
       for turn_state <- ["rolling", "drawing", "discarding"] do
         map = %{
-          "id" => "test",
+          "uuid" => "test",
           "deck" => [],
           "discards" => [],
           "wind" => "we",
@@ -239,11 +339,23 @@ defmodule Mjw.Games.GameSerializerTest do
           "undo_seatno" => nil,
           "undo_state" => nil,
           "pause_bots" => false,
-          "seats" => Enum.map(1..4, fn _ ->
-            %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-              "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-              "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
-          end)
+          "seats" =>
+            Enum.map(1..4, fn _ ->
+              %{
+                "player_id" => nil,
+                "player_name" => nil,
+                "concealed" => [],
+                "exposed" => [],
+                "hiddengongs" => [],
+                "peektile" => nil,
+                "wintile" => nil,
+                "picked_wind" => nil,
+                "picked_wind_idx" => nil,
+                "winreaction" => nil,
+                "seatno" => nil,
+                "win_expose" => nil
+              }
+            end)
         }
 
         result = GameSerializer.from_map(map)
@@ -254,7 +366,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "converts seats with winreaction strings to atoms" do
       map = %{
-        "id" => "test",
+        "uuid" => "test",
         "deck" => [],
         "discards" => [],
         "wind" => "we",
@@ -269,18 +381,62 @@ defmodule Mjw.Games.GameSerializerTest do
         "undo_state" => nil,
         "pause_bots" => false,
         "seats" => [
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => "ok", "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => "expose", "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => "expose_ok", "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => "ok",
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => "expose",
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => "expose_ok",
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          }
         ]
       }
 
@@ -294,7 +450,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "recursively converts undo_state map" do
       map = %{
-        "id" => "outer",
+        "uuid" => "outer",
         "deck" => [],
         "discards" => [],
         "wind" => "we",
@@ -308,7 +464,7 @@ defmodule Mjw.Games.GameSerializerTest do
         "undo_seatno" => 1,
         "pause_bots" => false,
         "undo_state" => %{
-          "id" => "inner",
+          "uuid" => "inner",
           "deck" => ["b1-0"],
           "discards" => ["n1-0"],
           "wind" => "ws",
@@ -322,23 +478,47 @@ defmodule Mjw.Games.GameSerializerTest do
           "undo_seatno" => nil,
           "undo_state" => nil,
           "pause_bots" => false,
-          "seats" => Enum.map(1..4, fn _ ->
-            %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-              "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-              "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
-          end)
+          "seats" =>
+            Enum.map(1..4, fn _ ->
+              %{
+                "player_id" => nil,
+                "player_name" => nil,
+                "concealed" => [],
+                "exposed" => [],
+                "hiddengongs" => [],
+                "peektile" => nil,
+                "wintile" => nil,
+                "picked_wind" => nil,
+                "picked_wind_idx" => nil,
+                "winreaction" => nil,
+                "seatno" => nil,
+                "win_expose" => nil
+              }
+            end)
         },
-        "seats" => Enum.map(1..4, fn _ ->
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
-        end)
+        "seats" =>
+          Enum.map(1..4, fn _ ->
+            %{
+              "player_id" => nil,
+              "player_name" => nil,
+              "concealed" => [],
+              "exposed" => [],
+              "hiddengongs" => [],
+              "peektile" => nil,
+              "wintile" => nil,
+              "picked_wind" => nil,
+              "picked_wind_idx" => nil,
+              "winreaction" => nil,
+              "seatno" => nil,
+              "win_expose" => nil
+            }
+          end)
       }
 
       result = GameSerializer.from_map(map)
 
       assert %Mjw.Games.Game{} = result.undo_state
-      assert result.undo_state.id == "inner"
+      assert result.undo_state.uuid == "inner"
       assert result.undo_state.deck == ["b1-0"]
       assert result.undo_state.wind == "ws"
       assert result.undo_state.turn_state == :drawing
@@ -347,7 +527,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "raises on invalid turn_state value" do
       map = %{
-        "id" => "test",
+        "uuid" => "test",
         "deck" => [],
         "discards" => [],
         "wind" => "we",
@@ -361,11 +541,23 @@ defmodule Mjw.Games.GameSerializerTest do
         "undo_seatno" => nil,
         "undo_state" => nil,
         "pause_bots" => false,
-        "seats" => Enum.map(1..4, fn _ ->
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
-        end)
+        "seats" =>
+          Enum.map(1..4, fn _ ->
+            %{
+              "player_id" => nil,
+              "player_name" => nil,
+              "concealed" => [],
+              "exposed" => [],
+              "hiddengongs" => [],
+              "peektile" => nil,
+              "wintile" => nil,
+              "picked_wind" => nil,
+              "picked_wind_idx" => nil,
+              "winreaction" => nil,
+              "seatno" => nil,
+              "win_expose" => nil
+            }
+          end)
       }
 
       assert_raise ArgumentError, ~r/Invalid atom value/, fn ->
@@ -375,7 +567,7 @@ defmodule Mjw.Games.GameSerializerTest do
 
     test "raises on invalid winreaction value" do
       map = %{
-        "id" => "test",
+        "uuid" => "test",
         "deck" => [],
         "discards" => [],
         "wind" => "we",
@@ -390,18 +582,62 @@ defmodule Mjw.Games.GameSerializerTest do
         "undo_state" => nil,
         "pause_bots" => false,
         "seats" => [
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => "invalid_reaction", "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil},
-          %{"player_id" => nil, "player_name" => nil, "concealed" => [], "exposed" => [],
-            "hiddengongs" => [], "peektile" => nil, "wintile" => nil, "picked_wind" => nil,
-            "picked_wind_idx" => nil, "winreaction" => nil, "seatno" => nil, "win_expose" => nil}
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => "invalid_reaction",
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          },
+          %{
+            "player_id" => nil,
+            "player_name" => nil,
+            "concealed" => [],
+            "exposed" => [],
+            "hiddengongs" => [],
+            "peektile" => nil,
+            "wintile" => nil,
+            "picked_wind" => nil,
+            "picked_wind_idx" => nil,
+            "winreaction" => nil,
+            "seatno" => nil,
+            "win_expose" => nil
+          }
         ]
       }
 
@@ -503,7 +739,12 @@ defmodule Mjw.Games.GameSerializerTest do
           turn_state: :discarding,
           seats: [
             %Mjw.Games.Seat{player_id: "p1", player_name: "Alice", winreaction: :ok},
-            %Mjw.Games.Seat{player_id: "p2", player_name: "Bob", wintile: "n1-0", winreaction: :expose},
+            %Mjw.Games.Seat{
+              player_id: "p2",
+              player_name: "Bob",
+              wintile: "n1-0",
+              winreaction: :expose
+            },
             %Mjw.Games.Seat{player_id: "p3", player_name: "Carol", winreaction: :expose_ok},
             %Mjw.Games.Seat{player_id: "p4", player_name: "Dave", winreaction: nil}
           ]

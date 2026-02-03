@@ -4,7 +4,7 @@ defmodule Mjw.Games.GameTest do
   describe "new" do
     test "generates a Game with reasonable initial values" do
       game = Mjw.Games.Game.new()
-      assert game.id =~ ~r/\A[a-f0-9\-]{36}\z/
+      assert game.uuid =~ ~r/\A[a-f0-9\-]{36}\z/
       assert length(game.deck) == 136
       assert game.wind == "we"
       assert game.discards == []
@@ -712,7 +712,14 @@ defmodule Mjw.Games.GameTest do
         |> Mjw.Games.Game.declare_win_from_hand(1, "n2-1")
 
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n2-1", nil, nil]
-      assert game.seats |> Enum.map(&Mjw.Games.Seat.declared_win?/1) == [false, true, false, false]
+
+      assert game.seats |> Enum.map(&Mjw.Games.Seat.declared_win?/1) == [
+               false,
+               true,
+               false,
+               false
+             ]
+
       assert Enum.at(game.seats, 1).concealed == ["n1-1", "n3-1"]
       assert game.turn_seatno == 1
       assert game.turn_state == :discarding
@@ -742,7 +749,14 @@ defmodule Mjw.Games.GameTest do
         |> Mjw.Games.Game.declare_win_from_hand(1, "n2-1")
 
       assert game.seats |> Enum.map(& &1.wintile) == [nil, "n2-1", nil, nil]
-      assert game.seats |> Enum.map(&Mjw.Games.Seat.declared_win?/1) == [false, true, false, false]
+
+      assert game.seats |> Enum.map(&Mjw.Games.Seat.declared_win?/1) == [
+               false,
+               true,
+               false,
+               false
+             ]
+
       assert Enum.at(game.seats, 1).concealed == ["n1-1", "n3-1", "n4-1"]
       assert Enum.at(game.seats, 1).peektile == nil
       assert game.turn_seatno == 1
@@ -939,7 +953,7 @@ defmodule Mjw.Games.GameTest do
   describe "reset" do
     test "resets the game except for basic player info" do
       orig_game = %Mjw.Games.Game{
-        id: "6c1d42d8-28db-4b3b-a3f2-976d854e0394",
+        uuid: "6c1d42d8-28db-4b3b-a3f2-976d854e0394",
         dealer_seatno: 1,
         dealer_win_count: 1,
         turn_seatno: 3,
@@ -970,7 +984,7 @@ defmodule Mjw.Games.GameTest do
 
       game = Mjw.Games.Game.reset(orig_game)
 
-      assert game.id == orig_game.id
+      assert game.uuid == orig_game.uuid
       assert length(game.deck) == 136
       assert game.discards == []
       assert game.dice == []

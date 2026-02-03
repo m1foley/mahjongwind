@@ -4,9 +4,9 @@ defmodule MjwWeb.GameLive.Show do
   alias Mjw.Games.{Game, GameState, Seat}
 
   @impl true
-  def mount(%{"id" => id}, session, socket) do
+  def mount(%{"id" => uuid}, session, socket) do
     socket = assign_defaults(socket, session)
-    game = MjwWeb.GameStore.get(id)
+    game = MjwWeb.GameStore.get_by_uuid(uuid)
 
     socket =
       if game do
@@ -558,8 +558,8 @@ defmodule MjwWeb.GameLive.Show do
   # JavaScript if it got out of sync.
   @impl true
   def handle_event("dropped", _params, socket) do
-    game_id = socket.assigns.game.id
-    path = ~p"/games/#{game_id}"
+    game_uuid = socket.assigns.game.uuid
+    path = ~p"/games/#{game_uuid}"
     socket = push_navigate(socket, to: path)
 
     {:noreply, socket}

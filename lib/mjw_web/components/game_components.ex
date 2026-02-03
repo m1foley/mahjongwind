@@ -315,8 +315,8 @@ defmodule MjwWeb.GameComponents do
 
   def lobby_game(assigns) do
     ~H"""
-    <div id={"join-#{@game.id}"} class="lobbygame">
-      <.link href={~p"/games/#{@game.id}"} class="lobbygame-link">
+    <div id={"join-#{@game.uuid}"} class="lobbygame">
+      <.link href={~p"/games/#{@game.uuid}"} class="lobbygame-link">
         <%= Game.seated_player_names(@game) |> Enum.join(", ") %>
       </.link>
     </div>
@@ -324,7 +324,7 @@ defmodule MjwWeb.GameComponents do
   end
 
   attr(:id, :string, default: nil)
-  attr(:game_id, :integer, required: true)
+  attr(:game_uuid, :string, required: true)
   attr(:game_state, :atom, required: true)
 
   def invite_link(assigns) do
@@ -334,7 +334,7 @@ defmodule MjwWeb.GameComponents do
       class="text-gray-800 text-base font-semibold py-2 px-4 my-4"
       phx-hook="CopyToClipboard"
     >
-      Invite link: <% game_url = url(~p"/games/#{@game_id}") %>
+      Invite link: <% game_url = url(~p"/games/#{@game_uuid}") %>
       <input type="text" class="game-url font-normal" value={game_url} size={String.length(game_url)} />
       <span class="copy-to-clipboard" style="cursor:pointer;">📋</span>
 
