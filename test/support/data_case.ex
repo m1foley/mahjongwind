@@ -1,17 +1,16 @@
-defmodule MjwWeb.ChannelCase do
+defmodule Mjw.DataCase do
   @moduledoc """
   This module defines the test case to be used by
-  channel tests.
+  tests that require database access.
 
-  Such tests rely on `Phoenix.ChannelTest` and also
-  import other functionality to make it easier
-  to build common data structures and query the data layer.
+  You may define functions here to be used as helpers in
+  your tests.
 
   Finally, if the test case interacts with the database,
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use MjwWeb.ChannelCase, async: true`, although
+  by setting `use Mjw.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -19,21 +18,23 @@ defmodule MjwWeb.ChannelCase do
 
   using do
     quote do
-      # Import conveniences for testing with channels
-      import Phoenix.ChannelTest
-      import MjwWeb.ChannelCase
+      alias Mjw.Repo
 
-      # The default endpoint for testing
-      @endpoint MjwWeb.Endpoint
+      import Ecto
+      import Ecto.Changeset
+      import Ecto.Query
+      import Mjw.DataCase
     end
   end
 
-  setup tags do
+setup tags do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Mjw.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
 
     # Allow the BotService GenServer to access the sandbox
-    Ecto.Adapters.SQL.Sandbox.allow(Mjw.Repo, self(), Process.whereis(MjwWeb.BotService))
+    if bot_service_pid = Process.whereis(MjwWeb.BotService) do
+      Ecto.Adapters.SQL.Sandbox.allow(Mjw.Repo, self(), bot_service_pid)
+    end
 
     :ok
   end

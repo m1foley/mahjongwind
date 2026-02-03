@@ -1,5 +1,5 @@
 defmodule MjwWeb.GameStoreTest do
-  use ExUnit.Case, async: true
+  use Mjw.DataCase, async: true
   doctest MjwWeb.GameStore
 
   test "create creates a new game" do
@@ -15,7 +15,7 @@ defmodule MjwWeb.GameStoreTest do
   end
 
   test "persist persists a game" do
-    game = Mjw.Game.new()
+    game = Mjw.Games.Game.new()
     result = MjwWeb.GameStore.persist(game)
     assert result == game
   end
@@ -27,12 +27,12 @@ defmodule MjwWeb.GameStoreTest do
   end
 
   test "get with a nonexistent id returns nil" do
-    result = MjwWeb.GameStore.get("nonexistent_id")
+    result = MjwWeb.GameStore.get(Ecto.UUID.generate())
     assert result == nil
   end
 
   test "remove with an unpersisted id doesn't do anything" do
-    unpersisted_game = Mjw.Game.new()
+    unpersisted_game = Mjw.Games.Game.new()
     result = MjwWeb.GameStore.remove(unpersisted_game)
     assert result == unpersisted_game
   end

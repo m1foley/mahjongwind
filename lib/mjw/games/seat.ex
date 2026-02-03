@@ -1,8 +1,20 @@
-defmodule Mjw.Seat do
+defmodule Mjw.Games.Seat do
   @moduledoc """
   A Seat holds a user and their tiles
   """
   require Logger
+
+  alias Mjw.Games.Tile
+
+  # Valid values for winreaction field
+  @winreactions [:ok, :expose, :expose_ok]
+  def winreactions, do: @winreactions
+
+  # Struct field names for serialization
+  @fields [:concealed, :exposed, :hiddengongs, :peektile, :wintile, :player_id,
+           :player_name, :picked_wind, :picked_wind_idx, :winreaction, :seatno,
+           :win_expose]
+  def fields, do: @fields
 
   defstruct concealed: [],
             exposed: [],
@@ -21,7 +33,11 @@ defmodule Mjw.Seat do
             # - :ok = confirmed
             # - :expose = exposed hand, not confirmed
             # - :expose_ok = exposed hand, confirmed
-            winreaction: nil
+            winreaction: nil,
+            # Added for LiveView convenience - original index in game.seats
+            seatno: nil,
+            # Added for LiveView convenience - whether to show exposed hand
+            win_expose: nil
 
   def empty?(%__MODULE__{player_id: nil}), do: true
   def empty?(%__MODULE__{}), do: false
@@ -151,7 +167,7 @@ defmodule Mjw.Seat do
   end
 
   def sort_concealed(%__MODULE__{} = seat) do
-    Map.update!(seat, :concealed, &Mjw.Tile.sort/1)
+    Map.update!(seat, :concealed, &Tile.sort/1)
   end
 
   def peek(%__MODULE__{} = seat, tile) do
@@ -278,7 +294,7 @@ defmodule Mjw.Seat do
 
     seat
     |> Map.update!(removed_from_list, fn list ->
-      sorted_list = (list ++ [tile]) |> Mjw.Tile.sort()
+      sorted_list = (list ++ [tile]) |> Tile.sort()
       sorted_list_index = sorted_list |> Enum.find_index(&(&1 == tile))
       insert_before_tile = sorted_list |> Enum.at(sorted_list_index + 1)
 

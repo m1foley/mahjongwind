@@ -31,7 +31,13 @@ defmodule MjwWeb.ConnCase do
     end
   end
 
-  setup _tags do
+setup tags do
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Mjw.Repo, shared: not tags[:async])
+    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+
+    # Allow the BotService GenServer to access the sandbox
+    Ecto.Adapters.SQL.Sandbox.allow(Mjw.Repo, self(), Process.whereis(MjwWeb.BotService))
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

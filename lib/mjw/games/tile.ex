@@ -1,4 +1,4 @@
-defmodule Mjw.Tile do
+defmodule Mjw.Games.Tile do
   @numeric_suits ~w(n c b)
   @non_numeric_suits ~w(w d)
   @suit_sort_order @numeric_suits ++ @non_numeric_suits

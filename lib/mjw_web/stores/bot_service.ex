@@ -1,6 +1,8 @@
 defmodule MjwWeb.BotService do
   use GenServer
 
+  alias Mjw.Games.{Game, GameState, Seat}
+
   @action_delay_default :timer.seconds(5)
   @action_delay_quick_discard :timer.seconds(2)
   @action_delay_win_out_of_turn :timer.seconds(1)
@@ -11,11 +13,11 @@ defmodule MjwWeb.BotService do
     GenServer.start_link(__MODULE__, initial(), name: __MODULE__)
   end
 
-  def optionally_enqueue_roll(%Mjw.Game{pause_bots: true} = game), do: game
+  def optionally_enqueue_roll(%Game{pause_bots: true} = game), do: game
 
-  def optionally_enqueue_roll(%Mjw.Game{} = game) do
-    game_state = Mjw.GameState.state(game)
-    roller_seatno = Mjw.Game.current_roller_seatno(game, game_state)
+  def optionally_enqueue_roll(%Game{} = game) do
+    game_state = GameState.state(game)
+    roller_seatno = Game.current_roller_seatno(game, game_state)
 
     if roller_seatno && bot_sitting_at?(game, roller_seatno) do
       enqueue_delayed_action(game_state, game.id, roller_seatno)
@@ -24,20 +26,20 @@ defmodule MjwWeb.BotService do
     game
   end
 
-  def optionally_enqueue_draw(%Mjw.Game{pause_bots: true} = game), do: game
+  def optionally_enqueue_draw(%Game{pause_bots: true} = game), do: game
 
-  def optionally_enqueue_draw(%Mjw.Game{} = game) do
-    if bot_sitting_at?(game, game.turn_seatno) && Mjw.GameState.state(game) == :drawing do
+  def optionally_enqueue_draw(%Game{} = game) do
+    if bot_sitting_at?(game, game.turn_seatno) && GameState.state(game) == :drawing do
       enqueue_delayed_action(:draw, game.id, game.turn_seatno)
     end
 
     game
   end
 
-  def optionally_enqueue_try_win_out_of_turn(%Mjw.Game{pause_bots: true} = game), do: game
+  def optionally_enqueue_try_win_out_of_turn(%Game{pause_bots: true} = game), do: game
 
-  def optionally_enqueue_try_win_out_of_turn(%Mjw.Game{} = game) do
-    if Mjw.GameState.state(game) == :drawing && bots_out_of_turn?(game) do
+  def optionally_enqueue_try_win_out_of_turn(%Game{} = game) do
+    if GameState.state(game) == :drawing && bots_out_of_turn?(game) do
       enqueue_delayed_action(
         :try_win_out_of_turn,
         game.id,
@@ -49,17 +51,17 @@ defmodule MjwWeb.BotService do
     game
   end
 
-  def optionally_enqueue_discard(%Mjw.Game{pause_bots: true} = game), do: game
+  def optionally_enqueue_discard(%Game{pause_bots: true} = game), do: game
 
-  def optionally_enqueue_discard(%Mjw.Game{} = game) do
-    if bot_sitting_at?(game, game.turn_seatno) && Mjw.GameState.state(game) == :discarding do
+  def optionally_enqueue_discard(%Game{} = game) do
+    if bot_sitting_at?(game, game.turn_seatno) && GameState.state(game) == :discarding do
       enqueue_discard(game)
     end
 
     game
   end
 
-  defp enqueue_discard(%Mjw.Game{turn_state: :discarding} = game, delay \\ @action_delay_default) do
+  defp enqueue_discard(%Game{turn_state: :discarding} = game, delay \\ @action_delay_default) do
     enqueue_delayed_action(:discard, game.id, game.turn_seatno, delay)
     game
   end
@@ -113,22 +115,22 @@ defmodule MjwWeb.BotService do
   end
 
   # When bots are paused, dequeue without doing anything
-  defp perform_action(_action_type, %Mjw.Game{pause_bots: true}, _bot_seatno), do: nil
+  defp perform_action(_action_type, %Game{pause_bots: true}, _bot_seatno), do: nil
 
-  defp perform_action(:rolling_for_first_dealer, %Mjw.Game{} = game, bot_seatno) do
-    if Mjw.GameState.state(game) == :rolling_for_first_dealer &&
+  defp perform_action(:rolling_for_first_dealer, %Game{} = game, bot_seatno) do
+    if GameState.state(game) == :rolling_for_first_dealer &&
          bot_sitting_at?(game, bot_seatno) do
       game
-      |> Mjw.Game.roll_dice_and_reseat_players()
+      |> Game.roll_dice_and_reseat_players()
       |> update_game(:rolled_for_first_dealer, bot_seatno)
       |> optionally_enqueue_roll()
     end
   end
 
-  defp perform_action(:rolling_for_deal, %Mjw.Game{} = game, bot_seatno) do
-    if Mjw.GameState.state(game) == :rolling_for_deal && bot_sitting_at?(game, bot_seatno) do
+  defp perform_action(:rolling_for_deal, %Game{} = game, bot_seatno) do
+    if GameState.state(game) == :rolling_for_deal && bot_sitting_at?(game, bot_seatno) do
       game
-      |> Mjw.Game.roll_dice_and_deal()
+      |> Game.roll_dice_and_deal()
       |> update_game(:rolled_for_deal, bot_seatno)
       |> optionally_enqueue_discard()
     end
@@ -137,11 +139,11 @@ defmodule MjwWeb.BotService do
   # Draw a deck tile into the bot's concealed tiles, and enqueue a discard
   defp perform_action(
          :draw,
-         %Mjw.Game{turn_state: :drawing, turn_seatno: bot_seatno} = game,
+         %Game{turn_state: :drawing, turn_seatno: bot_seatno} = game,
          bot_seatno
        ) do
-    if Mjw.GameState.state(game) == :drawing && bot_sitting_at?(game, bot_seatno) do
-      case Mjw.Game.bot_draw(game) do
+    if GameState.state(game) == :drawing && bot_sitting_at?(game, bot_seatno) do
+      case Game.bot_draw(game) do
         {:draw_deck_tile, game} ->
           game
           |> update_game(:drew_from_deck, bot_seatno)
@@ -164,12 +166,12 @@ defmodule MjwWeb.BotService do
   # Bots can win out of turn after someone discards ("daole")
   defp perform_action(
          :try_win_out_of_turn,
-         %Mjw.Game{turn_state: :drawing, discards: [discard_tile | _], turn_seatno: turn_seatno} =
+         %Game{turn_state: :drawing, discards: [discard_tile | _], turn_seatno: turn_seatno} =
            game,
          turn_seatno
        ) do
-    if Mjw.GameState.state(game) == :drawing && bots_out_of_turn?(game) do
-      case Mjw.Game.bots_try_win_out_of_turn(game) do
+    if GameState.state(game) == :drawing && bots_out_of_turn?(game) do
+      case Game.bots_try_win_out_of_turn(game) do
         {:ok, won_game, win_declared_seatno} ->
           update_game(won_game, :declared_win, win_declared_seatno, %{tile: discard_tile})
 
@@ -181,11 +183,11 @@ defmodule MjwWeb.BotService do
 
   defp perform_action(
          :discard,
-         %Mjw.Game{turn_state: :discarding, turn_seatno: bot_seatno} = game,
+         %Game{turn_state: :discarding, turn_seatno: bot_seatno} = game,
          bot_seatno
        ) do
-    if Mjw.GameState.state(game) == :discarding && bot_sitting_at?(game, bot_seatno) do
-      case Mjw.Game.bot_discard(game) do
+    if GameState.state(game) == :discarding && bot_sitting_at?(game, bot_seatno) do
+      case Game.bot_discard(game) do
         {:ok, game} ->
           game
           |> update_game(:discarded, bot_seatno)
@@ -202,17 +204,17 @@ defmodule MjwWeb.BotService do
 
   defp perform_action(_action_type, _game, _seatno), do: nil
 
-  defp bot_sitting_at?(%Mjw.Game{seats: seats}, seatno) do
-    Enum.at(seats, seatno) |> Mjw.Seat.bot?()
+  defp bot_sitting_at?(%Game{seats: seats}, seatno) do
+    Enum.at(seats, seatno) |> Seat.bot?()
   end
 
-  defp bots_out_of_turn?(%Mjw.Game{} = game) do
+  defp bots_out_of_turn?(%Game{} = game) do
     game.seats
     |> Enum.with_index()
-    |> Enum.any?(fn {seat, idx} -> idx != game.turn_seatno && Mjw.Seat.bot?(seat) end)
+    |> Enum.any?(fn {seat, idx} -> idx != game.turn_seatno && Seat.bot?(seat) end)
   end
 
-  defp update_game(%Mjw.Game{} = game, event, bot_seatno, event_details \\ %{}) do
+  defp update_game(%Game{} = game, event, bot_seatno, event_details \\ %{}) do
     seat =
       game.seats
       |> Enum.at(bot_seatno)
