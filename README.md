@@ -41,6 +41,11 @@ iex -S mix test <file>
 
 The `main` branch is configured to automatically deploy to Fly.io. For details see `.github/workflows/fly.yml`.
 
+To deploy manually:
+```sh
+flyctl deploy --remote-only
+```
+
 ## Credo for static analysis
 
 ```sh

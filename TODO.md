@@ -1,6 +1,6 @@
 # TODO
 
-- Sweep to clear old games
+- Sweep to automatically expire games
 - Change primary key from uuid to integer
 - 2-click instead of drag & drop. First click will pause other players.
 - Display everyone's wind direction instead of staircase
@@ -21,7 +21,6 @@
 - Instructions
 - Protect games from being erased during deploys
 - Test Internet Explorer
-- Automatically expire games
 - Refactor: Extract some common HTML elements (e.g., tile images) to components
 - Only show "hidden gong" if actually possible
 - Add titles to tile images ("5 of bamboo"). good for game log where it's small
