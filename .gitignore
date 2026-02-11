@@ -33,3 +33,7 @@ mjw-*.tar
 
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
+
+.claude/
+.mcp.json
+/agents
