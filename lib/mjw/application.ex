@@ -13,14 +13,10 @@ defmodule Mjw.Application do
       {DNSCluster, query: Application.get_env(:mjw, :dns_cluster_query) || :ignore},
       # Start the PubSub system, used by GameStore for real-time updates
       {Phoenix.PubSub, name: Mjw.PubSub},
-      # Start the Finch HTTP client for sending emails
-      # {Finch, name: Mjw.Finch},
       # Service that handles bot moves
       MjwWeb.BotService,
-
-      # Start a worker by calling: Mjw.Worker.start_link(arg)
-      # {Mjw.Worker, arg}
-
+      # Periodic cleanup of stale games
+      Mjw.Games.StaleGameSweeper,
       # Start to serve requests, typically the last entry
       MjwWeb.Endpoint
     ]

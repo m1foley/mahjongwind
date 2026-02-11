@@ -1,6 +1,5 @@
 # TODO
 
-- Sweep to automatically expire games
 - 2-click instead of drag & drop. First click will pause other players.
 - Display everyone's wind direction instead of staircase
 - Change "Pause bots" to "Pause" to pause humans too. Allows time to pick tile.

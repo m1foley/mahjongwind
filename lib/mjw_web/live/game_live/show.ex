@@ -662,14 +662,20 @@ defmodule MjwWeb.GameLive.Show do
     game =
       socket.assigns.game
       |> Game.boot(booted_seatno)
-      |> MjwWeb.GameStore.update_with_lobby_change(:booted, event_details)
 
-    socket =
-      socket
-      |> assign_event(:booted, event_details)
-      |> assign_game_info(game)
+    if Game.has_human_players?(game) do
+      game = MjwWeb.GameStore.update_with_lobby_change(game, :booted, event_details)
 
-    {:noreply, socket}
+      socket =
+        socket
+        |> assign_event(:booted, event_details)
+        |> assign_game_info(game)
+
+      {:noreply, socket}
+    else
+      MjwWeb.GameStore.remove(game)
+      {:noreply, push_navigate(socket, to: ~p"/")}
+    end
   end
 
   # Sit down

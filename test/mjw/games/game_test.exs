@@ -2016,6 +2016,64 @@ defmodule Mjw.Games.GameTest do
     end
   end
 
+  describe "has_human_players?" do
+    test "returns true when game has one human player" do
+      game =
+        %Mjw.Games.Game{}
+        |> Mjw.Games.Game.seat_player("id0", "name0")
+
+      assert Mjw.Games.Game.has_human_players?(game)
+    end
+
+    test "returns true when game has multiple human players" do
+      game =
+        %Mjw.Games.Game{}
+        |> Mjw.Games.Game.seat_player("id0", "name0")
+        |> Mjw.Games.Game.seat_player("id1", "name1")
+        |> Mjw.Games.Game.seat_player("id2", "name2")
+        |> Mjw.Games.Game.seat_player("id3", "name3")
+
+      assert Mjw.Games.Game.has_human_players?(game)
+    end
+
+    test "returns true when game has humans and bots mixed" do
+      game =
+        %Mjw.Games.Game{}
+        |> Mjw.Games.Game.seat_player("id0", "name0")
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_player("id2", "name2")
+        |> Mjw.Games.Game.seat_bot()
+
+      assert Mjw.Games.Game.has_human_players?(game)
+    end
+
+    test "returns false when game has only bots" do
+      game =
+        %Mjw.Games.Game{}
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+
+      refute Mjw.Games.Game.has_human_players?(game)
+    end
+
+    test "returns false when all seats are empty" do
+      game = %Mjw.Games.Game{}
+
+      refute Mjw.Games.Game.has_human_players?(game)
+    end
+
+    test "returns false when game has empty seats and bots" do
+      game =
+        %Mjw.Games.Game{}
+        |> Mjw.Games.Game.seat_bot()
+        |> Mjw.Games.Game.seat_bot()
+
+      refute Mjw.Games.Game.has_human_players?(game)
+    end
+  end
+
   describe "roll_dice_and_reseat_players" do
     test "reseats players according to the roll and the picked winds" do
       game =

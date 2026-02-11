@@ -27,13 +27,18 @@ defmodule Mjw.DataCase do
     end
   end
 
-setup tags do
+  setup tags do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Mjw.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
 
     # Allow the BotService GenServer to access the sandbox
     if bot_service_pid = Process.whereis(MjwWeb.BotService) do
       Ecto.Adapters.SQL.Sandbox.allow(Mjw.Repo, self(), bot_service_pid)
+    end
+
+    # Allow the StaleGameSweeper GenServer to access the sandbox
+    if game_sweeper_pid = Process.whereis(Mjw.Games.StaleGameSweeper) do
+      Ecto.Adapters.SQL.Sandbox.allow(Mjw.Repo, self(), game_sweeper_pid)
     end
 
     :ok

@@ -834,6 +834,15 @@ defmodule Mjw.Games.Game do
   end
 
   @doc """
+  Returns true if any seat has a human player (not empty, not a bot)
+  """
+  def has_human_players?(%__MODULE__{seats: seats}) do
+    Enum.any?(seats, fn seat ->
+      not Seat.empty?(seat) and not Seat.bot?(seat)
+    end)
+  end
+
+  @doc """
   Choose & draw a tile for a bot
   """
   def bot_draw(%__MODULE__{turn_state: :drawing, turn_seatno: bot_seatno} = game) do

@@ -19,9 +19,15 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
   def handle_event("quit", _params, socket) do
     current_user_seat = socket.assigns.relative_game_seats |> Enum.at(0)
 
-    socket.assigns.game
-    |> Game.evacuate_seat(current_user_seat.seatno)
-    |> MjwWeb.GameStore.update_with_lobby_change(:left_game, %{seat: current_user_seat})
+    game =
+      socket.assigns.game
+      |> Game.evacuate_seat(current_user_seat.seatno)
+
+    if Game.has_human_players?(game) do
+      MjwWeb.GameStore.update_with_lobby_change(game, :left_game, %{seat: current_user_seat})
+    else
+      MjwWeb.GameStore.remove(game)
+    end
 
     socket = socket |> push_navigate(to: ~p"/")
 
