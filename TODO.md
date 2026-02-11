@@ -1,14 +1,13 @@
 # TODO
 
 - Sweep to automatically expire games
-- Change primary key from uuid to integer
 - 2-click instead of drag & drop. First click will pause other players.
 - Display everyone's wind direction instead of staircase
 - Change "Pause bots" to "Pause" to pause humans too. Allows time to pick tile.
 - Slider for tile size (so users don't have to increase font size)
 - Real user accounts instead of just web sessions
 - Shrink tile sizes on mobile
-- Lobby not receiving bot player added
+- Bug: Lobby not receiving bot player added
 - Refactor: Denormalize seatno as a seat attribute
 - Point out game menu on first load
 - Make seating process less confusing
@@ -19,7 +18,6 @@
 - Exclude bots (e.g., PresidentCardGames uses phone numbers)
 - Support more Mahjong rule sets (flower tiles, no game wind, etc.)
 - Instructions
-- Protect games from being erased during deploys
 - Test Internet Explorer
 - Refactor: Extract some common HTML elements (e.g., tile images) to components
 - Only show "hidden gong" if actually possible

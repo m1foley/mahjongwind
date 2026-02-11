@@ -29,6 +29,16 @@ iex -S mix phx.server
 iex -S mix
 ```
 
+## Connect to remote SQL database
+
+```sh
+fly pg connect -a mahjongwind-db -d mahjongwind
+```
+
+Format game state:
+```sql
+SELECT jsonb_pretty(state) FROM games WHERE id = 1;
+```
 ## Run tests
 
 ```sh
