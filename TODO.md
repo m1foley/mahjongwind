@@ -1,6 +1,6 @@
 # TODO
 
-- 2-click instead of drag & drop. First click will pause other players.
+- 2-click like chess.com instead of drag & drop. First click will pause other players.
 - Display everyone's wind direction instead of staircase
 - Change "Pause bots" to "Pause" to pause humans too. Allows time to pick tile.
 - Slider for tile size (so users don't have to increase font size)
@@ -27,7 +27,10 @@
 - Allow dragging from decktile to exposed tiles (adding onto a pong)
 - Animate deal: 4 at a time goes into people's hand
 - Remember sorted hand in browser so it doesn't get reshuffled when losing internet connection
-- Put everyone's discards in front of their hand (suggested by Mom)
+- Simplify wind picking: do it at beginning of game
+- Change perspective of tiles on left & right side of screen (will shrink them)
 
-## Future rule enforcement
+## Rule enforcement
+- Enforce Hong Kong rules
+- Only show hidden gong, pong, win, etc. when available
 - Winning tile was the last one picked up
