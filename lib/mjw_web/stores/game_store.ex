@@ -55,9 +55,8 @@ defmodule MjwWeb.GameStore do
   @doc """
   Remove a game from the database
   """
-
   def remove(game) do
-    Repo.delete_all(Ecto.Query.from g in GameRecord, where: g.uuid == ^game.uuid)
+    Repo.delete_all(Ecto.Query.from(g in GameRecord, where: g.uuid == ^game.uuid))
     broadcast_lobby_update(game, :game_removed)
   end
 

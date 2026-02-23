@@ -1,5 +1,6 @@
 defmodule MjwWeb.GameLive.Show do
   use MjwWeb, :live_view
+  require Logger
 
   alias Mjw.Games.{Game, GameState, Seat}
 
@@ -71,7 +72,9 @@ defmodule MjwWeb.GameLive.Show do
       # might be necessary if a bot joins mid-game
       |> optionally_enqueue_all_bot_actions()
 
-    MjwWeb.GameStore.update_with_lobby_change(game, :bot_added, %{seat: socket.assigns.current_user_seat})
+    MjwWeb.GameStore.update_with_lobby_change(game, :bot_added, %{
+      seat: socket.assigns.current_user_seat
+    })
 
     socket =
       socket
@@ -674,6 +677,7 @@ defmodule MjwWeb.GameLive.Show do
 
       {:noreply, socket}
     else
+      Logger.info("Deleting game. Last human player booted. uuid=#{game.uuid}")
       MjwWeb.GameStore.remove(game)
       {:noreply, push_navigate(socket, to: ~p"/")}
     end

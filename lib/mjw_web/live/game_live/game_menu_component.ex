@@ -1,5 +1,6 @@
 defmodule MjwWeb.GameLive.GameMenuComponent do
   use MjwWeb, :live_component
+  require Logger
 
   alias Mjw.Games.{Game, Seat}
 
@@ -26,6 +27,7 @@ defmodule MjwWeb.GameLive.GameMenuComponent do
     if Game.has_human_players?(game) do
       MjwWeb.GameStore.update_with_lobby_change(game, :left_game, %{seat: current_user_seat})
     else
+      Logger.info("Deleting game. Last human player quit. uuid=#{game.uuid}")
       MjwWeb.GameStore.remove(game)
     end
 
