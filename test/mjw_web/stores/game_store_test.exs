@@ -7,14 +7,7 @@ defmodule MjwWeb.GameStoreTest do
     assert game.uuid
   end
 
-  test "create broadcasts change to lobby" do
-    :ok = MjwWeb.GameStore.subscribe_to_lobby_updates()
-    game = MjwWeb.GameStore.create()
-    :ok = MjwWeb.GameStore.unsubscribe_from_lobby_updates()
-    assert_received({^game, :game_created})
-  end
-
-  test "persist persists a game" do
+test "persist persists a game" do
     game = Mjw.Games.Game.new()
     result = MjwWeb.GameStore.persist(game)
     assert result == game

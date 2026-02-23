@@ -12,10 +12,6 @@ defmodule MjwWeb.GameLive.Index do
   end
 
   @impl true
-  def handle_info({game, :game_created}, socket),
-    do: {:noreply, stream_insert(socket, :games, game)}
-
-  @impl true
   def handle_info({game, :game_removed}, socket),
     do: {:noreply, stream_delete(socket, :games, game)}
 

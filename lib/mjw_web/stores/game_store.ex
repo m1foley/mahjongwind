@@ -16,7 +16,6 @@ defmodule MjwWeb.GameStore do
   def create do
     Game.new()
     |> persist()
-    |> broadcast_lobby_update(:game_created)
   end
 
   @doc """
