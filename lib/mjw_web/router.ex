@@ -17,12 +17,15 @@ defmodule MjwWeb.Router do
   scope "/", MjwWeb do
     pipe_through([:browser, :authentication])
 
-    # game lobby
-    live("/", GameLive.Index, :index)
+    live_session :authenticated, on_mount: [{MjwWeb.LiveHelpers, :default}] do
+      # game lobby
+      live("/", GameLive.Index, :index)
+      # game view
+      live("/games/:id", GameLive.Show, :show)
+    end
+
     # start new game
     post("/games", GameController, :create)
-    # game view
-    live("/games/:id", GameLive.Show, :show)
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -1,6 +1,6 @@
 <div id={@id} class="phx-modal relative" phx-target="#game" phx-click="closegamemenu">
   <div class="gamemenu-content">
-    <%= if @player_seats_finalized do %>
+    <div :if={@player_seats_finalized}>
       <div
         phx-target="#game"
         phx-click="draw"
@@ -21,20 +21,19 @@
           Declare DQ 🙅🏻‍♀️
         </div>
 
-        <%= for seat <- @relative_game_seats |> Enum.drop(1) do %>
-          <div
-            class="dqplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden"
-            phx-target="#game"
-            phx-click="dq"
-            phx-value-seatno={seat.seatno}
-          >
-            <%= seat.player_name %>
-          </div>
-        <% end %>
+        <div
+          :for={seat <- @relative_game_seats |> Enum.drop(1)}
+          class="dqplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden"
+          phx-target="#game"
+          phx-click="dq"
+          phx-value-seatno={seat.seatno}
+        >
+          <%= seat.player_name %>
+        </div>
       </div>
-    <% end %>
+    </div>
 
-    <%= if length(@relative_game_seats_with_players) > 1 do %>
+    <div :if={length(@relative_game_seats_with_players) > 1}>
       <div id="bootplayers" phx-hook="BootPlayer" phx-click="">
         <div
           id="boot-player-btn"
@@ -47,18 +46,17 @@
           Boot player 🥾
         </div>
 
-        <%= for seat <- @relative_game_seats_with_players |> Enum.drop(1) do %>
-          <div
-            class="bootplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden"
-            phx-target="#game"
-            phx-click="bootplayer"
-            phx-value-seatno={seat.seatno}
-          >
-            <%= seat.player_name %>
-          </div>
-        <% end %>
+        <div
+          :for={seat <- @relative_game_seats_with_players |> Enum.drop(1)}
+          class="bootplayer bg-red-600 hover:bg-red-500 text-gray-200 font-semibold py-2 px-4 border border-gray-400 rounded shadow cursor-pointer my-4 hidden"
+          phx-target="#game"
+          phx-click="bootplayer"
+          phx-value-seatno={seat.seatno}
+        >
+          <%= seat.player_name %>
+        </div>
       </div>
-    <% end %>
+    </div>
 
     <div
       phx-target={@myself}

@@ -1,66 +1,65 @@
 <div id={@id}>
   <div id="winmenu-inner" phx-hook="Simpledrag">
-    <%= if Mjw.Games.Seat.confirmed_win?(@current_user_seat) do %>
-      <div class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4">
-        Waiting for everyone to shuffle... 👋
-      </div>
-    <% else %>
-      <div
-        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
-        phx-target="#game"
-        phx-click="confirm_win"
-      >
-        Okay, let's start shuffling... 👋
-      </div>
-    <% end %>
+    <div
+      :if={Mjw.Games.Seat.confirmed_win?(@current_user_seat)}
+      class="opacity-30 bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-default my-4"
+    >
+      Waiting for everyone to shuffle... 👋
+    </div>
+    <div
+      :if={!Mjw.Games.Seat.confirmed_win?(@current_user_seat)}
+      class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+      phx-target="#game"
+      phx-click="confirm_win"
+    >
+      Okay, let's start shuffling... 👋
+    </div>
 
-    <%= if Mjw.Games.Seat.win_expose?(@current_user_seat) do %>
-      <div class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-default opacity-30">
-        Expose hand
-      </div>
-    <% else %>
-      <div
-        class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-pointer hover:bg-gray-100"
-        phx-target="#game"
-        phx-click="expose"
-      >
-        Expose hand
-      </div>
-    <% end %>
+    <div
+      :if={Mjw.Games.Seat.win_expose?(@current_user_seat)}
+      class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-default opacity-30"
+    >
+      Expose hand
+    </div>
+    <div
+      :if={!Mjw.Games.Seat.win_expose?(@current_user_seat)}
+      class="bg-white text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow my-4 cursor-pointer hover:bg-gray-100"
+      phx-target="#game"
+      phx-click="expose"
+    >
+      Expose hand
+    </div>
 
-    <%= if @showdeck do %>
-      <div
-        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
-        phx-target={@myself}
-        phx-click="hidedeck"
-      >
-        Hide remaining deck
-      </div>
+    <div
+      :if={@showdeck}
+      class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+      phx-target={@myself}
+      phx-click="hidedeck"
+    >
+      Hide remaining deck
+    </div>
 
-      <div class="flex flex-row flex-wrap text-left justify-start justify-items-start">
-        <span class="pr-1 cursor-default" title="Next tile in the deck">&#8594;</span>
-        <%= for tile <- @game.deck do %>
-          <.tile id={tile} tile={tile} />
-        <% end %>
-      </div>
-    <% else %>
-      <div
-        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
-        phx-target={@myself}
-        phx-click="showdeck"
-      >
-        View remaining deck
-      </div>
-    <% end %>
+    <div :if={@showdeck} class="flex flex-row flex-wrap text-left justify-start justify-items-start">
+      <span class="pr-1 cursor-default" title="Next tile in the deck">&#8594;</span>
+      <.tile :for={tile <- @game.deck} id={tile} tile={tile} />
+    </div>
 
-    <%= unless Mjw.Games.Seat.declared_win?(@current_user_seat) do %>
-      <div
-        class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
-        phx-target="#game"
-        phx-click="dqdeclared"
-      >
-        Declare DQ 🙅🏻‍♀️
-      </div>
-    <% end %>
+    <div
+      :if={!@showdeck}
+      class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+      phx-target={@myself}
+      phx-click="showdeck"
+    >
+      View remaining deck
+    </div>
+
+    <div
+      :if={!Mjw.Games.Seat.declared_win?(@current_user_seat)}
+      class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-8 border border-gray-400 rounded shadow cursor-pointer my-4"
+      phx-target="#game"
+      phx-click="dqdeclared"
+    >
+      Declare DQ 🙅🏻‍♀️
+    </div>
   </div>
 </div>

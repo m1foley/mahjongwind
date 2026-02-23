@@ -3,10 +3,6 @@ defmodule MjwWeb.GameComponents do
 
   alias Mjw.Games.{Game, Tile}
 
-  quote do
-    unquote(MjwWeb.verified_routes())
-  end
-
   use Phoenix.VerifiedRoutes,
     endpoint: MjwWeb.Endpoint,
     router: MjwWeb.Router,
@@ -54,73 +50,50 @@ defmodule MjwWeb.GameComponents do
           </div>
 
           <div class="player-icons">
-            <%= if @seat.seatno == 0 && @player_seats_finalized do %>
-              <div
-                class="firstdealer-indicator"
-                title="First dealer. Game wind changes when the deal circles back to them."
-              >
-                庄
-              </div>
-            <% end %>
+            <div
+              :if={@seat.seatno == 0 && @player_seats_finalized}
+              class="firstdealer-indicator"
+              title="First dealer. Game wind changes when the deal circles back to them."
+            >
+              庄
+            </div>
 
-            <%= if @seat.seatno == @game.dealer_seatno do %>
-              <div
-                class="dealer-indicator"
-                title={"Dealer#{if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})"}"}
-              >
-                Dealer<%= if @game.dealer_win_count > 0 do %>
-                  <sup><%= @game.dealer_win_count + 1 %></sup>
-                <% end %>
-              </div>
-            <% end %>
-            <%= if @game_state != :rolling_for_deal && @seat.seatno == @game.dealpick_seatno do %>
-              <img
-                src="/images/staircase.png"
-                alt=""
-                title="This staircase is the end of the deck (used to determine player wind)"
-                class={"dealpickstaircase inline-block mx-auto relative bottom-1#{if @seat.seatno == @game.dealer_seatno, do: " pl-1"}"}
-              />
-            <% end %>
+            <div
+              :if={@seat.seatno == @game.dealer_seatno}
+              class="dealer-indicator"
+              title={"Dealer#{if @game.dealer_win_count > 0, do: " (time ##{@game.dealer_win_count + 1})"}"}
+            >
+              Dealer<sup :if={@game.dealer_win_count > 0}><%= @game.dealer_win_count + 1 %></sup>
+            </div>
+            <img
+              :if={@game_state != :rolling_for_deal && @seat.seatno == @game.dealpick_seatno}
+              src="/images/staircase.png"
+              alt=""
+              title="This staircase is the end of the deck (used to determine player wind)"
+              class={"dealpickstaircase inline-block mx-auto relative bottom-1#{if @seat.seatno == @game.dealer_seatno, do: " pl-1"}"}
+            />
           </div>
         </div>
 
         <div class="exposed-tiles">
-          <%= for tile <- @seat.exposed do %>
-            <.tile id={tile} tile={tile} />
-          <% end %>
+          <.tile :for={tile <- @seat.exposed} id={tile} tile={tile} />
         </div>
 
         <div class="hiddengong-tiles">
-          <%= if @seat.win_expose do %>
-            <%= for tile <- @seat.hiddengongs do %>
-              <.tile tile={tile} class="opacity-50" />
-            <% end %>
-          <% else %>
-            <%= for _tile <- @seat.hiddengongs do %>
-              <.concealed_tile class="tile" />
-            <% end %>
-          <% end %>
+          <.tile :for={tile <- @seat.hiddengongs} :if={@seat.win_expose} tile={tile} class="opacity-50" />
+          <.concealed_tile :for={_tile <- @seat.hiddengongs} :if={!@seat.win_expose} class="tile" />
         </div>
 
         <div class="line-break"></div>
 
         <div class="concealed-tiles">
-          <%= if @seat.win_expose do %>
-            <%= for tile <- @seat.concealed do %>
-              <.tile tile={tile} />
-            <% end %>
-          <% else %>
-            <%= for _tile <- @seat.concealed do %>
-              <.concealed_tile class="tile" />
-            <% end %>
-          <% end %>
+          <.tile :for={tile <- @seat.concealed} :if={@seat.win_expose} tile={tile} />
+          <.concealed_tile :for={_tile <- @seat.concealed} :if={!@seat.win_expose} class="tile" />
         </div>
 
-        <%= if @seat.wintile do %>
-          <div class="wintile-tiles">
-            <.tile tile={@seat.wintile} class="ml-8" />
-          </div>
-        <% end %>
+        <div :if={@seat.wintile} class="wintile-tiles">
+          <.tile tile={@seat.wintile} class="ml-8" />
+        </div>
       </div>
     </div>
     """
@@ -144,16 +117,12 @@ defmodule MjwWeb.GameComponents do
           phx-target="#game"
           class={"hiddengong-tiles dropzone#{if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && @seat.win_expose, do: " exposed-loser-hand"}"}
         >
-          <%= for tile <- @seat.hiddengongs do %>
-            <.tile id={tile} tile={tile} class="draggable" />
-          <% end %>
+          <.tile :for={tile <- @seat.hiddengongs} id={tile} tile={tile} class="draggable" />
           <div class="dropzone-description">Hidden gong</div>
         </div>
 
         <div id="exposed-0" phx-hook="Drag" phx-target="#game" class="exposed-tiles dropzone">
-          <%= for tile <- @seat.exposed do %>
-            <.tile id={tile} tile={tile} class="draggable" />
-          <% end %>
+          <.tile :for={tile <- @seat.exposed} id={tile} tile={tile} class="draggable" />
           <div class="dropzone-description">Exposed tiles</div>
         </div>
 
@@ -163,12 +132,8 @@ defmodule MjwWeb.GameComponents do
           phx-target="#game"
           class={"wintile-tiles#{if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno, do: " dropzone"}"}
         >
-          <%= if @seat.wintile do %>
-            <.tile id={@seat.wintile} tile={@seat.wintile} class="cursor-not-allowed" />
-          <% end %>
-          <%= if !@win_declared_seatno || @win_declared_seatno == @current_user_seatno do %>
-            <div class="dropzone-description">Winning tile</div>
-          <% end %>
+          <.tile :if={@seat.wintile} id={@seat.wintile} tile={@seat.wintile} class="cursor-not-allowed" />
+          <div :if={!@win_declared_seatno || @win_declared_seatno == @current_user_seatno} class="dropzone-description">Winning tile</div>
         </div>
 
         <div class="line-break"></div>
@@ -179,9 +144,7 @@ defmodule MjwWeb.GameComponents do
           phx-target="#game"
           class={"concealed-tiles dropzone current-user-discarding-#{if @current_user_discarding, do: "t"} enable-pull-from-discards-#{if @available_discard_tile, do: "t"} concealed-loser-hand-#{if @win_declared_seatno && @win_declared_seatno != @current_user_seatno && !@seat.win_expose, do: "t"}"}
         >
-          <%= for tile <- @seat.concealed do %>
-            <.tile id={tile} tile={tile} class="draggable" />
-          <% end %>
+          <.tile :for={tile <- @seat.concealed} id={tile} tile={tile} class="draggable" />
         </div>
       </div>
     </div>
@@ -195,15 +158,11 @@ defmodule MjwWeb.GameComponents do
     <div id={"walltiles-#{@seatno}"}>
       <div class="tiles flex-wrap">
         <div class="wall-tiles wall-tiles-1">
-          <%= for _ <- 0..15 do %>
-            <.concealed_tile class="walltile" />
-          <% end %>
+          <.concealed_tile :for={_ <- 0..15} class="walltile" />
         </div>
         <div class="line-break"></div>
         <div class="wall-tiles">
-          <%= for _ <- 0..15 do %>
-            <.concealed_tile class="walltile" />
-          <% end %>
+          <.concealed_tile :for={_ <- 0..15} class="walltile" />
         </div>
       </div>
     </div>
@@ -224,15 +183,13 @@ defmodule MjwWeb.GameComponents do
     ~H"""
     <div id="dicecomponent">
       <div class={"dice-#{@previous_roller_relative_position}"}>
-        <%= if @rolled_dice do %>
-          <%= for {die, i} <- Enum.with_index(@game.dice) do %>
-            <img
-              src={"/images/dice/d#{die}.png"}
-              alt=""
-              class={"die die-#{i}#{if @raw_event in [:rolled_for_first_dealer, :rolled_for_deal], do: " #{@game_state}-#{@previous_roller_relative_position}"}"}
-            />
-          <% end %>
-        <% end %>
+        <img
+          :for={{die, i} <- Enum.with_index(@game.dice)}
+          :if={@rolled_dice}
+          src={"/images/dice/d#{die}.png"}
+          alt=""
+          class={"die die-#{i}#{if @raw_event in [:rolled_for_first_dealer, :rolled_for_deal], do: " #{@game_state}-#{@previous_roller_relative_position}"}"}
+        />
       </div>
 
       <%= case @game_state do %>
@@ -311,11 +268,12 @@ defmodule MjwWeb.GameComponents do
     |> assign(:roller_relative_position, roller_relative_position)
   end
 
+  attr(:id, :string, required: true)
   attr(:game, Game, required: true)
 
   def lobby_game(assigns) do
     ~H"""
-    <div id={"join-#{@game.uuid}"} class="lobbygame">
+    <div id={@id} class="lobbygame">
       <.link href={~p"/games/#{@game.uuid}"} class="lobbygame-link">
         <%= Game.seated_player_names(@game) |> Enum.join(", ") %>
       </.link>
@@ -338,14 +296,12 @@ defmodule MjwWeb.GameComponents do
       <input type="text" class="game-url font-normal" value={game_url} size={String.length(game_url)} />
       <span class="copy-to-clipboard" style="cursor:pointer;">📋</span>
 
-      <%= if @game_state == :waiting_for_players do %>
-        <div class="pt-12">
-          <div id={"#{@id}-addbot"} class="addbot" phx-click="addbot">
-            <span class="align-middle">Add bot</span>
-            <span class="pl-2 text-2xl align-middle">🤖</span>
-          </div>
+      <div :if={@game_state == :waiting_for_players} class="pt-12">
+        <div id={"#{@id}-addbot"} class="addbot" phx-click="addbot">
+          <span class="align-middle">Add bot</span>
+          <span class="pl-2 text-2xl align-middle">🤖</span>
         </div>
-      <% end %>
+      </div>
     </div>
     """
   end
@@ -360,37 +316,32 @@ defmodule MjwWeb.GameComponents do
     ~H"""
     <div id={@id}>
       <div class="state-description">
-        <%= if @picked_wind do %>
-          &nbsp;
-        <% else %>
-          Pick a wind to choose your seat:
-        <% end %>
+        <span :if={@picked_wind}>&nbsp;</span>
+        <span :if={!@picked_wind}>Pick a wind to choose your seat:</span>
       </div>
 
       <div class="windtiles">
-        <%= for {wind_data, i} <- Enum.with_index(@picked_winds) do %>
-          <div class="windandname">
-            <div class="windcontainer">
-              <%= cond do %>
-                <% Enum.empty?(wind_data) -> %>
-                  <.concealed_tile
-                    class="tile pickable-wind"
-                    phx-target="#game"
-                    phx-click="windpick"
-                    phx-value-picked-wind-idx={i}
-                    title="Click to pick this wind tile"
-                  />
-                <% wind_data[:picked_by_name] -> %>
-                  <img src={"/images/tiles/#{wind_data[:wind]}.png"} alt="" class="tile" />
-                <% true -> %>
-                  <.concealed_tile class="tile" />
-              <% end %>
-            </div>
-            <div class="picked-by-name">
-              <%= wind_data[:picked_by_name] %>
-            </div>
+        <div :for={{wind_data, i} <- Enum.with_index(@picked_winds)} class="windandname">
+          <div class="windcontainer">
+            <%= cond do %>
+              <% Enum.empty?(wind_data) -> %>
+                <.concealed_tile
+                  class="tile pickable-wind"
+                  phx-target="#game"
+                  phx-click="windpick"
+                  phx-value-picked-wind-idx={i}
+                  title="Click to pick this wind tile"
+                />
+              <% wind_data[:picked_by_name] -> %>
+                <img src={"/images/tiles/#{wind_data[:wind]}.png"} alt="" class="tile" />
+              <% true -> %>
+                <.concealed_tile class="tile" />
+            <% end %>
           </div>
-        <% end %>
+          <div class="picked-by-name">
+            <%= wind_data[:picked_by_name] %>
+          </div>
+        </div>
       </div>
     </div>
     """
