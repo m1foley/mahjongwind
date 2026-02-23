@@ -29,6 +29,7 @@
 - Remember sorted hand in browser so it doesn't get reshuffled when losing internet connection
 - Simplify wind picking: do it at beginning of game
 - Change perspective of tiles on left & right side of screen (will shrink them)
+- Update the discard list via LiveView streams (probably not worth it)
 
 ## Rule enforcement
 - Enforce Hong Kong rules
