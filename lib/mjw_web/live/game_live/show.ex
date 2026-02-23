@@ -71,7 +71,12 @@ defmodule MjwWeb.GameLive.Show do
       # might be necessary if a bot joins mid-game
       |> optionally_enqueue_all_bot_actions()
 
-    socket = update_game(socket, game, :bot_added)
+    MjwWeb.GameStore.update_with_lobby_change(game, :bot_added, %{seat: socket.assigns.current_user_seat})
+
+    socket =
+      socket
+      |> assign_event(:bot_added)
+      |> assign_game_info(game)
 
     {:noreply, socket}
   end
