@@ -1,11 +1,11 @@
 defmodule MjwWeb.GameLive.Show do
   use MjwWeb, :live_view
+  require Logger
 
   alias Mjw.Games.{Game, GameState, Seat}
 
   @impl true
-  def mount(%{"id" => uuid}, session, socket) do
-    socket = assign_defaults(socket, session)
+  def mount(%{"id" => uuid}, _session, socket) do
     game = MjwWeb.GameStore.get_by_uuid(uuid)
 
     socket =
@@ -26,9 +26,6 @@ defmodule MjwWeb.GameLive.Show do
 
     {:ok, socket}
   end
-
-  @impl true
-  def handle_params(_params, _url, socket), do: {:noreply, socket}
 
   # Player booted
   @impl true
@@ -75,7 +72,14 @@ defmodule MjwWeb.GameLive.Show do
       # might be necessary if a bot joins mid-game
       |> optionally_enqueue_all_bot_actions()
 
-    socket = update_game(socket, game, :bot_added)
+    MjwWeb.GameStore.update_with_lobby_change(game, :bot_added, %{
+      seat: socket.assigns.current_user_seat
+    })
+
+    socket =
+      socket
+      |> assign_event(:bot_added)
+      |> assign_game_info(game)
 
     {:noreply, socket}
   end
@@ -673,6 +677,7 @@ defmodule MjwWeb.GameLive.Show do
 
       {:noreply, socket}
     else
+      Logger.info("Deleting game. Last human player booted. uuid=#{game.uuid}")
       MjwWeb.GameStore.remove(game)
       {:noreply, push_navigate(socket, to: ~p"/")}
     end
@@ -891,36 +896,38 @@ defmodule MjwWeb.GameLive.Show do
     turn_glow_seatno = unless win_declared_seatno, do: game.turn_seatno
 
     socket
-    |> assign(:game, game)
-    |> assign(:current_user_seatno, current_user_seatno)
-    |> assign(:game_state, game_state)
-    |> assign(:relative_game_seats, relative_game_seats)
-    |> assign(:current_user_seat, current_user_seat)
-    |> assign(:winds_have_been_picked, winds_have_been_picked)
-    |> assign(:show_wind_picking, show_wind_picking)
-    |> assign(:rolling_dice, rolling_dice)
-    |> assign(:show_wall, show_wall)
-    |> assign(:rolled_dice, rolled_dice)
-    |> assign(:player_seats_finalized, player_seats_finalized)
-    |> assign(:win_declared_seatno, win_declared_seatno)
-    |> assign(:dq_confetti, dq_confetti)
-    |> assign(:win_confetti, win_confetti)
-    |> assign(:current_user_drawing, current_user_drawing)
-    |> assign(:available_discard_tile, available_discard_tile)
-    |> assign(:discarded_by_relative_seatno, discarded_by_relative_seatno)
-    |> assign(:current_user_discarding, current_user_discarding)
-    |> assign(:show_correction_tile, show_correction_tile)
-    |> assign(:non_discard_glow_tile, non_discard_glow_tile)
-    |> assign(:drew_from_discards_tile, drew_from_discards_tile)
-    |> assign(:exposed_tile, exposed_tile)
-    |> assign(:drew_from_deck_relative_seatno, drew_from_deck_relative_seatno)
-    |> assign(:zimo_relative_seatno, zimo_relative_seatno)
-    |> assign(:turn_glow_seatno, turn_glow_seatno)
-    |> assign(:deck_remaining, length(game.deck))
-    |> assign(:empty_seats_count, Game.empty_seats_count(game))
-    |> assign(:turn_player_name, Game.turn_player_name(game))
-    |> assign(:current_user_can_undo, Game.can_undo?(game, current_user_seatno))
-    |> assign(:bots_present, Game.bots_present?(game))
+    |> assign(%{
+      game: game,
+      current_user_seatno: current_user_seatno,
+      game_state: game_state,
+      relative_game_seats: relative_game_seats,
+      current_user_seat: current_user_seat,
+      winds_have_been_picked: winds_have_been_picked,
+      show_wind_picking: show_wind_picking,
+      rolling_dice: rolling_dice,
+      show_wall: show_wall,
+      rolled_dice: rolled_dice,
+      player_seats_finalized: player_seats_finalized,
+      win_declared_seatno: win_declared_seatno,
+      dq_confetti: dq_confetti,
+      win_confetti: win_confetti,
+      current_user_drawing: current_user_drawing,
+      available_discard_tile: available_discard_tile,
+      discarded_by_relative_seatno: discarded_by_relative_seatno,
+      current_user_discarding: current_user_discarding,
+      show_correction_tile: show_correction_tile,
+      non_discard_glow_tile: non_discard_glow_tile,
+      drew_from_discards_tile: drew_from_discards_tile,
+      exposed_tile: exposed_tile,
+      drew_from_deck_relative_seatno: drew_from_deck_relative_seatno,
+      zimo_relative_seatno: zimo_relative_seatno,
+      turn_glow_seatno: turn_glow_seatno,
+      deck_remaining: length(game.deck),
+      empty_seats_count: Game.empty_seats_count(game),
+      turn_player_name: Game.turn_player_name(game),
+      current_user_can_undo: Game.can_undo?(game, current_user_seatno),
+      bots_present: Game.bots_present?(game)
+    })
   end
 
   defp unjoinable_game_redirect(socket) do

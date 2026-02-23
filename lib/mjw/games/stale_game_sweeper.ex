@@ -2,7 +2,7 @@ defmodule Mjw.Games.StaleGameSweeper do
   @moduledoc """
   Periodic cleanup of stale games
   """
-
+  require Logger
   use GenServer
 
   alias Mjw.Repo
@@ -30,7 +30,10 @@ defmodule Mjw.Games.StaleGameSweeper do
   """
   def sweep(expiration_minutes \\ @default_expiration_minutes) do
     stale_games(expiration_minutes)
-    |> Enum.each(&GameStore.remove/1)
+    |> Enum.each(fn game ->
+      Logger.info("Deleting stale game. uuid=#{game.uuid}")
+      GameStore.remove(game)
+    end)
 
     :ok
   end

@@ -22,28 +22,25 @@
   </canvas>
 
   <%= for seatno <- [1, 3, 0, 2] do %>
-    <%= cond do %>
-      <% @show_wall -> %>
-        <.wall seatno={seatno} />
-      <% seatno == 0 -> %>
-        <.current_user_seat
-          seat={@current_user_seat}
-          current_user_drawing={@current_user_drawing}
-          win_declared_seatno={@win_declared_seatno}
-          current_user_seatno={@current_user_seatno}
-          current_user_discarding={@current_user_discarding}
-          available_discard_tile={@available_discard_tile}
-        />
-      <% true -> %>
-        <.opponent_seat
-          seatno={seatno}
-          seat={@relative_game_seats |> Enum.at(seatno)}
-          game={@game}
-          turn_glow_seatno={@turn_glow_seatno}
-          player_seats_finalized={@player_seats_finalized}
-          game_state={@game_state}
-        />
-    <% end %>
+    <.wall :if={@show_wall} seatno={seatno} />
+    <.current_user_seat
+      :if={!@show_wall && seatno == 0}
+      seat={@current_user_seat}
+      current_user_drawing={@current_user_drawing}
+      win_declared_seatno={@win_declared_seatno}
+      current_user_seatno={@current_user_seatno}
+      current_user_discarding={@current_user_discarding}
+      available_discard_tile={@available_discard_tile}
+    />
+    <.opponent_seat
+      :if={!@show_wall && seatno != 0}
+      seatno={seatno}
+      seat={@relative_game_seats |> Enum.at(seatno)}
+      game={@game}
+      turn_glow_seatno={@turn_glow_seatno}
+      player_seats_finalized={@player_seats_finalized}
+      game_state={@game_state}
+    />
   <% end %>
 
   <div
@@ -53,24 +50,15 @@
     phx-target="#game"
     class={"dglow-#{@available_discard_tile} discardedby-#{if @raw_event == :discarded, do: @discarded_by_relative_seatno} current-user-discarding-#{if @current_user_discarding, do: "t"} enable-pull-from-discards-#{if @available_discard_tile, do: "t"}"}
   >
-    <%= for tile <- Enum.reverse(@game.discards) do %>
-      <.tile id={tile} tile={tile} class="draggable" />
-    <% end %>
+    <.tile :for={tile <- Enum.reverse(@game.discards)} id={tile} tile={tile} class="draggable" />
   </div>
 
   <div class="gamelog">
-    <%= for {event, icon} <- @game.event_log do %>
-      <div class="event py-1 flex-grow">
-        <span class="desc align-middle"><%= event %></span>
-        <%= if icon do %>
-          <%= if Mjw.Games.Tile.tile_format?(icon) do %>
-            <.tile tile={icon} class="align-middle" />
-          <% else %>
-            <span class="icon text-xl align-middle"><%= icon %></span>
-          <% end %>
-        <% end %>
-      </div>
-    <% end %>
+    <div :for={{event, icon} <- @game.event_log} class="event py-1 flex-grow">
+      <span class="desc align-middle"><%= event %></span>
+      <.tile :if={icon && Mjw.Games.Tile.tile_format?(icon)} tile={icon} class="align-middle" />
+      <span :if={icon && !Mjw.Games.Tile.tile_format?(icon)} class="icon text-xl align-middle"><%= icon %></span>
+    </div>
   </div>
 
   <div id="table-center">
@@ -124,25 +112,18 @@
     phx-hook="Drag"
     phx-target="#game"
   >
-    <%= if @current_user_seat.peektile do %>
-      <.tile
-        id={@current_user_seat.peektile}
-        tile={@current_user_seat.peektile}
-        class="draggable"
-      />
-    <% else %>
-      <.concealed_tile class="tile cursor-pointer" phx-target="#game" phx-click="peek" />
-    <% end %>
+    <.tile
+      :if={@current_user_seat.peektile}
+      id={@current_user_seat.peektile}
+      tile={@current_user_seat.peektile}
+      class="draggable"
+    />
+    <.concealed_tile :if={!@current_user_seat.peektile} class="tile cursor-pointer" phx-target="#game" phx-click="peek" />
   </div>
 
   <div class="icons">
-    <%= if @winds_have_been_picked && @bots_present do %>
-      <%= if @game.pause_bots do %>
-        <div id="resumebots" phx-click="resumebots">Resume bots</div>
-      <% else %>
-        <div id="pausebots" phx-click="pausebots">Pause bots</div>
-      <% end %>
-    <% end %>
+    <div :if={@winds_have_been_picked && @bots_present && @game.pause_bots} id="resumebots" phx-click="resumebots">Resume bots</div>
+    <div :if={@winds_have_been_picked && @bots_present && !@game.pause_bots} id="pausebots" phx-click="pausebots">Pause bots</div>
     <div :if={@current_user_can_undo} id="undo" phx-click="undo">Undo</div>
     <div :if={@show_correction_tile} id="correctiontiles" phx-hook="Drag" class="dropzone">
       <.concealed_tile id="decktile" class="tile draggable" title="Gong correction tile" />

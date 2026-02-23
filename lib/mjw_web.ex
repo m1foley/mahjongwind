@@ -55,7 +55,6 @@ defmodule MjwWeb do
         layout: {MjwWeb.Layouts, :app}
 
       unquote(html_helpers())
-      import MjwWeb.LiveHelpers
     end
   end
 

@@ -2,21 +2,26 @@ defmodule MjwWeb.GameLive.Index do
   use MjwWeb, :live_view
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign_defaults(session)
-      |> subscribe_to_lobby_updates
-      |> fetch_games
+      |> subscribe_to_lobby_updates()
+      |> initialize_games_stream()
 
     {:ok, socket}
   end
 
-  # Simply reload all data on any type of change we're subscribed to. It would
-  # be more elegant to update a particular row when someone joins a game.
   @impl true
-  def handle_info({_game, _event}, socket) do
-    {:noreply, fetch_games(socket)}
+  def handle_info({game, :game_removed}, socket),
+    do: {:noreply, stream_delete(socket, :games, game)}
+
+  @impl true
+  def handle_info({game, _event}, socket) do
+    if Mjw.Games.Game.empty?(game) do
+      {:noreply, stream_delete(socket, :games, game)}
+    else
+      {:noreply, stream_insert(socket, :games, game)}
+    end
   end
 
   defp subscribe_to_lobby_updates(socket) do
@@ -24,9 +29,11 @@ defmodule MjwWeb.GameLive.Index do
     socket
   end
 
-  defp fetch_games(socket) do
+  defp initialize_games_stream(socket) do
     seated_games = MjwWeb.GameStore.all() |> Enum.reject(&Mjw.Games.Game.empty?/1)
 
-    assign(socket, :games, seated_games)
+    socket
+    |> stream(:games, seated_games, dom_id: &"join-#{&1.uuid}")
+    |> assign(:has_games, length(seated_games) > 0)
   end
 end
