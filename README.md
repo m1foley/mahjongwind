@@ -62,6 +62,7 @@ flyctl deploy --remote-only
 - Package info: `mix hex.info <package>`
 - Find security issues: `mix hex.audit`
   - Should be taken care of by Dependabot
+- Update a package: `mix deps.update <package>`
 
 ## Credo for static analysis
 
