@@ -56,6 +56,13 @@ To deploy manually:
 flyctl deploy --remote-only
 ```
 
+## Maintain dependencies
+
+- List outdated packages: `mix hex.outdated`
+- Package info: `mix hex.info <package>`
+- Find security issues: `mix hex.audit`
+  - Should be taken care of by Dependabot
+
 ## Credo for static analysis
 
 ```sh
