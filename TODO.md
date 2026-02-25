@@ -1,5 +1,6 @@
 # TODO
 
+- Add more buttons like Mahjongbuddy: "Roll" button instead of clicking on hand, "Discard" instead of drag & drop, etc
 - 2-click like chess.com instead of drag & drop. First click will pause other players.
 - Display everyone's wind direction instead of staircase
 - Change "Pause bots" to "Pause" to pause humans too. Allows time to pick tile.
