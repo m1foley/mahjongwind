@@ -14,7 +14,29 @@ Mahjong Wind is a multiplayer Hong Kong-style Mahjong web application built with
 - **esbuild** for JavaScript bundling
 - **Deployment**: Fly.io (auto-deploys from `main` branch)
 
+## Commands
+
+```bash
+mix setup          # Install deps and build assets (first-time setup)
+mix phx.server     # Start dev server at http://localhost:4000
+mix ecto.migrate   # Run database migrations
+mix test           # Run tests
+mix credo          # Static code analysis
+```
+
 ## Game Architecture
+
+### Module Structure
+- `lib/mjw/` - Domain logic (game engine, bot AI, persistence)
+- `lib/mjw_web/` - Web layer (LiveView, components, router, plugs)
+- `lib/mjw_web/stores/` - `GameStore` (persistence + PubSub broadcasts)
+
+### LiveView Pages
+- `GameLive.Index` (`/`) - Game lobby
+- `GameLive.Show` (`/games/:id`) - Active game board
+
+### Authentication
+Session-based only (no real user accounts). A UUID is auto-generated and stored in the browser session on first visit (`MjwWeb.Plugs.Authentication`).
 
 ### Game States (GameState module)
 The game progresses through these states:
@@ -37,16 +59,20 @@ The game progresses through these states:
 - LiveView subscribes to game-specific topics (`game:{id}`)
 - Lobby subscribes to `games` topic for new/removed games
 
+### Tile Naming Convention
+Tiles use short string IDs: `b1-b9` (bamboo), `c1-c9` (circles), `n1-n9` (numbers), `df`/`dp`/`dz` (dragons), `we`/`ws`/`ww`/`wn` (winds). Each tile gets a unique numeric suffix `0-3` (e.g., `dp-0` through `dp-3` for the 4 plate tiles).
+
 ### Bot System
 - `BotService` is a GenServer that queues delayed bot actions
 - Bots use `BotStrategy` for decision-making
 - Bots can be paused/resumed during gameplay
 
+### Stale Game Cleanup
+`StaleGameSweeper` is a GenServer that auto-deletes games inactive for 60+ minutes, running every 2 minutes.
+
 ## Testing
 
 Tests are in the `test/` mirroring the `lib/` structure. Any significant code changes require adding appropriate tests.
-
-To run tests, execute this command: `mix test`
 
 ## Frontend Notes
 
