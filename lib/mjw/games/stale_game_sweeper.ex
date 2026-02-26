@@ -12,24 +12,23 @@ defmodule Mjw.Games.StaleGameSweeper do
 
   import Ecto.Query
 
-  # Default expiration time (in minutes)
-  @default_expiration_minutes 60
+  # A stale game is when updated_at exceeds this age
+  @expiration_minutes 60
 
-  # How often to run the sweep (in milliseconds)
-  @sweep_interval_ms 120_000
+  # How often to run the sweep
+  @sweep_interval_ms :timer.minutes(5)
 
   # --- Client API ---
 
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   @doc """
-  Manually trigger a sweep. Deletes all games with updated_at older than
-  `expiration_minutes` minutes ago.
+  Manually trigger a sweep. Deletes all stale games.
   """
-  def sweep(expiration_minutes \\ @default_expiration_minutes) do
-    stale_games(expiration_minutes)
+  def sweep do
+    stale_games()
     |> Enum.each(fn game ->
       Logger.info("Deleting stale game. uuid=#{game.uuid}")
       GameStore.remove(game)
@@ -39,10 +38,10 @@ defmodule Mjw.Games.StaleGameSweeper do
   end
 
   @doc """
-  Returns all stale games (updated_at older than `expiration_minutes` minutes ago).
+  Returns all stale games, based on updated_at age
   """
-  def stale_games(expiration_minutes \\ @default_expiration_minutes) do
-    cutoff = DateTime.utc_now() |> DateTime.add(-expiration_minutes * 60, :second)
+  def stale_games do
+    cutoff = DateTime.utc_now() |> DateTime.add(-@expiration_minutes, :minute)
 
     from(g in GameRecord, where: g.updated_at < ^cutoff)
     |> Repo.all()
@@ -52,24 +51,19 @@ defmodule Mjw.Games.StaleGameSweeper do
   # --- Server Callbacks ---
 
   @impl true
-  def init(opts) do
-    expiration_minutes = Keyword.get(opts, :expiration_minutes, @default_expiration_minutes)
-    sweep_interval_ms = Keyword.get(opts, :sweep_interval_ms, @sweep_interval_ms)
-
-    # Schedule the first sweep
-    schedule_sweep(sweep_interval_ms)
-
-    {:ok, %{expiration_minutes: expiration_minutes, sweep_interval_ms: sweep_interval_ms}}
+  def init([]) do
+    schedule_sweep()
+    {:ok, []}
   end
 
   @impl true
   def handle_info(:sweep, state) do
-    sweep(state.expiration_minutes)
-    schedule_sweep(state.sweep_interval_ms)
+    sweep()
+    schedule_sweep()
     {:noreply, state}
   end
 
-  defp schedule_sweep(interval_ms) do
-    Process.send_after(self(), :sweep, interval_ms)
+  defp schedule_sweep do
+    Process.send_after(self(), :sweep, @sweep_interval_ms)
   end
 end
