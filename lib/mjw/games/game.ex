@@ -23,13 +23,14 @@ defmodule Mjw.Games.Game do
     "Durian 🤖",
     "Goji 🤖",
     "Guava 🤖",
-    "Wax Apple 🤖",
+    "Jackfruit 🤖",
     "Lychee 🤖",
     "Papaya 🤖",
     "Passionfruit 🤖",
     "Persimmon 🤖",
     "Pomelo 🤖",
     "Taro 🤖"
+    "Wax Apple 🤖",
   ]
 
   # Valid values for turn_state field
