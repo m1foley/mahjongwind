@@ -17,9 +17,10 @@ Mahjong Wind is a multiplayer Hong Kong-style Mahjong web application built with
 ## Commands
 
 ```bash
-mix setup          # Install deps and build assets (first-time setup)
-mix phx.server     # Start dev server at http://localhost:4000
+mix setup                      # Install deps, create DB, run migrations, and build assets (first-time setup)
+MIX_ENV=test mix ecto.setup    # Create and migrate the test database (also required on first-time setup)
 mix ecto.migrate   # Run database migrations
+mix phx.server     # Start dev server at http://localhost:4000
 mix test           # Run tests
 mix credo          # Static code analysis
 ```

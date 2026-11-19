@@ -4,7 +4,8 @@ Play mahjong with your friends online!
 
 ## Quick setup
 
-- Install dependencies: `mix setup`
+- Install dependencies, create DB, run migrations, and build assets: `mix setup`
+- Create and migrate the test database: `MIX_ENV=test mix ecto.setup`
 - Run tests: `mix test`
 - Start server: `mix phx.server`
 - Visit <http://localhost:4000>
@@ -13,6 +14,7 @@ Play mahjong with your friends online!
 
 ```sh
 mix setup
+MIX_ENV=test mix ecto.setup
 ```
 
 ## Run server
